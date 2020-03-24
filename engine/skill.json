@@ -1,0 +1,77 @@
+{
+    "name": "Kiba Inuzuka",
+    "facepic": "1.jpg",
+    "energy": 100,
+    "health": 100,
+    "description": "Yo im kiba",
+    "skills": [
+        {
+            "name": "Fang Over Fang",
+            "description": "Deals 20 damage to one enemy",
+            "target": "oneEnemy",
+            "flags":{},
+            "cooldown": 0,
+            "startCooldown": 0,
+            "baseCooldown": 0,
+            "effects": [
+                {
+                    "value": 20,
+                    "target": "onTarget",
+                    "trigger": "onHit"
+                }
+            ]
+        },
+        {
+            "name": "Frenzied Fang Over Fang",
+            "description": "Deals 40 damage to one random enemy",
+            "target": "oneEnemy",
+            "flags":{},
+            "cooldown": 1,
+            "startCooldown": 0,
+            "baseCooldown": 1,
+            "effects": [
+                {
+                    "value": 40,
+                    "target": "onTarget",
+                    "trigger": "onHit"
+                }
+            ]
+        },
+        {
+            "name": "Double Headed Wolf",
+            "description": "Kiba targets one enemy and deals 50 damage to them and 20 damage to all others",
+            "target": "oneEnemy",
+            "flags":{},
+            "cooldown": 0,
+            "startCooldown": 0,
+            "baseCooldown": 0,
+            "effects": [
+                {
+                    "type": "damage",
+                    "value": 50,
+                    "target": "onTarget",
+                    "trigger": "onHit"
+                },
+                {
+                    "type": "damage",
+                    "value": 20,
+                    "target": "onRemainingTargets",
+                    "trigger": "onHit"
+                }
+            ]
+        },
+        {
+            "name": "Kiba Hide",
+            "description": "This skill does nothing",
+            "target": "self",
+            "flags":{},
+            "cooldown": 4,
+            "startCooldown": 0,
+            "baseCooldown": 4,
+            "effects": [
+                {
+                }
+            ]
+        }
+    ]
+}
