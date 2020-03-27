@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser') 
 const express = require('express')
+const fileUpload = require('express-fileupload');
 const cors = require('cors')
 
 module.exports.router = function(){
@@ -8,6 +9,7 @@ module.exports.router = function(){
     app.use(express.static('public'))
     app.use(bodyParser.urlencoded({ extended: false }))
     app.use(bodyParser.json())
+    app.use(fileUpload())
     app.use(cors())
     return app
 }
