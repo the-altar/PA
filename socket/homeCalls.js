@@ -31,7 +31,7 @@ module.exports = function (socket, CharModel, GM) {
         active.clearCooldown(executioners)
         active.replenishEnergy(executioners)
         active.removeEmptyEffects()
-        
+
         clearTimeout(active.timeOut)
 
         active.myturn = false

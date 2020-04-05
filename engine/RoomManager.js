@@ -1,4 +1,4 @@
-const GameRoom = require('./game');
+const GameRoom = require('./GameRoom');
 
 module.exports = class GameManager {
     constructor(playerId) {

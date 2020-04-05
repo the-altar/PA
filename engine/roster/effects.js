@@ -1,21 +1,4 @@
-function checkDD(activeEffects, skill){
-    for(const key in activeEffects){
-        if(activeEffects[key].destructibleDefense !== undefined){
-            for(const i in activeEffects[key].destructibleDefense){
-                let dd = activeEffects[key].destructibleDefense[i] 
-                dd.value = dd.value - skill.value 
-
-                if(dd.value >= 0) {
-                    return 0
-                } else {
-                    activeEffects[key].destructibleDefense.splice(i, 1)
-                    return (-1)*(dd.value)
-                }
-            }
-        }
-    }
-    return skill.value
-}
+const helpers = require('./utils')
 
 module.exports = class Effect {
 
@@ -26,11 +9,14 @@ module.exports = class Effect {
     }
     
     damage(target, skill) {
-        target.health = target.health - checkDD(target.activeEffects, this)
+        const damage = helpers.checkDD(target.activeEffects, this)
+        target.health = target.health - damage
+        if(target.health < 0) target.health = 0
     }
 
     healing(target, skill) {
         target.health = target.health + this.value
+        if (target.health > 100) target.health = 100
     }
 
     stun(target, skill) {

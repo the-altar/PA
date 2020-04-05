@@ -1,19 +1,5 @@
 const Character = require('./roster/character')
-
-function removeEffect(char) {
-    for (const key in char.activeEffects) {
-        for (const effect in char.activeEffects[key]) {
-            if (char.activeEffects[key][effect].length === 0) {
-                delete char.activeEffects[key][effect]
-                break
-            }
-        }
-        if (Object.keys(char.activeEffects[key]).length === 1) {
-            delete char.activeEffects[key]
-            break
-        }
-    }
-}
+const helpers = require('./helpers')
 
 module.exports = class PlayerGame {
     constructor(player, enemy, myturn) {
@@ -102,10 +88,10 @@ module.exports = class PlayerGame {
 
     removeEmptyEffects() {
         for (const i in this.team) {
-            removeEffect(this.team[i])
+            helpers.removeEffects(this.team[i])
         }
         for (const i2 in this.enemyTeam){
-            removeEffect(this.enemyTeam[i2])
+            helpers.removeEffects(this.enemyTeam[i2])
         }
     }
 
