@@ -23,12 +23,15 @@ module.exports = function (socket, CharModel, GM) {
     })
 
     socket.on("endTurn", function(instructions){
-        
+
         const passive = GM.inGamePlayer[GM.inGamePlayer[socket.user].opponent]
         const active = GM.inGamePlayer[socket.user]
-
-        active.executeInstructions(instructions)
-
+        const executioners  = active.executeInstructions(instructions)
+        
+        active.clearCooldown(executioners)
+        active.replenishEnergy(executioners)
+        active.removeEmptyEffects()
+        
         clearTimeout(active.timeOut)
 
         active.myturn = false

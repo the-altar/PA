@@ -45,16 +45,15 @@ module.exports = class GameManager {
             if (players.length > 1) {
                 const p1 = players.pop()
                 const p2 = players.pop()
-                that.inGamePlayer[p1] = new GameRoom(that.playerList[p1], that.playerList[p2], true, function () {
-                    that.inGamePlayer[p2] = new GameRoom(that.playerList[p2], that.playerList[p1], false, function () {
-                        that.inGamePlayer[p1].enemyTeam = that.inGamePlayer[p2].team
-                        that.inGamePlayer[p2].enemyTeam = that.inGamePlayer[p1].team
+                that.inGamePlayer[p1] = new GameRoom(that.playerList[p1], that.playerList[p2], true)
+                that.inGamePlayer[p2] = new GameRoom(that.playerList[p2], that.playerList[p1], false)
 
-                        that.inGamePlayer[p2].connection.emit("startGame", that.inGamePlayer[p1].getGameStatus())
-                        that.inGamePlayer[p1].connection.emit("startGame", that.inGamePlayer[p1].getGameStatus())
-                        that.inGamePlayer[p1].startCountDown(that.inGamePlayer[p2])
-                    })
-                })
+                that.inGamePlayer[p1].enemyTeam = that.inGamePlayer[p2].team
+                that.inGamePlayer[p2].enemyTeam = that.inGamePlayer[p1].team
+
+                that.inGamePlayer[p2].connection.emit("startGame", that.inGamePlayer[p2].getGameStatus())
+                that.inGamePlayer[p1].connection.emit("startGame", that.inGamePlayer[p1].getGameStatus())
+                that.inGamePlayer[p1].startCountDown(that.inGamePlayer[p2])
             }
             if (players.length === 0) {
                 clearInterval(that.isBusy)

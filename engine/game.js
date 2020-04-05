@@ -1,8 +1,22 @@
 const Character = require('./roster/character')
-const CharModel = require('../model').Character
+
+function removeEffect(char) {
+    for (const key in char.activeEffects) {
+        for (const effect in char.activeEffects[key]) {
+            if (char.activeEffects[key][effect].length === 0) {
+                delete char.activeEffects[key][effect]
+                break
+            }
+        }
+        if (Object.keys(char.activeEffects[key]).length === 1) {
+            delete char.activeEffects[key]
+            break
+        }
+    }
+}
 
 module.exports = class PlayerGame {
-    constructor(player, enemy, myturn, callback) {
+    constructor(player, enemy, myturn) {
         this.team = []
         this.opponent = enemy.id
         this.enemyTeam = []
@@ -10,16 +24,9 @@ module.exports = class PlayerGame {
         this.myturn = myturn
         this.timeOut = false
 
-        CharModel.find().where('_id').in(player.characters).exec((err, records) => {
-            if (err) {
-                console.log(err)
-                return
-            }
-            for (const i in records) {
-                this.team.push(new Character(records[i]))
-            }
-            callback()
-        })
+        for (const i in player.characters) {
+            this.team.push(new Character(player.characters[i]))
+        }
     }
 
     getGameStatus() {
@@ -45,23 +52,73 @@ module.exports = class PlayerGame {
     }
 
     executeInstructions(instructions) {
+        const turnCaster = {}
+        let skillsUsed = {}
         for (const index in instructions) {
+
             const targets = instructions[index].targets
             let foes = []
-            for(const t in targets){
+            for (const t in targets) {
                 foes.push(this.findChar(targets[t].target, targets[t].position))
             }
 
             const caster = this.findChar(instructions[index].caster, instructions[index].position)
-            const skill = caster.skills[instructions[index].skillIndex]
+            const skill = caster.char.skills[instructions[index].skillIndex]
 
             skill.execute(foes)
-            caster.energy -= skill.cost 
+
+            skill.cooldown = skill.baseCooldown
+            caster.char.energy -= skill.cost
+            skillsUsed[skill.id] = skill
+            turnCaster[caster.char.id] = (turnCaster[caster.char.id] || 0) + 1
+        }
+
+        return {
+            executioners: turnCaster,
+            skillsUsed: skillsUsed
+        }
+    }
+
+    clearCooldown(turn) {
+        for (const i in this.team) {
+            const skills = this.team[i].skills
+            for (const index in skills) {
+                if (turn.skillsUsed[skills[index].id] === undefined) {
+                    if (skills[index].cooldown > 0) skills[index].cooldown -= 1
+                }
+            }
+        }
+    }
+
+    replenishEnergy(turn) {
+        for (const i in this.team) {
+            if (turn.executioners[this.team[i].id] !== undefined) continue
+            else {
+                this.team[i].energy += 10
+                if (this.team[i].energy > 100) this.team[i].energy = 100
+            }
+        }
+    }
+
+    removeEmptyEffects() {
+        for (const i in this.team) {
+            removeEffect(this.team[i])
+        }
+        for (const i2 in this.enemyTeam){
+            removeEffect(this.enemyTeam[i2])
         }
     }
 
     findChar(target, pos) {
-        if (this.team[pos].id == target) return this.team[pos]
-        else return this.enemyTeam[pos]
+        if (this.team[pos].id == target) {
+            return {
+                char: this.team[pos],
+                isEnemy: false
+            }
+        }
+        else return {
+            char: this.enemyTeam[pos],
+            isEnemy: true
+        }
     }
 }   

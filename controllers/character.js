@@ -2,6 +2,8 @@ const CharDB = require("../model/index").Character
 const path = require('path')
 
 exports.createNewChar = (req, res) => {
+    
+    console.log(req.body)
     CharDB.create(req.body, function (err, doc) {
         if (err) {
             console.log(err)

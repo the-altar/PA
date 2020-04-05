@@ -1,5 +1,5 @@
 const Skill = require('./skills')
-const uniqid = require('uniqid');
+const uniqid = require('uniqid')
 
 module.exports = class Character {
     constructor(character){
@@ -9,6 +9,7 @@ module.exports = class Character {
         this.name = character.name
         this.description = character.description
         this.facepic = character.facepic
+        this.activeEffects = {}
         this.skills = []
         for(const skill in character.skills){
             this.skills.push(new Skill(character.skills[skill]))
