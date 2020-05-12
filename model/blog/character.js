@@ -6,13 +6,12 @@ const CharacterSchema = Schema({
     "name": {
         "type": String
     },
+    "banner": String,
     "releaseStatus":Boolean,
     "facepic": {
         "type": String
     },
-    "skillPoints": {
-        "type": Number
-    },
+    "energyGain": [],
     "hitPoints": {
         "type": Number
     },

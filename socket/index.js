@@ -1,14 +1,17 @@
-const GManager = require('../engine/RoomManager')
-const CharModel = require("../model").Character
+const charDB = require('../model/index').Character
 
 module.exports = function (server) {
-    
-    const GM = new GManager()
-
     const io = require('socket.io')(server)
-
-    io.on('connection', function (socket) {
-        require('./homeCalls')(socket, CharModel, GM)
+    io.on('connection', client => {
+        
+        client.on('REQUEST_ROSTER', function(){
+            charDB.find({}, function(err, docs){
+                if(err){
+                    console.log("something went wrong")
+                    return
+                }
+                client.emit("sent_roster", docs)
+            })
+        })
     })
-
 }
