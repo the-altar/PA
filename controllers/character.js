@@ -28,7 +28,8 @@ exports.delete = (req, res) => {
     const char = req.body
     let pics = char.skills.map(s=> {return s.skillpic} )
     pics.push(char.facepic)
-
+    pics.push(char.banner)
+    
     pics.forEach(pic=>{
         const p = path.join(__dirname, '..', '/public/img/game/', pic + ".jpg")
         fs.unlink(p, function(){
