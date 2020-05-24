@@ -11,6 +11,7 @@ const CharacterSchema = Schema({
     "facepic": {
         "type": String
     },
+    "type": {},
     "energyGain": [],
     "hitPoints": {
         "type": Number
