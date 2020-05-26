@@ -9,13 +9,15 @@ module.exports = function(callback) {
     mongoose.connect(mongoUri, {
         useUnifiedTopology: true,
         useNewUrlParser: true,
+        useCreateIndex: true,
+        useFindAndModify: false
     })
         .then(() => {
             console.log('DB Connected!')
             callback()
         })
         .catch(err => {
-            console.log(`DB Connection Error: ${err.message}`);
+            console.log(err);
         });
 }
 

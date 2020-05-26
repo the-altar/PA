@@ -1,7 +1,4 @@
-const rootController = require("../controllers/root")
-
 module.exports = function(app){
-    app.get("/", rootController.default)
+    app.get("/", (req, res) => {res.send("OK")})
     require('./nested/character')(app)
-    require('./nested/game')(app)
 }
