@@ -20,5 +20,5 @@ exports.GetAllPlayers = function(){
 }
 
 exports.UpdateIngameStatus = function(playerIDs, status){
-    return PlayerListDB.updateMany({_id: {$in:[playerIDs]}}, {inGame:true}).exec()
+    return PlayerListDB.updateMany({_id: {$in:playerIDs}}, {inGame:true}).exec()
 }

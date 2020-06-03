@@ -1,4 +1,5 @@
-module.exports = function(app){
-    app.get("/", (req, res) => {res.send("OK")})
+module.exports = function (app) {
+    require("./nested/root")(app)
+    require('./nested/game')(app)
     require('./nested/character')(app)
 }

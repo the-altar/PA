@@ -51,9 +51,9 @@ exports.getAll = (req, res) => {
     CharDB.find({}, function (err, docs) {
         if (err) {
             console.log(err)
-            return res.json({ code: 0 })
+            return res.json(false)
         }
-        return res.json({ code: 0, docs: docs })
+        return res.json(docs)
     })
 }
 
