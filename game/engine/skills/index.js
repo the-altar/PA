@@ -9,6 +9,7 @@ class Skill {
         this.startCooldown = data.startCooldown
         this.baseCooldown = data.baseCooldown
         this.type = data.type
+        this.limit = data.limit
 
         //console.log(data.effects)
     }
@@ -46,6 +47,12 @@ class Skill {
     }
     setType(type){
         this.type = type
+    }
+    getLimit(){
+        return this.limit
+    }
+    setLimit(limit){
+        this.limit = limit
     }
 }
 
