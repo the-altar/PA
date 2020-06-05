@@ -9,7 +9,10 @@ module.exports = class ClientManager {
         }
     }
     getClientById(id){
-        return this.clientList[id]
+        return {
+            username: this.clientList[id].username,
+            avatarId: this.clientList[id].avatarId
+        }
     }
     getAllClients(){
         return this.clientList

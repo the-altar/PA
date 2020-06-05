@@ -10,8 +10,9 @@ module.exports = class extends colyseus.Room {
      
     // when room is initialized
     onCreate(options) {
-        this.onMessage("chat", (client, message) => {
-            console.log(`message from client: ${message}`)
+        this.onMessage("message", (client, message) => {
+            const c = this.manager.getClientById(client.sessionId)     
+            this.broadcast("message", {content: message, sender: c})
         });
     }
     // Authorize client based on provided options before WebSocket handshake is complete
