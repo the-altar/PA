@@ -1,7 +1,7 @@
 const Skill = require('../skills')
 
 module.exports = class Character {
-    constructor(data, owner){
+    constructor(data, playerId){
         this.name = data.name
         this.facepic = data.facepic
         this.description = data.description 
@@ -9,7 +9,7 @@ module.exports = class Character {
         this.type = data.types
         this.energyGain = data.energyGain 
         this.skills = []
-        this.ownership = owner
+        this.belongs = playerId
         for(const skill of data.skills){
             this.skills.push(new Skill(skill)) 
         }

@@ -1,11 +1,8 @@
 const colyseus = require('colyseus')
-const clientManager = require('./clientManager')
+const clientManager = require('../manager')
 
 module.exports = class extends colyseus.Room {
-    numClientsToMatch = 2
-    roomToCreate = "battle"
-    maxWaitingTime = 6
-    evaluateGroupInterval = 0
+
     manager = new clientManager()
      
     // when room is initialized
@@ -25,7 +22,7 @@ module.exports = class extends colyseus.Room {
         this.broadcast("joined", this.manager.getAllClients())
     }
     // When a client leaves the room
-    async onLeave(client, consented) {
+    onLeave(client, consented) {
         this.manager.removeClientById(client.sessionId)
         this.broadcast("left", this.manager.getAllClients())
     }
