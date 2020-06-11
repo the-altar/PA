@@ -5,26 +5,35 @@ module.exports = class extends colyseus.Room {
     constructed = 0
     evaluateGroupInterval = 60000
 
-    onCreate(options){
-        this.onMessage('start-game-data', (client, payload)=>{
+    onCreate(options) {
+        this.onMessage('start-game-data', (client, payload) => {
             this.arena.addPlayer(payload)
             this.constructed++
-            if(this.constructed === 2){
+            if (this.constructed === 2) {
                 this.broadcast("game-started", this.arena.startGame())
-                
-                this.setSimulationInterval(async ()=>{
+
+                this.clock.setInterval(() => {
                     this.broadcast("start-new-turn", this.arena.startGame())
                 }, this.evaluateGroupInterval)
+
             }
         })
 
-        
+        this.onMessage('end-game-turn', (client, payload) => {
+            console.log("I AM HERE")
+            this.clock.stop()
+            this.broadcast("start-new-turn", this.arena.startGame())
+            this.clock.setInterval(() => {
+                this.broadcast("start-new-turn", this.arena.startGame())
+            }, this.evaluateGroupInterval)
+        })
+
     }
-    onAuth(client, options, request){
+    onAuth(client, options, request) {
         return true
     }
-    onJoin(client, options){
+    onJoin(client, options) {
         this.broadcast('joined', this.clients.length)
     }
-    onLeave(client, consented){}
+    onLeave(client, consented) { }
 }
