@@ -2,6 +2,12 @@ import http from "http";
 import { Room, Client, Delayed } from "colyseus";
 import {Arena, iPlayer, iCharacter} from "../engine"
 
+interface iSkillCordinates {
+    target?:number
+    caster:number
+    skill:number
+}
+
 interface iRegister {
     player:iPlayer,
     team:Array<iCharacter>
@@ -33,7 +39,19 @@ export class Battle extends Room {
 
         this.onMessage('end-game-turn', (client:Client, payload:any) => {
             this.delay.reset()
+            this.arena.processTurn(payload)
+            this.arena.executeSkills()
             this.broadcast("start-new-turn", this.arena.startGame())
+        })
+
+        this.onMessage('add-skill-to-queue', (client:Client, cordinates:iSkillCordinates) => {
+            const payload = this.arena.addSkillToTempQueue(cordinates)
+            client.send('update-temp-queue', payload)
+        })
+
+        this.onMessage('remove-skill-from-queue', (client:Client, cordinates:iSkillCordinates)=>{
+            const payload = this.arena.removeSkillFromTempQueue(cordinates)
+            client.send('update-temp-queue', payload)
         })
     }
 

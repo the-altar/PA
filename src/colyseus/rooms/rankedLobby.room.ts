@@ -3,35 +3,43 @@ import { Room, Client, matchMaker } from "colyseus";
 
 export interface iClient {
     elo: number,
-    connection?: Client
+    pid:string,
+    connection?: Client,
 }
 
 
 class ClientManager {
     private clientList: {[key:string]:iClient}
+    private onlineList: {[key:string]:boolean}
 
     constructor() {
         this.clientList = {}
+        this.onlineList = {}
+    }
+
+    isClientConnected(pid:string):boolean {
+        if(this.onlineList[pid] !== undefined ) return true
+        return false 
     }
 
     public addClient(id: string, client: iClient, connection: Client): void {
         this.clientList[id] = {
-            elo: 0,
-            connection: null
+            elo: client.elo,
+            connection: connection,
+            pid:client.pid
         } 
-        this.clientList[id].elo = client.elo
-        this.clientList[id].connection = connection
+        this.onlineList[client.pid] =  true
     }
 
-    public getClientConnectionById(id: string): iClient {
+    public getClientConnectionBySessionId(id: string): iClient {
         return this.clientList[id]
     }
 
-    public getAllClientsId(): Array<string> {
+    public getAllClientsSessionId(): Array<string> {
         return Object.keys(this.clientList)
     }
 
-    public getClientById(id: string): iClient {
+    public getClientBySessionId(id: string): iClient {
         return {
             ...this.clientList[id]
         }
@@ -41,11 +49,13 @@ class ClientManager {
         return this.clientList
     }
 
-    public removeClientById(id: string): void {
+    public removeClientBySessionId(id: string): void {
+        const pid = this.clientList[id].pid
+        delete this.onlineList[pid]
         delete this.clientList[id]
     }
 
-    public count(): number {
+    public countPlayersOnline(): number {
         return Object.keys(this.clientList).length
     }
 
@@ -83,6 +93,7 @@ export class RankedLobby extends Room {
 
     // Authorize client based on provided options before WebSocket handshake is complete
     onAuth(client: Client, options: any, request: http.IncomingMessage): boolean {
+        if(this.manager.isClientConnected(options.pid)) return false
         return true
     }
 
@@ -93,6 +104,6 @@ export class RankedLobby extends Room {
 
     // When a client leaves the room
     onLeave(client: Client, consented: boolean) {
-        this.manager.removeClientById(client.sessionId)
+        this.manager.removeClientBySessionId(client.sessionId)
     }
 }

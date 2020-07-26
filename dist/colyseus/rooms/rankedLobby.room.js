@@ -14,31 +14,39 @@ const colyseus_1 = require("colyseus");
 class ClientManager {
     constructor() {
         this.clientList = {};
+        this.onlineList = {};
+    }
+    isClientConnected(pid) {
+        if (this.onlineList[pid] !== undefined)
+            return true;
+        return false;
     }
     addClient(id, client, connection) {
         this.clientList[id] = {
-            elo: 0,
-            connection: null
+            elo: client.elo,
+            connection: connection,
+            pid: client.pid
         };
-        this.clientList[id].elo = client.elo;
-        this.clientList[id].connection = connection;
+        this.onlineList[client.pid] = true;
     }
-    getClientConnectionById(id) {
+    getClientConnectionBySessionId(id) {
         return this.clientList[id];
     }
-    getAllClientsId() {
+    getAllClientsSessionId() {
         return Object.keys(this.clientList);
     }
-    getClientById(id) {
+    getClientBySessionId(id) {
         return Object.assign({}, this.clientList[id]);
     }
     getAllClients() {
         return this.clientList;
     }
-    removeClientById(id) {
+    removeClientBySessionId(id) {
+        const pid = this.clientList[id].pid;
+        delete this.onlineList[pid];
         delete this.clientList[id];
     }
-    count() {
+    countPlayersOnline() {
         return Object.keys(this.clientList).length;
     }
     getRankedMap() {
@@ -76,6 +84,8 @@ class RankedLobby extends colyseus_1.Room {
     }
     // Authorize client based on provided options before WebSocket handshake is complete
     onAuth(client, options, request) {
+        if (this.manager.isClientConnected(options.pid))
+            return false;
         return true;
     }
     // When client successfully join the room
@@ -84,7 +94,7 @@ class RankedLobby extends colyseus_1.Room {
     }
     // When a client leaves the room
     onLeave(client, consented) {
-        this.manager.removeClientById(client.sessionId);
+        this.manager.removeClientBySessionId(client.sessionId);
     }
 }
 exports.RankedLobby = RankedLobby;

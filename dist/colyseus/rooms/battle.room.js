@@ -24,7 +24,17 @@ class Battle extends colyseus_1.Room {
         });
         this.onMessage('end-game-turn', (client, payload) => {
             this.delay.reset();
+            this.arena.processTurn(payload);
+            this.arena.executeSkills();
             this.broadcast("start-new-turn", this.arena.startGame());
+        });
+        this.onMessage('add-skill-to-queue', (client, cordinates) => {
+            const payload = this.arena.addSkillToTempQueue(cordinates);
+            client.send('update-temp-queue', payload);
+        });
+        this.onMessage('remove-skill-from-queue', (client, cordinates) => {
+            const payload = this.arena.removeSkillFromTempQueue(cordinates);
+            client.send('update-temp-queue', payload);
         });
     }
     // Authorize client based on provided options before WebSocket handshake is complete
