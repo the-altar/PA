@@ -29,7 +29,6 @@ class Skill {
         return this.disabled;
     }
     validateCost(energyPool) {
-        this.disabled = false;
         energyPool[4] = energyPool.slice(0, 4).reduce((ca, cv) => ca + cv);
         let totalCost = this.cost.reduce((ca, cv) => ca + cv);
         for (let i = 0; i <= 4; i++) {
@@ -42,6 +41,9 @@ class Skill {
             this.disabled = true;
             return;
         }
+    }
+    enable() {
+        this.disabled = false;
     }
     lowerCooldown() {
         if (this.cooldown > 0)
@@ -76,14 +78,14 @@ class Skill {
         }
         return t;
     }
-    validateCoolDowns() {
+    validateCoolDown() {
         if (this.cooldown > 0) {
             this.disabled = true;
             return;
         }
     }
     setTargetChoices(characters, playerId, self) {
-        this.targetChoices = targetValidationFactory_1.targetSetter(this.target, characters, playerId, self);
+        this.targetChoices = targetValidationFactory_1.targetSetter(this, this.target, characters, playerId, self);
     }
     getTargetChoices() {
         return this.targetChoices;
@@ -94,7 +96,10 @@ class Skill {
     getTargets() {
         return this.targets;
     }
-    executeEffects(skillList) {
+    getTypes() {
+        return Object.keys(this.type);
+    }
+    executeEffects(world) {
         let notExecuted = 0;
         let onExpiration = 0;
         for (let i = this.effects.length - 1; i >= 0; i--) {
@@ -106,14 +111,14 @@ class Skill {
                 }
                 continue;
             }
-            const isDone = this.effects[i].execute(this.targets, skillList);
+            const isDone = this.effects[i].execute(this.targets, world, this.type);
             if (isDone) {
                 this.effects.splice(i, 1);
             }
         }
         if (this.effects.length === onExpiration) {
             for (let i = this.effects.length - 1; i >= 0; i--) {
-                const isDone = this.effects[i].execute(this.targets, skillList);
+                const isDone = this.effects[i].execute(this.targets, world, this.type);
                 if (isDone) {
                     this.effects.splice(i, 1);
                 }
@@ -125,6 +130,25 @@ class Skill {
     }
     getCost() {
         return this.cost;
+    }
+    getSkillEffectsActivation() {
+        let checker = {};
+        for (const effect of this.effects) {
+            checker[effect.getActivationType()] = effect.getActivationType();
+        }
+        return checker;
+    }
+    areTargetsValidated() {
+        for (let i = this.targets.length - 1; i >= 0; i--) {
+            const c = this.targets[i];
+            if (c.isKnockedOut()) {
+                this.targets.splice(i, 1);
+                continue;
+            }
+        }
+        if (this.targets.length === 0)
+            return false;
+        return true;
     }
 }
 exports.Skill = Skill;

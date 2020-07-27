@@ -15,7 +15,7 @@ class Damage extends baseEffect_1.Effect {
     getDamageType() {
         return this.damageType;
     }
-    execute(targets, skillList) {
+    execute(targets, world, skillType) {
         this.tick++;
         if (this.tick % 2 === 0)
             return false;
@@ -27,22 +27,19 @@ class Damage extends baseEffect_1.Effect {
             case enums_1.effectTargetBehavior.Default:
                 {
                     for (const char of targets) {
-                        const hp = char.geHitPoints() - this.damage_value;
-                        char.setHitPoints(hp);
+                        dealDamage(this.damage_value, skillType, char, this.calculateDamageBonus);
                     }
                 }
                 break;
             case enums_1.effectTargetBehavior.OnlyOne:
                 {
-                    const hp = targets[0].geHitPoints() - this.damage_value;
-                    targets[0].setHitPoints(hp);
+                    dealDamage(this.damage_value, skillType, targets[0], this.calculateDamageBonus);
                 }
                 break;
             case enums_1.effectTargetBehavior.AllOthers:
                 {
                     for (const char of targets.slice(1, targets.length)) {
-                        const hp = char.geHitPoints() - this.damage_value;
-                        char.setHitPoints(hp);
+                        dealDamage(this.damage_value, skillType, char, this.calculateDamageBonus);
                     }
                 }
                 break;
@@ -53,4 +50,11 @@ class Damage extends baseEffect_1.Effect {
     }
 }
 exports.Damage = Damage;
+function dealDamage(value, skillType, char, bonus) {
+    let damage = value * bonus(skillType, char);
+    if (damage < 0)
+        damage = 0;
+    const hp = char.geHitPoints() - Math.round(damage / 5) * 5;
+    char.setHitPoints(hp);
+}
 //# sourceMappingURL=damage.js.map

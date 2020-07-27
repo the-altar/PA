@@ -1,0 +1,163 @@
+import { Types } from "../enums"
+
+const chart:{[x:string]:{[x:string]:number}} = {
+    [Types.Normal]: {
+        [Types.Fighting]:2,
+        [Types.Ghost]:0.5
+    },
+    [Types.Fire]:{
+        [Types.Steel]: 0.5,
+        [Types.Fire]: 0.5,
+        [Types.Grass]: 0.5,
+        [Types.Bug]:0.5,
+        [Types.Fairy]:0.5,
+        [Types.Ice]:0.5,
+        [Types.Water]:2,
+        [Types.Rock]:2,
+        [Types.Ground]:2
+    },
+    [Types.Water]: {
+        [Types.Fire]:0.5,
+        [Types.Water]:0.5,
+        [Types.Ice]:0.5,
+        [Types.Steel]:0.5,
+        [Types.Electric]:2,
+        [Types.Grass]:2 
+    },
+    [Types.Electric]:{
+        [Types.Electric]:0.5,
+        [Types.Steel]:0.5,
+        [Types.Flying]:0.5,
+        [Types.Ground]:0.5
+    },
+    [Types.Grass]:{
+        [Types.Grass]:0.5,
+        [Types.Water]:0.5,
+        [Types.Ground]:0.5,
+        [Types.Electric]:0.5,
+        [Types.Fire]:2,
+        [Types.Poison]:2,
+        [Types.Ice]:2,
+        [Types.Bug]:2,
+        [Types.Flying]:2
+    },
+    [Types.Ice]:{
+        [Types.Ice]:0.5,
+        [Types.Fire]:2,
+        [Types.Fighting]:2,
+        [Types.Rock]:2,
+        [Types.Steel]:2,
+    }, 
+    [Types.Fighting]:{
+        [Types.Bug]:0.5,
+        [Types.Rock]:0.5,
+        [Types.Dark]:0.5,
+        [Types.Psychic]:2,
+        [Types.Fairy]:2,
+        [Types.Flying]:2
+    },
+    [Types.Poison]:{
+        [Types.Poison]:0.5,
+        [Types.Grass]:0.5,
+        [Types.Fighting]:0.5,
+        [Types.Bug]:0.5,
+        [Types.Psychic]:2,
+        [Types.Ground]:2
+    },
+    [Types.Ground]:{
+        [Types.Rock]:0.5,
+        [Types.Poison]:0.5,
+        [Types.Electric]:0.5,
+        [Types.Water]:2,
+        [Types.Grass]:2,
+        [Types.Ice]:2
+    },
+    [Types.Flying]:{
+        [Types.Fighting]:0.5,
+        [Types.Grass]:0.5,
+        [Types.Bug]:0.5,
+        [Types.Ground]:0.5,
+        [Types.Electric]:2,
+        [Types.Ice]:2,
+        [Types.Rock]:2,
+    },
+    [Types.Psychic]:{
+        [Types.Psychic]:0.5,
+        [Types.Fighting]:0.5,
+        [Types.Ghost]:2,
+        [Types.Bug]:2,
+        [Types.Dark]:2
+    },
+    [Types.Bug]:{
+        [Types.Fighting]:0.5,
+        [Types.Grass]:0.5,
+        [Types.Ground]:0.5,
+        [Types.Fire]:2,
+        [Types.Flying]:2,
+        [Types.Rock]:2,
+    },
+    [Types.Rock]:{
+        [Types.Normal]:0.5,
+        [Types.Fire]:0.5,
+        [Types.Poison]:0.5,
+        [Types.Fire]:0.5,
+        [Types.Fighting]:2,
+        [Types.Water]:2,
+        [Types.Ground]:2,
+        [Types.Grass]:2,
+        [Types.Steel]:2,
+    },
+    [Types.Ghost]:{
+        [Types.Normal]:0.5,
+        [Types.Fighting]:0.5,
+        [Types.Bug]:0.5,
+        [Types.Dark]:2,
+        [Types.Ghost]:2,
+    },
+    [Types.Dragon]:{
+        [Types.Electric]:0.5,
+        [Types.Grass]:0.5,
+        [Types.Fire]:0.5,
+        [Types.Water]:0.5,
+        [Types.Dragon]:2,
+        [Types.Ice]:2,
+        [Types.Fairy]:2
+    },
+    [Types.Dark]:{
+        [Types.Dark]:0.5,
+        [Types.Psychic]:0.5,
+        [Types.Ghost]:0.5,
+        [Types.Fairy]:2,
+        [Types.Bug]:2,
+        [Types.Fighting]:2
+    },
+    [Types.Steel]:{
+        [Types.Steel]:0.5,
+        [Types.Rock]:0.5,
+        [Types.Normal]:0.5,
+        [Types.Grass]:0.5,
+        [Types.Ice]:0.5,
+        [Types.Fairy]:0.5,
+        [Types.Psychic]:0.5,
+        [Types.Flying]:0.5,
+        [Types.Bug]:0.5,
+        [Types.Fighting]:2,
+        [Types.Ground]:2,
+        [Types.Fire]:2
+    },
+    [Types.Fairy]:{
+        [Types.Fighting]:0.5,
+        [Types.Bug]:0.5,
+        [Types.Dark]:0.5,
+        [Types.Dragon]:0.5,
+        [Types.Poison]:2,
+        [Types.Steel]:2
+    }
+}
+
+
+export const typeChart = function (defense: string, attack:string) {
+    if(!(defense in chart)) return 1
+    if(!(attack in chart[defense])) return 1
+    return (chart[defense][attack] || 1)
+} 

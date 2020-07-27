@@ -2,7 +2,7 @@ import { iEffect } from "../../interfaces"
 import { Effect } from "./baseEffect"
 import { DamageType, effectTargetBehavior, activationType } from "../../enums"
 import { Character } from "../character";
-import { Skill } from "../skill";
+import { Arena } from "../../arena";
 
 export class Damage extends Effect {
     private damage_value: number
@@ -22,32 +22,28 @@ export class Damage extends Effect {
         return this.damageType
     }
 
-    public execute(targets: Array<Character>, skillList:Array<Skill>): boolean {
+    public execute(targets: Array<Character>, world:Arena, skillType: { [key: string]: number }): boolean {
         this.tick++
         if (this.tick % 2 === 0) return false
 
         this.delay -= 1
         if (this.delay >= 0) return false
-        
+
         this.duration -= 1;
-        
         switch (this.behavior) {
             case effectTargetBehavior.Default: {
                 for (const char of targets) {
-                    const hp = char.geHitPoints() - this.damage_value
-                    char.setHitPoints(hp)
+                    dealDamage(this.damage_value, skillType, char, this.calculateDamageBonus)
                 }
             } break;
 
             case effectTargetBehavior.OnlyOne: {
-                const hp = targets[0].geHitPoints() - this.damage_value
-                targets[0].setHitPoints(hp)
+                dealDamage(this.damage_value, skillType, targets[0], this.calculateDamageBonus)
             } break;
 
             case effectTargetBehavior.AllOthers: {
                 for (const char of targets.slice(1, targets.length)) {
-                    const hp = char.geHitPoints() - this.damage_value
-                    char.setHitPoints(hp)
+                    dealDamage(this.damage_value, skillType, char, this.calculateDamageBonus)
                 }
             } break
         }
@@ -55,5 +51,11 @@ export class Damage extends Effect {
         if (this.duration <= 0) return true
         return false
     }
-
 } 
+
+function dealDamage(value:number, skillType:any, char:Character, bonus:Function) {
+    let damage = value * bonus(skillType, char)
+    if (damage < 0) damage = 0
+    const hp = char.geHitPoints() - Math.round(damage / 5) * 5
+    char.setHitPoints(hp)
+}

@@ -9,8 +9,9 @@ export class Character {
     private id: number
     private hitPoints: number
     private isTarget:boolean 
+    private knockedOut: boolean
     private buffs: {
-        invulnerability: {[x:number]:boolean}
+        invulnerability: {[x:string]:boolean}
     }
     private type: { [key: string]: number }
     private energyGain: Array<number>
@@ -32,10 +33,10 @@ export class Character {
         this.belongs = {}
         this.belongs[playerId] = true
         this.skills = []
+        this.knockedOut = false
         for (const skill of data.skills) {
             this.skills.push(new Skill(skill))
         }
-
     }
 
     public geHitPoints(): number {
@@ -44,6 +45,10 @@ export class Character {
 
     public setHitPoints(hp: number): void {
         this.hitPoints = hp
+        if(this.hitPoints <= 0){
+            this.hitPoints = 0
+            this.knockOut()
+        }
     }
 
     public belongsTo(id: string): boolean {
@@ -74,6 +79,8 @@ export class Character {
 
     public validadeSkillsCompletely(pool: Array<number>, chars: Array<Character>, playerId: string, self?: number) {
         for (const skill of this.skills) {
+            skill.enable()
+            skill.validateCoolDown()
             skill.validateCost(pool)
             skill.setTargetChoices(chars, playerId, self)
         }
@@ -81,6 +88,8 @@ export class Character {
 
     public validateSkillsCost(pool: Array<number>) {
         for (const skill of this.skills) {
+            skill.enable()
+            skill.validateCoolDown()
             skill.validateCost(pool)
         }
     }
@@ -99,6 +108,15 @@ export class Character {
         })
     }
 
+    public knockOut(){
+        this.knockedOut= true
+        this.disableSkills()
+    }
+
+    public isKnockedOut():boolean{
+        return this.knockedOut
+    }
+
     public disableSkills() {
         this.skills.forEach(s => {
             s.disabled = true
@@ -106,15 +124,21 @@ export class Character {
     }
 
     public setInvulnerability(type:Types) {
-        console.log(type)
         this.buffs.invulnerability[type]=true
-        console.log(this.buffs)
     }
-    public isInvulnerable(type:Types):boolean{
-        return this.buffs.invulnerability[type]
+    public isInvulnerable(types:Array<string>):boolean{
+        if(this.buffs.invulnerability[18]) return true 
+        for(const t of types){
+            if(this.buffs.invulnerability[t]) return true
+        }
+        return false
     }
 
     public clearBuffs(){
         this.buffs.invulnerability = {}
+    }
+
+    public getTyping(){
+        return this.type
     }
 }

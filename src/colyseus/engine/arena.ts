@@ -38,7 +38,7 @@ export class Arena {
     public executeSkills(){
         for(let i = this.skillQueue.length-1; i >= 0; i-- ){
             const skill = this.skillQueue[i] 
-            const isDone = this.skillQueue[i].executeEffects(this.skillQueue)
+            const isDone = this.skillQueue[i].executeEffects(this)
             if(isDone) {
                 this.skillQueue.splice(i,1)
             } 
@@ -72,11 +72,12 @@ export class Arena {
         player1.setTurn(true)
         player2.setTurn(false)
 
-
-        this.distributeEnergyAndCooldowns(player2)
-        this.validadeTeamSkillsCompletely(player1)
         this.hasUsedSKill = {}
+        this.distributeEnergyAndCooldowns(player2)
+        this.validadeTeamSkillsCompletely(player1)        
         this.emptyTempQueue()
+        this.validateSkillQueue()
+        
         return this.getClientData()
     }
 
@@ -152,7 +153,7 @@ export class Arena {
         const playerId = player.getId()
 
         this.characters.forEach(c => {
-            if (c.belongsTo(playerId)) {
+            if (c.belongsTo(playerId) && !c.isKnockedOut()) {
                 c.lowerCooldowns()
                 const energyIndex = c.generateEnergy()
                 player.increaseEnergyPool(energyIndex)
@@ -165,7 +166,7 @@ export class Arena {
         const pool = player.getEnergyPool()
 
         this.characters.forEach((c, i) => {
-            if (c.belongsTo(playerId)) {
+            if (c.belongsTo(playerId) && !c.isKnockedOut()) {
                 c.clearBuffs()
                 c.validadeSkillsCompletely(pool, this.characters, playerId, i)
             }
@@ -176,7 +177,7 @@ export class Arena {
         const playerId = this.players[index].getId()
         const pool = this.players[index].getEnergyPool()
         this.characters.forEach((c, i) => {
-            if (c.belongsTo(playerId) && !this.hasUsedSKill[i]) {
+            if (c.belongsTo(playerId) && !this.hasUsedSKill[i] && !c.isKnockedOut()) {
                 c.validateSkillsCost(pool)
             }
         })
@@ -199,6 +200,15 @@ export class Arena {
                 }
             }
         }
+    }
+
+    public validateSkillQueue(){
+        for(let i = this.skillQueue.length-1; i>=0; i--){
+            const s = this.skillQueue[i]
+            if(!s.areTargetsValidated()){
+                this.skillQueue.splice(i, 1)
+            }
+        }        
     }
 
 }

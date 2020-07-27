@@ -4,6 +4,7 @@ import { targetType, activationType, effectType } from "../../enums"
 import { effectFactory } from "../effect"
 import { targetSetter } from "./targetValidationFactory"
 import { Effect } from "../effect/baseEffect"
+import { Arena } from "../../arena"
 
 export class Skill {
 
@@ -51,7 +52,6 @@ export class Skill {
 
     public validateCost(energyPool: Array<number>) {
 
-        this.disabled = false
         energyPool[4] = energyPool.slice(0, 4).reduce((ca, cv) => ca + cv)
         let totalCost = this.cost.reduce((ca, cv) => ca + cv)
 
@@ -67,6 +67,10 @@ export class Skill {
             this.disabled = true
             return
         }
+    }
+
+    public enable(){
+        this.disabled = false
     }
 
     public lowerCooldown() {
@@ -98,7 +102,7 @@ export class Skill {
         return t
     }
 
-    public validateCoolDowns() {
+    public validateCoolDown() {
         if (this.cooldown > 0) {
             this.disabled = true
             return
@@ -106,7 +110,7 @@ export class Skill {
     }
 
     public setTargetChoices(characters: Array<Character>, playerId: string, self?: number) {
-        this.targetChoices = targetSetter(this.target, characters, playerId, self)
+        this.targetChoices = targetSetter(this, this.target, characters, playerId, self)
     }
 
     public getTargetChoices(): Array<number> {
@@ -121,7 +125,11 @@ export class Skill {
         return this.targets
     }
 
-    public executeEffects(skillList: Array<Skill>): boolean {
+    public getTypes():Array<string>{
+        return Object.keys(this.type)
+    }
+
+    public executeEffects(world:Arena): boolean {
         let notExecuted = 0
         let onExpiration = 0
 
@@ -134,7 +142,7 @@ export class Skill {
                 }
                 continue
             }
-            const isDone = this.effects[i].execute(this.targets, skillList)
+            const isDone = this.effects[i].execute(this.targets, world, this.type)
             if (isDone) {
                 this.effects.splice(i, 1)
             }
@@ -142,18 +150,39 @@ export class Skill {
 
         if (this.effects.length === onExpiration) {
             for (let i = this.effects.length - 1; i >= 0; i--) {
-                const isDone = this.effects[i].execute(this.targets, skillList)
+                const isDone = this.effects[i].execute(this.targets, world, this.type)
                 if (isDone) {
                     this.effects.splice(i, 1)
                 }
             }
         }
-
         if (this.effects.length === 0) return true
         return false
     }
 
     public getCost(): Array<number> {
         return this.cost
+    }
+
+    public getSkillEffectsActivation():{[x:string]:number}{
+        let checker:{[x:string]:number} = {}
+
+        for(const effect of this.effects){
+            checker[effect.getActivationType()] = effect.getActivationType()
+        }
+
+        return checker
+    }
+
+    public areTargetsValidated(){
+        for(let i = this.targets.length - 1; i>=0; i--){
+            const c = this.targets[i]
+            if(c.isKnockedOut()){
+                this.targets.splice(i, 1)
+            }
+        }
+
+        if(this.targets.length === 0) return false
+        return true
     }
 }

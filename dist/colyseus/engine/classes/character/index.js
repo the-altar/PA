@@ -18,6 +18,7 @@ class Character {
         this.belongs = {};
         this.belongs[playerId] = true;
         this.skills = [];
+        this.knockedOut = false;
         for (const skill of data.skills) {
             this.skills.push(new skill_1.Skill(skill));
         }
@@ -27,6 +28,10 @@ class Character {
     }
     setHitPoints(hp) {
         this.hitPoints = hp;
+        if (this.hitPoints <= 0) {
+            this.hitPoints = 0;
+            this.knockOut();
+        }
     }
     belongsTo(id) {
         return this.belongs[id];
@@ -51,12 +56,16 @@ class Character {
     }
     validadeSkillsCompletely(pool, chars, playerId, self) {
         for (const skill of this.skills) {
+            skill.enable();
+            skill.validateCoolDown();
             skill.validateCost(pool);
             skill.setTargetChoices(chars, playerId, self);
         }
     }
     validateSkillsCost(pool) {
         for (const skill of this.skills) {
+            skill.enable();
+            skill.validateCoolDown();
             skill.validateCost(pool);
         }
     }
@@ -71,21 +80,35 @@ class Character {
             s.disabled = false;
         });
     }
+    knockOut() {
+        this.knockedOut = true;
+        this.disableSkills();
+    }
+    isKnockedOut() {
+        return this.knockedOut;
+    }
     disableSkills() {
         this.skills.forEach(s => {
             s.disabled = true;
         });
     }
     setInvulnerability(type) {
-        console.log(type);
         this.buffs.invulnerability[type] = true;
-        console.log(this.buffs);
     }
-    isInvulnerable(type) {
-        return this.buffs.invulnerability[type];
+    isInvulnerable(types) {
+        if (this.buffs.invulnerability[18])
+            return true;
+        for (const t of types) {
+            if (this.buffs.invulnerability[t])
+                return true;
+        }
+        return false;
     }
     clearBuffs() {
         this.buffs.invulnerability = {};
+    }
+    getTyping() {
+        return this.type;
     }
 }
 exports.Character = Character;
