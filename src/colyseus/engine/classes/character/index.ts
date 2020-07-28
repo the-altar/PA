@@ -6,6 +6,8 @@ export class Character {
     private name: string
     private facepic: string
     private description: string
+    private allies:Array<number>
+    private enemies:Array<number>
     private id: number
     private hitPoints: number
     private isTarget:boolean 
@@ -33,11 +35,29 @@ export class Character {
         this.belongs = {}
         this.belongs[playerId] = true
         this.skills = []
+        this.allies = []
+        this.enemies = []
         this.knockedOut = false
         for (const skill of data.skills) {
-            this.skills.push(new Skill(skill))
+            this.skills.push(new Skill(skill, this.id))
         }
     }
+
+    public setAllies(allies:Array<number>){
+        this.allies = allies
+    }
+
+    public getAllies():Array<number>{
+        return this.allies
+    }
+
+    public getEnemies():Array<number>{
+        return this.enemies
+    }
+
+    public setEnemies(enemies:Array<number>){
+        this.enemies = enemies
+    } 
 
     public geHitPoints(): number {
         return this.hitPoints
@@ -95,7 +115,7 @@ export class Character {
     }
 
     public getSkillByIndex(index: number): Skill {
-        return new Skill(JSON.parse(JSON.stringify(this.skills[index])))
+        return new Skill(JSON.parse(JSON.stringify(this.skills[index])), this.id)
     }
 
     public setSkillCooldownByIndex(index:number){
@@ -136,6 +156,10 @@ export class Character {
 
     public clearBuffs(){
         this.buffs.invulnerability = {}
+    }
+
+    public getId():number {
+        return this.id
     }
 
     public getTyping(){

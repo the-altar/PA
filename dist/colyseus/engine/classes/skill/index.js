@@ -5,7 +5,7 @@ const enums_1 = require("../../enums");
 const effect_1 = require("../effect");
 const targetValidationFactory_1 = require("./targetValidationFactory");
 class Skill {
-    constructor(data) {
+    constructor(data, caster) {
         this.tick = 0;
         this.type = data.type;
         this.cooldown = 0 || data.startCooldown;
@@ -18,10 +18,10 @@ class Skill {
         this.class = data.class;
         this.baseCooldown = data.baseCooldown;
         this.target = data.target;
-        this.targetChoices = data.targetChoices || [];
+        this.targetChoices = data.targetChoices || {};
         this.effects = [];
         for (const e of data.effects) {
-            const built = effect_1.effectFactory(e);
+            const built = effect_1.effectFactory(e, caster);
             this.effects.push(built);
         }
     }
@@ -55,28 +55,29 @@ class Skill {
     getValidadedTargets(choice) {
         let t = [];
         switch (this.target) {
-            case enums_1.targetType.Self:
-                {
-                    t.push(choice);
-                }
-                break;
-            case enums_1.targetType.OneEnemy:
-                {
-                    t.push(choice);
-                }
-                break;
-            case enums_1.targetType.AllEnemies:
-                {
-                    t.push(choice);
-                    for (const opt of this.targetChoices) {
-                        if (opt !== choice) {
-                            t.push(opt);
-                        }
+            case enums_1.targetType.Self: {
+                t.push(choice);
+                return t;
+            }
+            case enums_1.targetType.OneEnemy: {
+                t.push(choice);
+                return t;
+            }
+            case enums_1.targetType.AllEnemies: {
+                t.push(choice);
+                for (const opt of this.targetChoices.choice) {
+                    if (opt !== choice) {
+                        t.push(opt);
                     }
                 }
-                break;
+                return t;
+            }
+            case enums_1.targetType.OneEnemyAndSelf: {
+                t.push(choice);
+                t = t.concat(this.targetChoices.auto);
+                return t;
+            }
         }
-        return t;
     }
     validateCoolDown() {
         if (this.cooldown > 0) {
@@ -138,12 +139,11 @@ class Skill {
         }
         return checker;
     }
-    areTargetsValidated() {
+    areTargetsValidated(world) {
         for (let i = this.targets.length - 1; i >= 0; i--) {
             const c = this.targets[i];
             if (c.isKnockedOut()) {
                 this.targets.splice(i, 1);
-                continue;
             }
         }
         if (this.targets.length === 0)

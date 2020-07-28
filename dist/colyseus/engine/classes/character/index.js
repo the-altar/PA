@@ -18,10 +18,24 @@ class Character {
         this.belongs = {};
         this.belongs[playerId] = true;
         this.skills = [];
+        this.allies = [];
+        this.enemies = [];
         this.knockedOut = false;
         for (const skill of data.skills) {
-            this.skills.push(new skill_1.Skill(skill));
+            this.skills.push(new skill_1.Skill(skill, this.id));
         }
+    }
+    setAllies(allies) {
+        this.allies = allies;
+    }
+    getAllies() {
+        return this.allies;
+    }
+    getEnemies() {
+        return this.enemies;
+    }
+    setEnemies(enemies) {
+        this.enemies = enemies;
     }
     geHitPoints() {
         return this.hitPoints;
@@ -70,7 +84,7 @@ class Character {
         }
     }
     getSkillByIndex(index) {
-        return new skill_1.Skill(JSON.parse(JSON.stringify(this.skills[index])));
+        return new skill_1.Skill(JSON.parse(JSON.stringify(this.skills[index])), this.id);
     }
     setSkillCooldownByIndex(index) {
         this.skills[index].startCooldown();
@@ -106,6 +120,9 @@ class Character {
     }
     clearBuffs() {
         this.buffs.invulnerability = {};
+    }
+    getId() {
+        return this.id;
     }
     getTyping() {
         return this.type;

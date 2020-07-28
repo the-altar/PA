@@ -22,9 +22,9 @@ export class Skill {
     private target: targetType
     private targets: Array<Character>
     private effects: Array<Effect>
-    private targetChoices: Array<number>
+    private targetChoices: {[x:string]:Array<number>}
 
-    constructor(data: iSkill) {
+    constructor(data: iSkill, caster:number) {
         this.tick = 0
         this.type = data.type
         this.cooldown = 0 || data.startCooldown
@@ -37,11 +37,11 @@ export class Skill {
         this.class = data.class
         this.baseCooldown = data.baseCooldown
         this.target = data.target
-        this.targetChoices = data.targetChoices || []
+        this.targetChoices = data.targetChoices || {}
         this.effects = []
 
         for (const e of data.effects) {
-            const built = effectFactory(e)
+            const built = effectFactory(e, caster)
             this.effects.push(built)
         }
     }
@@ -84,22 +84,34 @@ export class Skill {
     public getValidadedTargets(choice: number): Array<number> {
         let t: Array<number> = []
         switch (this.target) {
+            
             case targetType.Self: {
                 t.push(choice)
-            } break
+                return t
+            }
+
             case targetType.OneEnemy: {
                 t.push(choice)
-            } break;
+                return t
+            }
+
             case targetType.AllEnemies: {
                 t.push(choice)
-                for (const opt of this.targetChoices) {
+                for (const opt of this.targetChoices.choice) {
                     if (opt !== choice) {
                         t.push(opt)
                     }
                 }
-            } break;
+                return t
+            }
+
+            case targetType.OneEnemyAndSelf: {
+                t.push(choice)
+                t=t.concat(this.targetChoices.auto)
+                return t
+            } 
+
         }
-        return t
     }
 
     public validateCoolDown() {
@@ -113,7 +125,7 @@ export class Skill {
         this.targetChoices = targetSetter(this, this.target, characters, playerId, self)
     }
 
-    public getTargetChoices(): Array<number> {
+    public getTargetChoices(): {[x:string]:Array<number>} {
         return this.targetChoices
     }
 
@@ -151,6 +163,7 @@ export class Skill {
         if (this.effects.length === onExpiration) {
             for (let i = this.effects.length - 1; i >= 0; i--) {
                 const isDone = this.effects[i].execute(this.targets, world, this.type)
+
                 if (isDone) {
                     this.effects.splice(i, 1)
                 }
@@ -174,14 +187,15 @@ export class Skill {
         return checker
     }
 
-    public areTargetsValidated(){
+    public areTargetsValidated(world:Arena){
         for(let i = this.targets.length - 1; i>=0; i--){
+            
             const c = this.targets[i]
             if(c.isKnockedOut()){
                 this.targets.splice(i, 1)
             }
-        }
-
+            
+        }        
         if(this.targets.length === 0) return false
         return true
     }

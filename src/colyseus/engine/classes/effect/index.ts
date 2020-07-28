@@ -4,13 +4,13 @@ import {Damage} from './damage'
 import { Effect } from "./baseEffect"
 import { Invulnerability } from "./invulnerability"
 
-export const effectFactory = function(effect:iEffect):Effect{
+export const effectFactory = function(effect:iEffect, caster:number):Effect{
     switch(effect.type){
         case effectType.Damage: {
-            return new Damage(effect)
+            return new Damage(effect, caster)
         }
         case effectType.Invulnerability: {
-            return new Invulnerability(effect)
+            return new Invulnerability(effect, caster)
         }
     }        
 }

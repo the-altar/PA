@@ -7,7 +7,7 @@ export enum activationType {
 }
 
 export enum targetType {
-    OneEnemy, AllEnemies, OneAlly, AllAllies, AllAlliesExceptSelf, Any, Self
+    OneEnemy, AllEnemies, OneAlly, AllAllies, AllAlliesExceptSelf, Any, Self, OneEnemyAndSelf, OneEnemyAndAllAllies, 
 }
 
 export enum effectTargetBehavior {

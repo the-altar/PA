@@ -24,6 +24,24 @@ export class Arena {
         this.players.push(new Player(player))
         for (let c of team) {
             this.characters.push(new Character(c, player.id))
+            const index = this.characters.length-1           
+
+            if(index< 3){
+                this.characters[index].setEnemies([3,4,5])
+                switch(index){
+                    case 0: { this.characters[index].setAllies([1,2]) }break;
+                    case 1: { this.characters[index].setAllies([0,2]) }break;
+                    case 2: { this.characters[index].setAllies([0,1]) }break;
+                }
+
+            } else {
+                this.characters[index].setEnemies([0,1,2])
+                switch(index){
+                    case 3: { this.characters[index].setAllies([4,5]) }break;
+                    case 4: { this.characters[index].setAllies([3,5]) }break;
+                    case 5: { this.characters[index].setAllies([3,4]) }break;
+                }
+            }
         }
     }
 
@@ -202,10 +220,16 @@ export class Arena {
         }
     }
 
+    public findCharacterById(id:number):Character{
+        for(const char of this.characters){
+            if(char.getId() === id) return char
+        }
+    }
+
     public validateSkillQueue(){
         for(let i = this.skillQueue.length-1; i>=0; i--){
             const s = this.skillQueue[i]
-            if(!s.areTargetsValidated()){
+            if(!s.areTargetsValidated(this)){
                 this.skillQueue.splice(i, 1)
             }
         }        

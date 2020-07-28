@@ -11,7 +11,7 @@ export interface iSkill {
     startCooldown: number
     baseCooldown: number
     type: { [key: string]: number }
-    targetChoices?: Array<number>
+    targetChoices?: {[x:string]:Array<number>}
     limit: number
     effects: Array<iEffect>,
     target: targetType
