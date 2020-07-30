@@ -22,6 +22,11 @@ export class Arena {
 
     public addPlayer(player: iPlayer, team: Array<iCharacter>): void {
         this.players.push(new Player(player))
+        if(this.players.length === 1) {
+            const i = Math.floor(Math.random() * (3 + 1));
+            this.players[0].increaseEnergyPool(i)
+        }
+
         for (let c of team) {
             this.characters.push(new Character(c, player.id))
             const index = this.characters.length-1           
@@ -172,7 +177,7 @@ export class Arena {
 
         this.characters.forEach(c => {
             if (c.belongsTo(playerId) && !c.isKnockedOut()) {
-                c.lowerCooldowns()
+                c.lowerCooldowns(c)
                 const energyIndex = c.generateEnergy()
                 player.increaseEnergyPool(energyIndex)
             }
@@ -185,8 +190,10 @@ export class Arena {
 
         this.characters.forEach((c, i) => {
             if (c.belongsTo(playerId) && !c.isKnockedOut()) {
-                c.clearBuffs()
                 c.validadeSkillsCompletely(pool, this.characters, playerId, i)
+                c.clearEnemyPhaseBuffs()
+            } else {                
+                c.clearDebuffs()
             }
         })
     }

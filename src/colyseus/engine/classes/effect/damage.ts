@@ -1,14 +1,8 @@
 import { iEffect } from "../../interfaces"
-import { Effect } from "./baseEffect"
-import { DamageType, effectTargetBehavior, activationType } from "../../enums"
+import { Effect } from "./effect"
+import { DamageType } from "../../enums"
 import { Character } from "../character";
 import { Arena } from "../../arena";
-
-interface iDamageParams {
-    value: number,
-    type: { [key: string]: number },
-    damageBonus: Function
-}
 
 export class Damage extends Effect {
     private damage_value: number
@@ -28,24 +22,20 @@ export class Damage extends Effect {
         return this.damageType
     }
 
-    public execute(targets: Array<Character>, world: Arena, skillType: { [key: string]: number }): boolean {
+    public execute(targets: Array<Character>, world: Arena, skillType: Array<any>): boolean {
+        const c = world.findCharacterById(this.caster)
         
-        const params = {
-            value: this.damage_value,
-            type: skillType,
-            damageBonus: this.calculateDamageBonus
-        }
+        const {reduction} = c.getDebuffs().getDamageReduction({
+            damageType: this.damageType,
+            skillType: Number(skillType[0])
+        })
         
-        this.effectTargetApplication(params, this.dealDamage, targets, world)
-
-        if (this.duration <= 0) return true
-        return false
+        this.damage_value -= reduction            
+        return this.effectTargetApplication(skillType, targets, world)
     }
 
-    public dealDamage(params: iDamageParams, char: Character) {
-        const {damageBonus, type, value} = params
-
-        let damage = value * damageBonus(type, char)
+    public functionality(char: Character, skillType?:Array<any>) {
+        let damage = this.damage_value * this.calculateDamageBonus(skillType, char)
         if (damage < 0) damage = 0
         const hp = char.geHitPoints() - Math.round(damage / 5) * 5
         char.setHitPoints(hp)

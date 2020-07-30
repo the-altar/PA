@@ -1,6 +1,10 @@
 import { iCharacter } from "../../interfaces"
-import {Types} from "../../enums"
+import {Types, BuffTypes, DebuffTypes} from "../../enums"
 import { Skill } from "../skill"
+
+// IMPORTANT TO THIS CLASS ONLY
+import {Buffs, iBuffParams} from "./buffs";
+import {Debuffs, iDebuffParams} from "./debuffs";
 
 export class Character {
     private name: string
@@ -12,18 +16,16 @@ export class Character {
     private hitPoints: number
     private isTarget:boolean 
     private knockedOut: boolean
-    private buffs: {
-        invulnerability: {[x:string]:boolean}
-    }
+    private buffs: Buffs
+    private debuffs: Debuffs
     private type: { [key: string]: number }
     private energyGain: Array<number>
     private belongs: { [key: string]: boolean }
     private skills: Array<Skill>
 
     constructor(data: iCharacter, playerId: string) {        
-        this.buffs = {
-            invulnerability: {}
-        }
+        this.buffs = new Buffs()
+        this.debuffs = new Debuffs()
         this.isTarget = false
         this.name = data.name
         this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
@@ -75,9 +77,9 @@ export class Character {
         return this.belongs[id]
     }
 
-    public lowerCooldowns() {
+    public lowerCooldowns(char:Character) {
         for(const skill of this.skills){
-            skill.lowerCooldown()
+            skill.lowerCooldown(0)
         }
     }
 
@@ -119,7 +121,8 @@ export class Character {
     }
 
     public setSkillCooldownByIndex(index:number){
-        this.skills[index].startCooldown()
+        const n = this.buffs.getCooldownReduction() + this.debuffs.getCooldownIncreasal()
+        this.skills[index].startCooldown(n)
     }
 
     public enableSkills() {
@@ -141,27 +144,59 @@ export class Character {
         this.skills.forEach(s => {
             s.disabled = true
         })
-    }
+    } 
 
-    public setInvulnerability(type:Types) {
-        this.buffs.invulnerability[type]=true
-    }
-    public isInvulnerable(types:Array<string>):boolean{
-        if(this.buffs.invulnerability[18]) return true 
-        for(const t of types){
-            if(this.buffs.invulnerability[t]) return true
+    public setBuff(params:iBuffParams) {
+        const {buffType} = params
+        switch(buffType){
+            case BuffTypes.Invulnerability: {
+                this.buffs.setInvulnerability(params)
+            }
+            case BuffTypes.CooldownReduction: {
+                this.buffs.setCooldownReduction(params)
+            } 
         }
-        return false
     }
 
-    public clearBuffs(){
-        this.buffs.invulnerability = {}
+    public setDebuff(params:iDebuffParams){
+        switch(params.debuffType){
+            case DebuffTypes.DamageReduction: {
+                this.debuffs.setDamageReduction(params)
+            }break;
+            case DebuffTypes.CooldownIncreasal: {
+                this.debuffs.setCooldownIncreasal(params)
+            } 
+        }
+    }
+
+    public isInvulnerable(types:Array<string>):boolean{
+        return this.buffs.isInvulnerable(types)
+    }
+
+    public clearEnemyPhaseBuffs(){
+        this.buffs.clearInvulnerability()
+    }
+
+    public clearPlayerPhaseBuffs(){
+        this.buffs.clearCooldownReduction()
+    }
+
+    public getBuffs():Buffs{
+        return this.buffs
+    } 
+
+    public getDebuffs():Debuffs {
+        return this.debuffs
+    }
+    
+    public clearDebuffs(){
+        this.debuffs.clearDebuffs()
     }
 
     public getId():number {
         return this.id
     }
-
+    
     public getTyping(){
         return this.type
     }

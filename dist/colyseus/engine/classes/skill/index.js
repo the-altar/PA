@@ -6,7 +6,6 @@ const effect_1 = require("../effect");
 const targetValidationFactory_1 = require("./targetValidationFactory");
 class Skill {
     constructor(data, caster) {
-        this.tick = 0;
         this.type = data.type;
         this.cooldown = 0 || data.startCooldown;
         this.skillpic = data.skillpic;
@@ -45,12 +44,12 @@ class Skill {
     enable() {
         this.disabled = false;
     }
-    lowerCooldown() {
+    lowerCooldown(extra) {
         if (this.cooldown > 0)
-            this.cooldown -= 1;
+            this.cooldown -= (1 + extra);
     }
-    startCooldown() {
-        this.cooldown = this.baseCooldown;
+    startCooldown(extra) {
+        this.cooldown = this.baseCooldown + (1 + extra);
     }
     getValidadedTargets(choice) {
         let t = [];
@@ -101,25 +100,10 @@ class Skill {
         return Object.keys(this.type);
     }
     executeEffects(world) {
-        let notExecuted = 0;
-        let onExpiration = 0;
         for (let i = this.effects.length - 1; i >= 0; i--) {
             const effect = this.effects[i];
-            if (effect.getActivationType() !== enums_1.activationType.Immediate) {
-                notExecuted++;
-                if (effect.getActivationType() === enums_1.activationType.Expired) {
-                    onExpiration++;
-                }
-                continue;
-            }
-            const isDone = this.effects[i].execute(this.targets, world, this.type);
-            if (isDone) {
-                this.effects.splice(i, 1);
-            }
-        }
-        if (this.effects.length === onExpiration) {
-            for (let i = this.effects.length - 1; i >= 0; i--) {
-                const isDone = this.effects[i].execute(this.targets, world, this.type);
+            if (effect.shouldApply(enums_1.activationType.Immediate)) {
+                const isDone = this.effects[i].execute(this.targets, world, this.getTypes());
                 if (isDone) {
                     this.effects.splice(i, 1);
                 }

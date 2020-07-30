@@ -1,10 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Types = exports.DamageType = exports.effectTargetBehavior = exports.targetType = exports.activationType = exports.effectType = void 0;
+exports.PlayerPhase = exports.DebuffTypes = exports.BuffTypes = exports.Types = exports.DamageType = exports.effectTargetBehavior = exports.targetType = exports.activationType = exports.effectType = void 0;
 var effectType;
 (function (effectType) {
     effectType[effectType["Damage"] = 0] = "Damage";
     effectType[effectType["Invulnerability"] = 1] = "Invulnerability";
+    effectType[effectType["DamageReduction"] = 2] = "DamageReduction";
+    effectType[effectType["CooldownIncreasal"] = 3] = "CooldownIncreasal";
+    effectType[effectType["CooldownReduction"] = 4] = "CooldownReduction";
 })(effectType = exports.effectType || (exports.effectType = {}));
 var activationType;
 (function (activationType) {
@@ -69,4 +72,19 @@ var Types;
     Types[Types["Water"] = 17] = "Water";
     Types[Types["Any"] = 18] = "Any";
 })(Types = exports.Types || (exports.Types = {}));
+var BuffTypes;
+(function (BuffTypes) {
+    BuffTypes[BuffTypes["Invulnerability"] = 0] = "Invulnerability";
+    BuffTypes[BuffTypes["CooldownReduction"] = 1] = "CooldownReduction";
+})(BuffTypes = exports.BuffTypes || (exports.BuffTypes = {}));
+var DebuffTypes;
+(function (DebuffTypes) {
+    DebuffTypes[DebuffTypes["DamageReduction"] = 0] = "DamageReduction";
+    DebuffTypes[DebuffTypes["CooldownIncreasal"] = 1] = "CooldownIncreasal";
+})(DebuffTypes = exports.DebuffTypes || (exports.DebuffTypes = {}));
+var PlayerPhase;
+(function (PlayerPhase) {
+    PlayerPhase[PlayerPhase["EnemyTurn"] = 0] = "EnemyTurn";
+    PlayerPhase[PlayerPhase["MyTurn"] = 1] = "MyTurn";
+})(PlayerPhase = exports.PlayerPhase || (exports.PlayerPhase = {}));
 //# sourceMappingURL=index.js.map

@@ -1,12 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Character = void 0;
+const enums_1 = require("../../enums");
 const skill_1 = require("../skill");
+// IMPORTANT TO THIS CLASS ONLY
+const buffs_1 = require("./buffs");
+const debuffs_1 = require("./debuffs");
 class Character {
     constructor(data, playerId) {
-        this.buffs = {
-            invulnerability: {}
-        };
+        this.buffs = new buffs_1.Buffs();
+        this.debuffs = new debuffs_1.Debuffs();
         this.isTarget = false;
         this.name = data.name;
         this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
@@ -50,9 +53,9 @@ class Character {
     belongsTo(id) {
         return this.belongs[id];
     }
-    lowerCooldowns() {
+    lowerCooldowns(char) {
         for (const skill of this.skills) {
-            skill.lowerCooldown();
+            skill.lowerCooldown(0);
         }
     }
     generateEnergy() {
@@ -87,7 +90,8 @@ class Character {
         return new skill_1.Skill(JSON.parse(JSON.stringify(this.skills[index])), this.id);
     }
     setSkillCooldownByIndex(index) {
-        this.skills[index].startCooldown();
+        const n = this.buffs.getCooldownReduction() + this.debuffs.getCooldownIncreasal();
+        this.skills[index].startCooldown(n);
     }
     enableSkills() {
         this.skills.forEach(s => {
@@ -106,20 +110,46 @@ class Character {
             s.disabled = true;
         });
     }
-    setInvulnerability(type) {
-        this.buffs.invulnerability[type] = true;
+    setBuff(params) {
+        const { buffType } = params;
+        switch (buffType) {
+            case enums_1.BuffTypes.Invulnerability: {
+                this.buffs.setInvulnerability(params);
+            }
+            case enums_1.BuffTypes.CooldownReduction: {
+                this.buffs.setCooldownReduction(params);
+            }
+        }
+    }
+    setDebuff(params) {
+        switch (params.debuffType) {
+            case enums_1.DebuffTypes.DamageReduction:
+                {
+                    this.debuffs.setDamageReduction(params);
+                }
+                break;
+            case enums_1.DebuffTypes.CooldownIncreasal: {
+                this.debuffs.setCooldownIncreasal(params);
+            }
+        }
     }
     isInvulnerable(types) {
-        if (this.buffs.invulnerability[18])
-            return true;
-        for (const t of types) {
-            if (this.buffs.invulnerability[t])
-                return true;
-        }
-        return false;
+        return this.buffs.isInvulnerable(types);
     }
-    clearBuffs() {
-        this.buffs.invulnerability = {};
+    clearEnemyPhaseBuffs() {
+        this.buffs.clearInvulnerability();
+    }
+    clearPlayerPhaseBuffs() {
+        this.buffs.clearCooldownReduction();
+    }
+    getBuffs() {
+        return this.buffs;
+    }
+    getDebuffs() {
+        return this.debuffs;
+    }
+    clearDebuffs() {
+        this.debuffs.clearDebuffs();
     }
     getId() {
         return this.id;

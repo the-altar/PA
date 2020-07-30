@@ -2,12 +2,21 @@ import { activationType, effectType, effectTargetBehavior } from "../../enums"
 import { Character, Skill } from "../../classes/index"
 import { iIvulnerability } from "./invulnerability"
 import { iDamage } from "./damage"
+import { iDamageReduction } from "./damageReduction"
 
-export interface iEffect extends iDamage, iIvulnerability {
+interface iCooldownEffect {
+    numTurns?:number,
+    specific?:number
+}
+
+
+export interface iEffect extends iDamage, iIvulnerability, iDamageReduction, iCooldownEffect {
     duration: number
     delay?: number
     linked?: boolean
     disabled?: boolean
+    onEnemyTurn?: boolean 
+    tick:number,
     behavior?: effectTargetBehavior
     activationType: activationType
     type: effectType

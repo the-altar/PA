@@ -3,12 +3,11 @@ import { iSkill } from "../../interfaces"
 import { targetType, activationType, effectType } from "../../enums"
 import { effectFactory } from "../effect"
 import { targetSetter } from "./targetValidationFactory"
-import { Effect } from "../effect/baseEffect"
+import { Effect } from "../effect/effect"
 import { Arena } from "../../arena"
 
 export class Skill {
 
-    public tick: number;
     private cost: Array<number>
     public disabled?: boolean
     private skillpic: string
@@ -22,10 +21,10 @@ export class Skill {
     private target: targetType
     private targets: Array<Character>
     private effects: Array<Effect>
-    private targetChoices: {[x:string]:Array<number>}
+    private targetChoices: { [x: string]: Array<number> }
 
-    constructor(data: iSkill, caster:number) {
-        this.tick = 0
+    constructor(data: iSkill, caster: number) {
+
         this.type = data.type
         this.cooldown = 0 || data.startCooldown
         this.skillpic = data.skillpic
@@ -69,22 +68,22 @@ export class Skill {
         }
     }
 
-    public enable(){
+    public enable() {
         this.disabled = false
     }
 
-    public lowerCooldown() {
-        if (this.cooldown > 0) this.cooldown -= 1
+    public lowerCooldown(extra: number) {
+        if (this.cooldown > 0) this.cooldown -= (1 + extra)
     }
 
-    public startCooldown() {
-        this.cooldown = this.baseCooldown
+    public startCooldown(extra: number) {
+        this.cooldown = this.baseCooldown + (1 + extra)
     }
 
     public getValidadedTargets(choice: number): Array<number> {
         let t: Array<number> = []
         switch (this.target) {
-            
+
             case targetType.Self: {
                 t.push(choice)
                 return t
@@ -107,9 +106,9 @@ export class Skill {
 
             case targetType.OneEnemyAndSelf: {
                 t.push(choice)
-                t=t.concat(this.targetChoices.auto)
+                t = t.concat(this.targetChoices.auto)
                 return t
-            } 
+            }
 
         }
     }
@@ -125,7 +124,7 @@ export class Skill {
         this.targetChoices = targetSetter(this, this.target, characters, playerId, self)
     }
 
-    public getTargetChoices(): {[x:string]:Array<number>} {
+    public getTargetChoices(): { [x: string]: Array<number> } {
         return this.targetChoices
     }
 
@@ -137,39 +136,27 @@ export class Skill {
         return this.targets
     }
 
-    public getTypes():Array<string>{
+    public getTypes(): Array<string> {
         return Object.keys(this.type)
     }
 
-    public executeEffects(world:Arena): boolean {
-        let notExecuted = 0
-        let onExpiration = 0
+    public executeEffects(world: Arena): boolean {
 
         for (let i = this.effects.length - 1; i >= 0; i--) {
             const effect = this.effects[i]
-            if (effect.getActivationType() !== activationType.Immediate) {
-                notExecuted++
-                if (effect.getActivationType() === activationType.Expired) {
-                    onExpiration++
-                }
-                continue
-            }
-            const isDone = this.effects[i].execute(this.targets, world, this.type)
-            if (isDone) {
-                this.effects.splice(i, 1)
-            }
-        }
 
-        if (this.effects.length === onExpiration) {
-            for (let i = this.effects.length - 1; i >= 0; i--) {
-                const isDone = this.effects[i].execute(this.targets, world, this.type)
-
+            if (effect.shouldApply(activationType.Immediate)) {
+                const isDone = this.effects[i].execute(this.targets, world, this.getTypes())
                 if (isDone) {
                     this.effects.splice(i, 1)
                 }
+
             }
+
         }
+
         if (this.effects.length === 0) return true
+
         return false
     }
 
@@ -177,26 +164,26 @@ export class Skill {
         return this.cost
     }
 
-    public getSkillEffectsActivation():{[x:string]:number}{
-        let checker:{[x:string]:number} = {}
+    public getSkillEffectsActivation(): { [x: string]: number } {
+        let checker: { [x: string]: number } = {}
 
-        for(const effect of this.effects){
+        for (const effect of this.effects) {
             checker[effect.getActivationType()] = effect.getActivationType()
         }
 
         return checker
     }
 
-    public areTargetsValidated(world:Arena){
-        for(let i = this.targets.length - 1; i>=0; i--){
-            
+    public areTargetsValidated(world: Arena) {
+        for (let i = this.targets.length - 1; i >= 0; i--) {
+
             const c = this.targets[i]
-            if(c.isKnockedOut()){
+            if (c.isKnockedOut()) {
                 this.targets.splice(i, 1)
             }
-            
-        }        
-        if(this.targets.length === 0) return false
+
+        }
+        if (this.targets.length === 0) return false
         return true
     }
 }

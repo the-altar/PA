@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Damage = void 0;
-const baseEffect_1 = require("./baseEffect");
-class Damage extends baseEffect_1.Effect {
+const effect_1 = require("./effect");
+class Damage extends effect_1.Effect {
     constructor(data, caster) {
         super(data, caster);
         this.damageType = data.damageType;
@@ -15,19 +15,16 @@ class Damage extends baseEffect_1.Effect {
         return this.damageType;
     }
     execute(targets, world, skillType) {
-        if (this.duration <= 0)
-            return true;
-        const params = {
-            value: this.damage_value,
-            type: skillType,
-            damageBonus: this.calculateDamageBonus
-        };
-        this.effectTargetApplication(params, this.dealDamage, targets, world);
-        return false;
+        const c = world.findCharacterById(this.caster);
+        const { reduction } = c.getDebuffs().getDamageReduction({
+            damageType: this.damageType,
+            skillType: Number(skillType[0])
+        });
+        this.damage_value -= reduction;
+        return this.effectTargetApplication(skillType, targets, world);
     }
-    dealDamage(params, char) {
-        const { damageBonus, type, value } = params;
-        let damage = value * damageBonus(type, char);
+    functionality(char, skillType) {
+        let damage = this.damage_value * this.calculateDamageBonus(skillType, char);
         if (damage < 0)
             damage = 0;
         const hp = char.geHitPoints() - Math.round(damage / 5) * 5;

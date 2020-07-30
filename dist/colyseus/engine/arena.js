@@ -13,6 +13,10 @@ class Arena {
     }
     addPlayer(player, team) {
         this.players.push(new classes_1.Player(player));
+        if (this.players.length === 1) {
+            const i = Math.floor(Math.random() * (3 + 1));
+            this.players[0].increaseEnergyPool(i);
+        }
         for (let c of team) {
             this.characters.push(new classes_1.Character(c, player.id));
             const index = this.characters.length - 1;
@@ -165,7 +169,7 @@ class Arena {
         const playerId = player.getId();
         this.characters.forEach(c => {
             if (c.belongsTo(playerId) && !c.isKnockedOut()) {
-                c.lowerCooldowns();
+                c.lowerCooldowns(c);
                 const energyIndex = c.generateEnergy();
                 player.increaseEnergyPool(energyIndex);
             }
@@ -176,8 +180,11 @@ class Arena {
         const pool = player.getEnergyPool();
         this.characters.forEach((c, i) => {
             if (c.belongsTo(playerId) && !c.isKnockedOut()) {
-                c.clearBuffs();
                 c.validadeSkillsCompletely(pool, this.characters, playerId, i);
+                c.clearEnemyPhaseBuffs();
+            }
+            else {
+                c.clearDebuffs();
             }
         });
     }

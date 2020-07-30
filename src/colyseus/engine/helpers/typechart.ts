@@ -156,7 +156,7 @@ const chart:{[x:string]:{[x:string]:number}} = {
 }
 
 
-export const typeChart = function (defense: string, attack:string) {
+export const typeChart = function (defense: string, attack:number) {
     if(!(defense in chart)) return 1
     if(!(attack in chart[defense])) return 1
     return (chart[defense][attack] || 1)

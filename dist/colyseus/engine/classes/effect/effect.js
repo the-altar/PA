@@ -12,47 +12,71 @@ class Effect {
         this.linked = data.linked || false;
         this.type = data.type;
         this.caster = caster;
+        this.onEnemyTurn = false || data.onEnemyTurn;
         this.behavior = data.behavior || enums_1.effectTargetBehavior.Default;
         this.targets = [];
         this.activationType = data.activationType || enums_1.activationType.Immediate;
     }
     execute(targets, world, skillType) {
+        console.log("This effect does nothing");
         return false;
+    }
+    functionality(char, skillType) {
+        console.log("This does nothing!");
+        return;
     }
     setTargets(targets) {
         this.targets = targets;
+    }
+    shouldApply(acType) {
+        switch (acType) {
+            case enums_1.activationType.Immediate: {
+                return true;
+            }
+            default: return false;
+        }
     }
     getActivationType() {
         return this.activationType;
     }
     calculateDamageBonus(skillType, char) {
         let mod = 1;
-        for (const typing in skillType) {
+        for (const typing of skillType) {
             for (const type in char.getTyping()) {
-                mod *= typechart_1.typeChart(type, typing);
+                mod *= typechart_1.typeChart(type, Number(typing));
             }
         }
         return mod;
     }
     tickOn() {
         this.tick++;
-        if (this.tick % 2 === 0)
-            return false;
-        this.delay -= 1;
-        if (this.delay >= 0)
-            return false;
-        this.duration -= 1;
-        return true;
+        if (this.delay > 0) {
+            this.delay--;
+            return {
+                terminate: false,
+                activate: false
+            };
+        }
+        /*  An even tick means it's your opponent's turn, odd means its yours.*/
+        /*  The default behavior is for your skills to activate on odd ticks*/
+        this.duration--;
+        let terminate = false;
+        let activate = false;
+        if (this.tick % 2 === enums_1.PlayerPhase.MyTurn)
+            activate = true;
+        if (this.duration <= 0)
+            terminate = true;
+        return { terminate, activate };
     }
-    effectTargetApplication(params, functionality, targets, world) {
+    effectTargetApplication(skillType, targets, world) {
         const t = [];
-        const activate = this.tickOn();
+        const { activate, terminate } = this.tickOn();
         switch (this.behavior) {
             case enums_1.effectTargetBehavior.Default:
                 {
                     for (const char of targets) {
-                        if (activate) {
-                            functionality(params, char);
+                        if (activate && !char.isInvulnerable(skillType)) {
+                            this.functionality(char, skillType);
                         }
                         t.push(char.getId());
                     }
@@ -60,8 +84,8 @@ class Effect {
                 break;
             case enums_1.effectTargetBehavior.OnlyOne:
                 {
-                    if (activate) {
-                        functionality(params, targets[0]);
+                    if (activate && !targets[0].isInvulnerable(skillType)) {
+                        this.functionality(targets[0], skillType);
                     }
                     t.push(targets[0].getId());
                 }
@@ -69,8 +93,8 @@ class Effect {
             case enums_1.effectTargetBehavior.AllOthers:
                 {
                     for (const char of targets.slice(1, targets.length)) {
-                        if (activate) {
-                            functionality(params, char);
+                        if (activate && !char.isInvulnerable(skillType)) {
+                            this.functionality(char, skillType);
                         }
                         t.push(char.getId());
                     }
@@ -83,8 +107,8 @@ class Effect {
                     for (const target of targets) {
                         for (const char of c) {
                             if (char.getId() === target.getId()) {
-                                if (activate) {
-                                    functionality(params, char);
+                                if (activate && !char.isInvulnerable(skillType)) {
+                                    this.functionality(char, skillType);
                                 }
                                 t.push(char.getId());
                             }
@@ -95,18 +119,20 @@ class Effect {
             case enums_1.effectTargetBehavior.ifSelf:
                 {
                     const char = world.findCharacterById(this.caster);
-                    if (activate) {
-                        functionality(params, char);
+                    if (activate && !char.isInvulnerable(skillType)) {
+                        this.functionality(char, skillType);
                     }
                     t.push(char.getId());
                 }
                 break;
         }
-        this.setTargets(t);
+        if (!terminate)
+            this.setTargets(t);
+        return terminate;
     }
     getType() {
         return this.type;
     }
 }
 exports.Effect = Effect;
-//# sourceMappingURL=baseEffect.js.map
+//# sourceMappingURL=effect.js.map

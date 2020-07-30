@@ -1,5 +1,5 @@
 export enum effectType {
-    Damage, Invulnerability
+    Damage, Invulnerability, DamageReduction, CooldownIncreasal, CooldownReduction, 
 }
 
 export enum activationType {
@@ -20,5 +20,17 @@ export enum DamageType {
 
 export enum Types {
     Bug, Dark, Dragon, Electric, Fairy, Fighting, Fire, Flying, Ghost, Grass, Ground, Ice, Normal, Poison, Psychic, Rock, Steel, Water, Any
+}
+
+export enum BuffTypes {
+    Invulnerability, CooldownReduction
+}
+
+export enum DebuffTypes {
+    DamageReduction, CooldownIncreasal
+}
+
+export enum PlayerPhase {
+    EnemyTurn, MyTurn
 }
 

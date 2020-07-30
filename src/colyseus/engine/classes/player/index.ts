@@ -34,7 +34,6 @@ export class Player {
     public addToPayupCart(cost: Array<number>) {
         this.payupCart = this.payupCart.map((a, i) => a + cost[i])
     }
-
     public increaseEnergyPool(energyIndex: number) {
         this.energyPool[energyIndex]++
     }
