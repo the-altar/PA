@@ -6,7 +6,7 @@ import fileupload from 'express-fileupload'
 import { Application } from 'express'
 import { rootRouter } from './handlers/root/root.router'
 import { characterRouter } from "./handlers/character/character.router"
-import  {gameRouter} from "./handlers/game/game.router"
+import { gameRouter } from "./handlers/game/game.router"
 
 export class App {
     private app: Application
@@ -23,8 +23,8 @@ export class App {
         this.app.use(bodyparser.json())
         this.app.use(bodyparser.urlencoded({ extended: true }))
         this.app.use(express.static('public', { maxAge: "10d" }))
-        this.app.use(express.static('public/main', {maxAge: '7d'}))
-        this.app.use('/game', express.static('public/game', {maxAge: '7d'}))
+        this.app.use(express.static('public/main', { maxAge: '7d' }))
+        this.app.use('/game', express.static('public/game', { maxAge: '7d' }))
     }
 
     private routes(): void {

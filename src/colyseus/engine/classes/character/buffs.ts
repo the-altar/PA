@@ -21,7 +21,7 @@ export class Buffs {
         this.invulnerability[skillType] = true
     }
 
-    public isInvulnerable(types: Array<string>): boolean {
+    public isInvulnerable(types: Array<Types>): boolean {
         if (this.invulnerability[Types.Any]) return true
         for (const t of types) {
             if (this.invulnerability[t]) return true

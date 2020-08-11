@@ -13,11 +13,12 @@ const schema = new exports.Schema({
         "type": String
     },
     "banner": String,
-    "releaseStatus": Boolean,
+    "dexNumber": Number,
+    "released": Boolean,
     "facepic": {
         "type": String
     },
-    "type": {},
+    "type": [],
     "energyGain": [],
     "hitPoints": {
         "type": Number

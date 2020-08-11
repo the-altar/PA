@@ -4,6 +4,7 @@ exports.Skill = void 0;
 const enums_1 = require("../../enums");
 const effect_1 = require("../effect");
 const targetValidationFactory_1 = require("./targetValidationFactory");
+const mods_1 = require("./mods");
 class Skill {
     constructor(data, caster) {
         this.type = data.type;
@@ -16,9 +17,11 @@ class Skill {
         this.cost = data.cost;
         this.class = data.class;
         this.baseCooldown = data.baseCooldown;
-        this.target = data.target;
+        this.targetMode = data.targetMode;
         this.targetChoices = data.targetChoices || {};
         this.effects = [];
+        this.mods = new mods_1.SkillMods(data.mods);
+        this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
         for (const e of data.effects) {
             const built = effect_1.effectFactory(e, caster);
             this.effects.push(built);
@@ -28,7 +31,7 @@ class Skill {
         return this.disabled;
     }
     validateCost(energyPool) {
-        energyPool[4] = energyPool.slice(0, 4).reduce((ca, cv) => ca + cv);
+        const totalPool = energyPool[4];
         let totalCost = this.cost.reduce((ca, cv) => ca + cv);
         for (let i = 0; i <= 4; i++) {
             if (this.cost[i] > energyPool[i]) {
@@ -36,13 +39,16 @@ class Skill {
                 return;
             }
         }
-        if (totalCost > energyPool[4]) {
+        if (totalCost > totalPool) {
             this.disabled = true;
             return;
         }
     }
     enable() {
         this.disabled = false;
+    }
+    disable() {
+        this.disabled = true;
     }
     lowerCooldown(extra) {
         if (this.cooldown > 0)
@@ -51,14 +57,19 @@ class Skill {
     startCooldown(extra) {
         this.cooldown = this.baseCooldown + (1 + extra);
     }
-    getValidadedTargets(choice) {
+    getValidatedTargets(choice) {
         let t = [];
-        switch (this.target) {
+        const targetMode = this.getTargetMod() || this.targetMode;
+        switch (targetMode) {
             case enums_1.targetType.Self: {
                 t.push(choice);
                 return t;
             }
             case enums_1.targetType.OneEnemy: {
+                t.push(choice);
+                return t;
+            }
+            case enums_1.targetType.OneAlly: {
                 t.push(choice);
                 return t;
             }
@@ -71,9 +82,38 @@ class Skill {
                 }
                 return t;
             }
+            case enums_1.targetType.AllAllies: {
+                t.push(choice);
+                for (const opt of this.targetChoices.choice) {
+                    if (opt !== choice) {
+                        t.push(opt);
+                    }
+                }
+                return t;
+            }
+            case enums_1.targetType.OneEnemyAndAllAllies: {
+                t.push(choice);
+                t = t.concat(this.targetChoices.auto);
+                return t;
+            }
             case enums_1.targetType.OneEnemyAndSelf: {
                 t.push(choice);
                 t = t.concat(this.targetChoices.auto);
+                return t;
+            }
+            case enums_1.targetType.OneAllyAndSelf: {
+                t.push(choice);
+                t = t.concat(this.targetChoices.auto);
+                return t;
+            }
+            case enums_1.targetType.AllEnemiesAndSelf: {
+                t.push(choice);
+                for (const opt of this.targetChoices.choice) {
+                    if (opt !== choice) {
+                        t.push(opt);
+                    }
+                }
+                t.concat(this.targetChoices.auto);
                 return t;
             }
         }
@@ -85,7 +125,8 @@ class Skill {
         }
     }
     setTargetChoices(characters, playerId, self) {
-        this.targetChoices = targetValidationFactory_1.targetSetter(this, this.target, characters, playerId, self);
+        const targetMode = this.getTargetMod() || this.targetMode;
+        this.targetChoices = targetValidationFactory_1.targetSetter(this, targetMode, characters, playerId, self);
     }
     getTargetChoices() {
         return this.targetChoices;
@@ -97,21 +138,13 @@ class Skill {
         return this.targets;
     }
     getTypes() {
-        return Object.keys(this.type);
+        return this.type;
     }
-    executeEffects(world) {
-        for (let i = this.effects.length - 1; i >= 0; i--) {
-            const effect = this.effects[i];
-            if (effect.shouldApply(enums_1.activationType.Immediate)) {
-                const isDone = this.effects[i].execute(this.targets, world, this.getTypes());
-                if (isDone) {
-                    this.effects.splice(i, 1);
-                }
-            }
+    executeEffects(world, aType, triggerClause) {
+        for (const effect of this.effects) {
+            const shouldApply = effect.shouldApply(aType, triggerClause);
+            effect.execute(this.targets, world, this, shouldApply);
         }
-        if (this.effects.length === 0)
-            return true;
-        return false;
     }
     getCost() {
         return this.cost;
@@ -123,9 +156,32 @@ class Skill {
         }
         return checker;
     }
+    tickEffectsDuration(world, origin) {
+        for (let i = this.effects.length - 1; i >= 0; i--) {
+            const effect = this.effects[i];
+            const { terminate } = effect.progressTurn();
+            if (terminate) {
+                const e = this.effects.splice(i, 1)[0];
+                if (!e.isVisible()) {
+                    const chars = world.getCharactersByIndex(e.getTargets());
+                    for (const char of chars) {
+                        char.addNotification({
+                            id: origin.getId(),
+                            msg: "An effect has ended",
+                            skillName: origin.name,
+                            skillpic: origin.skillpic
+                        });
+                    }
+                }
+            }
+        }
+        if (this.effects.length === 0)
+            return true;
+        return false;
+    }
     areTargetsValidated(world) {
         for (let i = this.targets.length - 1; i >= 0; i--) {
-            const c = this.targets[i];
+            const c = world.getCharactersByIndex([this.targets[i]])[0];
             if (c.isKnockedOut()) {
                 this.targets.splice(i, 1);
             }
@@ -133,6 +189,18 @@ class Skill {
         if (this.targets.length === 0)
             return false;
         return true;
+    }
+    setTargetMod(target) {
+        this.mods.setTargetMod(target);
+    }
+    getTargetMod() {
+        return this.mods.getTargetMod();
+    }
+    clearMods() {
+        this.mods.clearTargetMod();
+    }
+    getId() {
+        return this.id;
     }
 }
 exports.Skill = Skill;

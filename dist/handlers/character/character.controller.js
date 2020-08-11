@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.upload = exports.getAll = exports.remove = exports.update = exports.create = void 0;
+exports.uploadFiles = exports.upload = exports.getAll = exports.remove = exports.find = exports.update = exports.create = void 0;
 const character_1 = require("../../models/character");
 const path_1 = require("path");
 const fs_1 = require("fs");
@@ -25,8 +25,17 @@ exports.create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield character_1.CharacterDB.findOneAndUpdate({ _id: req.body._id }, { $set: req.body });
+        yield character_1.CharacterDB.findOneAndUpdate({ _id: req.body._id }, { $set: req.body }, { upsert: true });
         return res.json({ code: 1 });
+    }
+    catch (err) {
+        return res.json({ code: 0 });
+    }
+});
+exports.find = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const char = yield character_1.CharacterDB.findById(req.params.id);
+        return res.json(char);
     }
     catch (err) {
         console.error(err);
@@ -44,7 +53,8 @@ exports.remove = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     pics.push(char.banner);
     pics.forEach(pic => {
         const p = path_1.join(process.cwd(), '/public/img/game/', pic + ".jpg");
-        fs_1.unlinkSync(p);
+        if (fs_1.existsSync(p))
+            fs_1.unlinkSync(p);
     });
     try {
         yield character_1.CharacterDB.deleteOne({ _id: char._id });
@@ -77,5 +87,20 @@ exports.upload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     return res.send('File uploaded!');
+});
+exports.uploadFiles = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const response = [];
+    for (const file in req.files) {
+        const f = req.files[file];
+        const p = path_1.join(process.cwd(), '/public/img/game/', req.params.filename + ".jpg");
+        f.mv(p, (err) => {
+            if (err) {
+                console.log(err);
+                return res.status(500);
+            }
+            response.push({ url: `http://localhost:3000/img/game/${req.params.filename}.jpg` });
+        });
+    }
+    return 1;
 });
 //# sourceMappingURL=character.controller.js.map

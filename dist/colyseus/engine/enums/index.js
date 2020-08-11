@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlayerPhase = exports.DebuffTypes = exports.BuffTypes = exports.Types = exports.DamageType = exports.effectTargetBehavior = exports.targetType = exports.activationType = exports.effectType = void 0;
+exports.triggerClauseType = exports.PlayerPhase = exports.SkillClassType = exports.CostTypes = exports.DebuffTypes = exports.BuffTypes = exports.Types = exports.DamageType = exports.effectTargetBehavior = exports.targetType = exports.activationType = exports.effectType = void 0;
 var effectType;
 (function (effectType) {
     effectType[effectType["Damage"] = 0] = "Damage";
@@ -8,6 +8,14 @@ var effectType;
     effectType[effectType["DamageReduction"] = 2] = "DamageReduction";
     effectType[effectType["CooldownIncreasal"] = 3] = "CooldownIncreasal";
     effectType[effectType["CooldownReduction"] = 4] = "CooldownReduction";
+    effectType[effectType["Healing"] = 5] = "Healing";
+    effectType[effectType["Stun"] = 6] = "Stun";
+    effectType[effectType["HealthDrain"] = 7] = "HealthDrain";
+    effectType[effectType["EnergyRemoval"] = 8] = "EnergyRemoval";
+    effectType[effectType["EnergyGain"] = 9] = "EnergyGain";
+    effectType[effectType["EnergySteal"] = 10] = "EnergySteal";
+    effectType[effectType["SkillTargetMod"] = 11] = "SkillTargetMod";
+    effectType[effectType["Counter"] = 12] = "Counter";
 })(effectType = exports.effectType || (exports.effectType = {}));
 var activationType;
 (function (activationType) {
@@ -32,6 +40,8 @@ var targetType;
     targetType[targetType["Self"] = 6] = "Self";
     targetType[targetType["OneEnemyAndSelf"] = 7] = "OneEnemyAndSelf";
     targetType[targetType["OneEnemyAndAllAllies"] = 8] = "OneEnemyAndAllAllies";
+    targetType[targetType["OneAllyAndSelf"] = 9] = "OneAllyAndSelf";
+    targetType[targetType["AllEnemiesAndSelf"] = 10] = "AllEnemiesAndSelf";
 })(targetType = exports.targetType || (exports.targetType = {}));
 var effectTargetBehavior;
 (function (effectTargetBehavior) {
@@ -81,10 +91,30 @@ var DebuffTypes;
 (function (DebuffTypes) {
     DebuffTypes[DebuffTypes["DamageReduction"] = 0] = "DamageReduction";
     DebuffTypes[DebuffTypes["CooldownIncreasal"] = 1] = "CooldownIncreasal";
+    DebuffTypes[DebuffTypes["Stun"] = 2] = "Stun";
 })(DebuffTypes = exports.DebuffTypes || (exports.DebuffTypes = {}));
+var CostTypes;
+(function (CostTypes) {
+    CostTypes[CostTypes["Speed"] = 0] = "Speed";
+    CostTypes[CostTypes["Strenght"] = 1] = "Strenght";
+    CostTypes[CostTypes["Elemental"] = 2] = "Elemental";
+    CostTypes[CostTypes["Wisdom"] = 3] = "Wisdom";
+    CostTypes[CostTypes["Random"] = 4] = "Random";
+})(CostTypes = exports.CostTypes || (exports.CostTypes = {}));
+var SkillClassType;
+(function (SkillClassType) {
+    SkillClassType[SkillClassType["Special"] = 0] = "Special";
+    SkillClassType[SkillClassType["Physical"] = 1] = "Physical";
+    SkillClassType[SkillClassType["Status"] = 2] = "Status";
+})(SkillClassType = exports.SkillClassType || (exports.SkillClassType = {}));
 var PlayerPhase;
 (function (PlayerPhase) {
     PlayerPhase[PlayerPhase["EnemyTurn"] = 0] = "EnemyTurn";
     PlayerPhase[PlayerPhase["MyTurn"] = 1] = "MyTurn";
 })(PlayerPhase = exports.PlayerPhase || (exports.PlayerPhase = {}));
+var triggerClauseType;
+(function (triggerClauseType) {
+    triggerClauseType[triggerClauseType["None"] = 0] = "None";
+    triggerClauseType[triggerClauseType["onKnockOut"] = 1] = "onKnockOut";
+})(triggerClauseType = exports.triggerClauseType || (exports.triggerClauseType = {}));
 //# sourceMappingURL=index.js.map

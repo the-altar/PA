@@ -1,28 +1,29 @@
 import { Character } from "../character"
 import { iSkill } from "../../interfaces"
-import { targetType, activationType, effectType } from "../../enums"
+import { targetType, activationType, Types, SkillClassType, triggerClauseType } from "../../enums"
 import { effectFactory } from "../effect"
 import { targetSetter } from "./targetValidationFactory"
-import { Effect } from "../effect/effect"
+import { Effect } from "../effect/base"
 import { Arena } from "../../arena"
-
+import { SkillMods } from "./mods"
 export class Skill {
 
     private cost: Array<number>
     public disabled?: boolean
-    private skillpic: string
+    public skillpic: string
     public name: string
     private description: string
-    private class: string
+    private class: SkillClassType
     private cooldown: number
     private baseCooldown: number
-    private type: { [key: string]: number }
+    private type: Array<Types>
     private limit: number
-    private target: targetType
-    private targets: Array<Character>
+    private mods: SkillMods
+    private targets: Array<number>
+    private targetMode: targetType
     private effects: Array<Effect>
     private targetChoices: { [x: string]: Array<number> }
-
+    private id: number;
     constructor(data: iSkill, caster: number) {
 
         this.type = data.type
@@ -35,10 +36,11 @@ export class Skill {
         this.cost = data.cost
         this.class = data.class
         this.baseCooldown = data.baseCooldown
-        this.target = data.target
+        this.targetMode = data.targetMode
         this.targetChoices = data.targetChoices || {}
         this.effects = []
-
+        this.mods = new SkillMods(data.mods)
+        this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
         for (const e of data.effects) {
             const built = effectFactory(e, caster)
             this.effects.push(built)
@@ -51,7 +53,7 @@ export class Skill {
 
     public validateCost(energyPool: Array<number>) {
 
-        energyPool[4] = energyPool.slice(0, 4).reduce((ca, cv) => ca + cv)
+        const totalPool = energyPool[4]
         let totalCost = this.cost.reduce((ca, cv) => ca + cv)
 
         for (let i = 0; i <= 4; i++) {
@@ -60,9 +62,7 @@ export class Skill {
                 return
             }
         }
-
-
-        if (totalCost > energyPool[4]) {
+        if (totalCost > totalPool) {
             this.disabled = true
             return
         }
@@ -70,6 +70,10 @@ export class Skill {
 
     public enable() {
         this.disabled = false
+    }
+
+    public disable() {
+        this.disabled = true
     }
 
     public lowerCooldown(extra: number) {
@@ -80,9 +84,11 @@ export class Skill {
         this.cooldown = this.baseCooldown + (1 + extra)
     }
 
-    public getValidadedTargets(choice: number): Array<number> {
+    public getValidatedTargets(choice: number): Array<number> {
         let t: Array<number> = []
-        switch (this.target) {
+        const targetMode = this.getTargetMod() || this.targetMode
+
+        switch (targetMode) {
 
             case targetType.Self: {
                 t.push(choice)
@@ -90,6 +96,11 @@ export class Skill {
             }
 
             case targetType.OneEnemy: {
+                t.push(choice)
+                return t
+            }
+
+            case targetType.OneAlly: {
                 t.push(choice)
                 return t
             }
@@ -104,9 +115,42 @@ export class Skill {
                 return t
             }
 
+            case targetType.AllAllies: {
+                t.push(choice)
+                for (const opt of this.targetChoices.choice) {
+                    if (opt !== choice) {
+                        t.push(opt)
+                    }
+                }
+                return t
+            }
+
+            case targetType.OneEnemyAndAllAllies: {
+                t.push(choice)
+                t = t.concat(this.targetChoices.auto)
+                return t
+            }
+
             case targetType.OneEnemyAndSelf: {
                 t.push(choice)
                 t = t.concat(this.targetChoices.auto)
+                return t
+            }
+
+            case targetType.OneAllyAndSelf: {
+                t.push(choice)
+                t = t.concat(this.targetChoices.auto)
+                return t
+            }
+
+            case targetType.AllEnemiesAndSelf: {
+                t.push(choice)
+                for (const opt of this.targetChoices.choice) {
+                    if (opt !== choice) {
+                        t.push(opt)
+                    }
+                }
+                t.concat(this.targetChoices.auto)
                 return t
             }
 
@@ -121,43 +165,31 @@ export class Skill {
     }
 
     public setTargetChoices(characters: Array<Character>, playerId: string, self?: number) {
-        this.targetChoices = targetSetter(this, this.target, characters, playerId, self)
+        const targetMode = this.getTargetMod() || this.targetMode
+        this.targetChoices = targetSetter(this, targetMode, characters, playerId, self)
     }
 
     public getTargetChoices(): { [x: string]: Array<number> } {
         return this.targetChoices
     }
 
-    public setTargets(targets: Array<Character>) {
+    public setTargets(targets: Array<number>) {
         this.targets = targets
     }
 
-    public getTargets(): Array<Character> {
+    public getTargets(): Array<number> {
         return this.targets
     }
 
-    public getTypes(): Array<string> {
-        return Object.keys(this.type)
+    public getTypes(): Array<Types> {
+        return this.type
     }
 
-    public executeEffects(world: Arena): boolean {
-
-        for (let i = this.effects.length - 1; i >= 0; i--) {
-            const effect = this.effects[i]
-
-            if (effect.shouldApply(activationType.Immediate)) {
-                const isDone = this.effects[i].execute(this.targets, world, this.getTypes())
-                if (isDone) {
-                    this.effects.splice(i, 1)
-                }
-
-            }
-
+    public executeEffects(world: Arena, aType: activationType, triggerClause?: triggerClauseType) {
+        for (const effect of this.effects) {
+            const shouldApply = effect.shouldApply(aType, triggerClause)
+            effect.execute(this.targets, world, this, shouldApply)
         }
-
-        if (this.effects.length === 0) return true
-
-        return false
     }
 
     public getCost(): Array<number> {
@@ -174,16 +206,60 @@ export class Skill {
         return checker
     }
 
-    public areTargetsValidated(world: Arena) {
-        for (let i = this.targets.length - 1; i >= 0; i--) {
+    public tickEffectsDuration(world: Arena, origin: Skill) {
 
-            const c = this.targets[i]
+        for (let i = this.effects.length - 1; i >= 0; i--) {
+            const effect = this.effects[i]
+            const { terminate } = effect.progressTurn()
+
+            if (terminate) {
+                const e = this.effects.splice(i, 1)[0]
+                
+                if (!e.isVisible()) {
+                    const chars = world.getCharactersByIndex(e.getTargets())
+                    
+                    for (const char of chars) {
+                        char.addNotification({
+                            id: origin.getId(),
+                            msg: "An effect has ended",
+                            skillName: origin.name,
+                            skillpic: origin.skillpic
+                        })
+                    }
+                }
+            }
+        }
+
+        if (this.effects.length === 0) return true
+        return false
+    }
+
+    public areTargetsValidated(world: Arena) {
+
+        for (let i = this.targets.length - 1; i >= 0; i--) {
+            const c = world.getCharactersByIndex([this.targets[i]])[0]
             if (c.isKnockedOut()) {
                 this.targets.splice(i, 1)
             }
-
         }
+
         if (this.targets.length === 0) return false
         return true
+    }
+
+    public setTargetMod(target: targetType) {
+        this.mods.setTargetMod(target)
+    }
+
+    public getTargetMod() {
+        return this.mods.getTargetMod()
+    }
+
+    public clearMods() {
+        this.mods.clearTargetMod()
+    }
+
+    public getId(): number {
+        return this.id
     }
 }

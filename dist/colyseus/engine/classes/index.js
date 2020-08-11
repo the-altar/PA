@@ -13,5 +13,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./character"), exports);
 __exportStar(require("./player"), exports);
 __exportStar(require("./skill"), exports);
-__exportStar(require("./effect"), exports);
+__exportStar(require("./effect/base"), exports);
 //# sourceMappingURL=index.js.map

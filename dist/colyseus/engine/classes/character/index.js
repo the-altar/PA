@@ -5,17 +5,19 @@ const enums_1 = require("../../enums");
 const skill_1 = require("../skill");
 // IMPORTANT TO THIS CLASS ONLY
 const buffs_1 = require("./buffs");
+const notifications_1 = require("./notifications");
 const debuffs_1 = require("./debuffs");
 class Character {
     constructor(data, playerId) {
         this.buffs = new buffs_1.Buffs();
         this.debuffs = new debuffs_1.Debuffs();
+        this.notifications = [];
         this.isTarget = false;
         this.name = data.name;
         this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
         this.facepic = data.facepic;
         this.description = data.description;
-        this.hitPoints = data.hitPoints;
+        this.hitPoints = 100;
         this.type = data.type;
         this.energyGain = data.energyGain;
         this.belongs = {};
@@ -49,6 +51,8 @@ class Character {
             this.hitPoints = 0;
             this.knockOut();
         }
+        else if (this.hitPoints > 100)
+            this.hitPoints = 100;
     }
     belongsTo(id) {
         return this.belongs[id];
@@ -73,21 +77,35 @@ class Character {
     }
     validadeSkillsCompletely(pool, chars, playerId, self) {
         for (const skill of this.skills) {
-            skill.enable();
-            skill.validateCoolDown();
-            skill.validateCost(pool);
-            skill.setTargetChoices(chars, playerId, self);
+            if (this.isStunned()) {
+                skill.disable();
+            }
+            else {
+                skill.enable();
+                skill.validateCoolDown();
+                skill.validateCost(pool);
+                skill.setTargetChoices(chars, playerId, self);
+            }
         }
     }
     validateSkillsCost(pool) {
         for (const skill of this.skills) {
-            skill.enable();
-            skill.validateCoolDown();
-            skill.validateCost(pool);
+            if (this.isStunned()) {
+                skill.disable();
+            }
+            else {
+                skill.enable();
+                skill.validateCoolDown();
+                skill.validateCost(pool);
+            }
         }
     }
-    getSkillByIndex(index) {
-        return new skill_1.Skill(JSON.parse(JSON.stringify(this.skills[index])), this.id);
+    getCopySkillByIndex(index) {
+        const newObj = JSON.parse(JSON.stringify(this.skills[index]));
+        return new skill_1.Skill(newObj, this.id);
+    }
+    getRealSkillByIndex(index) {
+        return this.skills[index];
     }
     setSkillCooldownByIndex(index) {
         const n = this.buffs.getCooldownReduction() + this.debuffs.getCooldownIncreasal();
@@ -107,7 +125,7 @@ class Character {
     }
     disableSkills() {
         this.skills.forEach(s => {
-            s.disabled = true;
+            s.disable();
         });
     }
     setBuff(params) {
@@ -131,12 +149,20 @@ class Character {
             case enums_1.DebuffTypes.CooldownIncreasal: {
                 this.debuffs.setCooldownIncreasal(params);
             }
+            case enums_1.DebuffTypes.Stun: {
+                this.debuffs.setStun(params);
+            }
         }
     }
     isInvulnerable(types) {
         return this.buffs.isInvulnerable(types);
     }
+    clearBuffs() {
+        this.buffs.clearInvulnerability();
+        this.buffs.clearCooldownReduction();
+    }
     clearEnemyPhaseBuffs() {
+        console.log(`Buffs cleared [${this.getOwner()}]`);
         this.buffs.clearInvulnerability();
     }
     clearPlayerPhaseBuffs() {
@@ -156,6 +182,23 @@ class Character {
     }
     getTyping() {
         return this.type;
+    }
+    isStunned() {
+        return this.debuffs.isStunned(enums_1.Types.Any);
+    }
+    getSkills() {
+        return this.skills;
+    }
+    clearSkillMods() {
+        for (const skill of this.skills) {
+            skill.clearMods();
+        }
+    }
+    addNotification(data) {
+        this.notifications.push(new notifications_1.Notification(data));
+    }
+    clearNotifications() {
+        this.notifications = [];
     }
 }
 exports.Character = Character;

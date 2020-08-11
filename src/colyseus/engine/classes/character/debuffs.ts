@@ -5,16 +5,18 @@ export interface iDebuffParams {
     skillType?: Types,
     value?: number,
     debuffType?: DebuffTypes
-    specific?:number
+    specific?: number
 }
 
 export class Debuffs {
     damageReduction: { [x: string]: { [x: string]: number } }
     cooldownIncreasal: { [x: string]: number }
+    stun: { [x: string]: boolean }
 
     constructor() {
         this.damageReduction = {}
-        this.cooldownIncreasal = {any:0}
+        this.cooldownIncreasal = { any: 0 }
+        this.stun = { }
     }
 
     public setDamageReduction(params: iDebuffParams) {
@@ -31,18 +33,20 @@ export class Debuffs {
             hasBeenReduced: false
         }
 
-        if(this.damageReduction[Types.Any]!==undefined) {
-            res.reduction += this.damageReduction[Types.Any][damageType]
+        if (this.damageReduction[Types.Any] !== undefined) {
+            res.reduction += this.damageReduction[Types.Any][damageType] || 0
             res.hasBeenReduced = true
         }
 
-        if(this.damageReduction[skillType]!==undefined){
-            if(this.damageReduction[skillType][damageType] !== undefined) {
-                res.reduction += this.damageReduction[skillType][damageType]
-                res.hasBeenReduced = true
+        if (skillType !== Types.Any) {
+            if (this.damageReduction[skillType] !== undefined) {
+                if (this.damageReduction[skillType][damageType] !== undefined) {
+                    res.reduction += this.damageReduction[skillType][damageType] || 0
+                    res.hasBeenReduced = true
+                }
             }
         }
-
+        
         return res
     }
 
@@ -56,17 +60,28 @@ export class Debuffs {
         }
     }
 
-    public getCooldownIncreasal(specific?: number) {
+    public getCooldownIncreasal(params?: any) {
         let r = this.cooldownIncreasal.any
-        if (specific) {
-            if (this.cooldownIncreasal[specific])
-                r += this.cooldownIncreasal[specific]
+        if (params === undefined) return r
+        if (params.specific) {
+            if (this.cooldownIncreasal[params.specific])
+                r += this.cooldownIncreasal[params.specific]
         }
         return r
     }
 
+    public setStun(params: iDebuffParams) {
+        this.stun[params.specific] = true
+    }
+
+    public isStunned(params:any): boolean {
+        if(this.stun[params]) return true
+        return false
+    }
+
     public clearDebuffs() {
         this.damageReduction = {}
-        this.cooldownIncreasal = {any:0}
+        this.cooldownIncreasal = { any: 0 }
+        this.stun = {}
     }
 }

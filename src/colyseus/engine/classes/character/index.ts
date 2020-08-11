@@ -1,37 +1,40 @@
 import { iCharacter } from "../../interfaces"
-import {Types, BuffTypes, DebuffTypes} from "../../enums"
+import { Types, BuffTypes, DebuffTypes } from "../../enums"
 import { Skill } from "../skill"
 
 // IMPORTANT TO THIS CLASS ONLY
-import {Buffs, iBuffParams} from "./buffs";
-import {Debuffs, iDebuffParams} from "./debuffs";
+import { Buffs, iBuffParams } from "./buffs";
+import { Notification } from "./notifications";
+import { Debuffs, iDebuffParams } from "./debuffs";
 
 export class Character {
     private name: string
     private facepic: string
     private description: string
-    private allies:Array<number>
-    private enemies:Array<number>
+    private allies: Array<number>
+    private enemies: Array<number>
     private id: number
     private hitPoints: number
-    private isTarget:boolean 
+    private isTarget: boolean
     private knockedOut: boolean
     private buffs: Buffs
     private debuffs: Debuffs
-    private type: { [key: string]: number }
+    private notifications: Array<Notification>
+    private type: Array<Types>
     private energyGain: Array<number>
     private belongs: { [key: string]: boolean }
     private skills: Array<Skill>
 
-    constructor(data: iCharacter, playerId: string) {        
+    constructor(data: iCharacter, playerId: string) {
         this.buffs = new Buffs()
         this.debuffs = new Debuffs()
+        this.notifications = []
         this.isTarget = false
         this.name = data.name
         this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
         this.facepic = data.facepic
         this.description = data.description
-        this.hitPoints = data.hitPoints
+        this.hitPoints = 100
         this.type = data.type
         this.energyGain = data.energyGain
         this.belongs = {}
@@ -45,21 +48,21 @@ export class Character {
         }
     }
 
-    public setAllies(allies:Array<number>){
+    public setAllies(allies: Array<number>) {
         this.allies = allies
     }
 
-    public getAllies():Array<number>{
+    public getAllies(): Array<number> {
         return this.allies
     }
 
-    public getEnemies():Array<number>{
+    public getEnemies(): Array<number> {
         return this.enemies
     }
 
-    public setEnemies(enemies:Array<number>){
+    public setEnemies(enemies: Array<number>) {
         this.enemies = enemies
-    } 
+    }
 
     public geHitPoints(): number {
         return this.hitPoints
@@ -67,18 +70,18 @@ export class Character {
 
     public setHitPoints(hp: number): void {
         this.hitPoints = hp
-        if(this.hitPoints <= 0){
+        if (this.hitPoints <= 0) {
             this.hitPoints = 0
             this.knockOut()
-        }
+        } else if (this.hitPoints > 100) this.hitPoints = 100
     }
 
     public belongsTo(id: string): boolean {
         return this.belongs[id]
     }
 
-    public lowerCooldowns(char:Character) {
-        for(const skill of this.skills){
+    public lowerCooldowns(char: Character) {
+        for (const skill of this.skills) {
             skill.lowerCooldown(0)
         }
     }
@@ -101,26 +104,39 @@ export class Character {
 
     public validadeSkillsCompletely(pool: Array<number>, chars: Array<Character>, playerId: string, self?: number) {
         for (const skill of this.skills) {
-            skill.enable()
-            skill.validateCoolDown()
-            skill.validateCost(pool)
-            skill.setTargetChoices(chars, playerId, self)
+            if (this.isStunned()) {
+                skill.disable()
+            } else {
+                skill.enable()
+                skill.validateCoolDown()
+                skill.validateCost(pool)
+                skill.setTargetChoices(chars, playerId, self)
+            }
         }
     }
 
     public validateSkillsCost(pool: Array<number>) {
         for (const skill of this.skills) {
-            skill.enable()
-            skill.validateCoolDown()
-            skill.validateCost(pool)
+            if (this.isStunned()) {
+                skill.disable()
+            } else {
+                skill.enable()
+                skill.validateCoolDown()
+                skill.validateCost(pool)
+            }
         }
     }
 
-    public getSkillByIndex(index: number): Skill {
-        return new Skill(JSON.parse(JSON.stringify(this.skills[index])), this.id)
+    public getCopySkillByIndex(index:number):Skill {
+        const newObj = JSON.parse(JSON.stringify(this.skills[index]))
+        return new Skill(newObj, this.id)
     }
 
-    public setSkillCooldownByIndex(index:number){
+    public getRealSkillByIndex(index:number): Skill {
+        return this.skills[index]
+    }
+
+    public setSkillCooldownByIndex(index: number) {
         const n = this.buffs.getCooldownReduction() + this.debuffs.getCooldownIncreasal()
         this.skills[index].startCooldown(n)
     }
@@ -131,73 +147,104 @@ export class Character {
         })
     }
 
-    public knockOut(){
-        this.knockedOut= true
+    public knockOut() {
+        this.knockedOut = true
         this.disableSkills()
     }
 
-    public isKnockedOut():boolean{
+    public isKnockedOut(): boolean {
         return this.knockedOut
     }
 
     public disableSkills() {
         this.skills.forEach(s => {
-            s.disabled = true
+            s.disable()
         })
-    } 
+    }
 
-    public setBuff(params:iBuffParams) {
-        const {buffType} = params
-        switch(buffType){
+    public setBuff(params: iBuffParams) {
+        const { buffType } = params
+        switch (buffType) {
             case BuffTypes.Invulnerability: {
                 this.buffs.setInvulnerability(params)
             }
             case BuffTypes.CooldownReduction: {
                 this.buffs.setCooldownReduction(params)
-            } 
+            }
         }
     }
 
-    public setDebuff(params:iDebuffParams){
-        switch(params.debuffType){
+    public setDebuff(params: iDebuffParams) {
+        switch (params.debuffType) {
             case DebuffTypes.DamageReduction: {
                 this.debuffs.setDamageReduction(params)
-            }break;
+            } break;
             case DebuffTypes.CooldownIncreasal: {
                 this.debuffs.setCooldownIncreasal(params)
-            } 
+            }
+            case DebuffTypes.Stun: {
+                this.debuffs.setStun(params)
+            }
         }
     }
 
-    public isInvulnerable(types:Array<string>):boolean{
+    public isInvulnerable(types: Array<Types>): boolean {
         return this.buffs.isInvulnerable(types)
     }
 
-    public clearEnemyPhaseBuffs(){
+    public clearBuffs() {
         this.buffs.clearInvulnerability()
-    }
-
-    public clearPlayerPhaseBuffs(){
         this.buffs.clearCooldownReduction()
     }
 
-    public getBuffs():Buffs{
-        return this.buffs
-    } 
+    public clearEnemyPhaseBuffs() {
+        console.log(`Buffs cleared [${this.getOwner()}]`)
+        this.buffs.clearInvulnerability()
+    }
 
-    public getDebuffs():Debuffs {
+    public clearPlayerPhaseBuffs() {
+        this.buffs.clearCooldownReduction()
+    }
+
+    public getBuffs(): Buffs {
+        return this.buffs
+    }
+
+    public getDebuffs(): Debuffs {
         return this.debuffs
     }
-    
-    public clearDebuffs(){
+
+    public clearDebuffs() {
         this.debuffs.clearDebuffs()
     }
 
-    public getId():number {
+    public getId(): number {
         return this.id
     }
-    
-    public getTyping(){
+
+    public getTyping(): Array<Types> {
         return this.type
+    }
+
+    public isStunned(): boolean {
+        return this.debuffs.isStunned(Types.Any)
+    }
+
+    public getSkills():Array<Skill>{
+        return this.skills
+    }
+
+    public clearSkillMods(){
+        for(const skill of this.skills){
+            skill.clearMods()
+        }
+    }
+
+    public addNotification(data:{msg:string, id:number, skillpic:string, skillName:string}){
+        this.notifications.push(new Notification(data))
+    }
+
+    public clearNotifications(){
+        this.notifications = []
     }
 }

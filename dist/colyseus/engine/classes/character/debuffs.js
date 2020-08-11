@@ -6,6 +6,7 @@ class Debuffs {
     constructor() {
         this.damageReduction = {};
         this.cooldownIncreasal = { any: 0 };
+        this.stun = {};
     }
     setDamageReduction(params) {
         const { skillType, damageType, value } = params;
@@ -20,13 +21,15 @@ class Debuffs {
             hasBeenReduced: false
         };
         if (this.damageReduction[enums_1.Types.Any] !== undefined) {
-            res.reduction += this.damageReduction[enums_1.Types.Any][damageType];
+            res.reduction += this.damageReduction[enums_1.Types.Any][damageType] || 0;
             res.hasBeenReduced = true;
         }
-        if (this.damageReduction[skillType] !== undefined) {
-            if (this.damageReduction[skillType][damageType] !== undefined) {
-                res.reduction += this.damageReduction[skillType][damageType];
-                res.hasBeenReduced = true;
+        if (skillType !== enums_1.Types.Any) {
+            if (this.damageReduction[skillType] !== undefined) {
+                if (this.damageReduction[skillType][damageType] !== undefined) {
+                    res.reduction += this.damageReduction[skillType][damageType] || 0;
+                    res.hasBeenReduced = true;
+                }
             }
         }
         return res;
@@ -40,17 +43,28 @@ class Debuffs {
             this.cooldownIncreasal.any = value + this.cooldownIncreasal.any;
         }
     }
-    getCooldownIncreasal(specific) {
+    getCooldownIncreasal(params) {
         let r = this.cooldownIncreasal.any;
-        if (specific) {
-            if (this.cooldownIncreasal[specific])
-                r += this.cooldownIncreasal[specific];
+        if (params === undefined)
+            return r;
+        if (params.specific) {
+            if (this.cooldownIncreasal[params.specific])
+                r += this.cooldownIncreasal[params.specific];
         }
         return r;
+    }
+    setStun(params) {
+        this.stun[params.specific] = true;
+    }
+    isStunned(params) {
+        if (this.stun[params])
+            return true;
+        return false;
     }
     clearDebuffs() {
         this.damageReduction = {};
         this.cooldownIncreasal = { any: 0 };
+        this.stun = {};
     }
 }
 exports.Debuffs = Debuffs;

@@ -6,9 +6,10 @@ export const Mixed = mongoose.SchemaTypes.Mixed
 export interface ICharacterModel extends mongoose.Document {
     name: string;
     banner: string;
-    releaseStatus: boolean;
+    released: boolean;
     facepic: string;
-    type: ITypeList;
+    dexNumber: number;
+    type: Array<number>;
     energyGain: Array<Number>;
     hitPoints: Number;
     description: String;
@@ -19,48 +20,28 @@ interface ISkill {
     banner: string;
     name: string;
     skillpic: string;
-    type: ITypeList;
-    startCooldown: Number;
-    baseCooldown: Number;
-    class: String;
-    cost:Array<Number>;
-    description: String;
+    type: Array<number>;
+    startCooldown: number;
+    baseCooldown: number;
+    class: string;
+    cost:Array<number>;
+    description: string;
     disabled: boolean;
-    energyGain: Array<Number>;
-    limit?:Number 
+    energyGain: Array<number>;
+    limit?:number 
 } 
-
-interface ITypeList {
-    normal?: boolean;
-    fire?: boolean;
-    fighting?: boolean;
-    water?: boolean;
-    flying?: boolean;
-    grass?: boolean;
-    poison?: boolean;
-    electric?: boolean;
-    ground?: boolean;
-    psychic?: boolean;
-    rock?: boolean;
-    ice?: boolean;
-    bug?: boolean;
-    dragon?: boolean;
-    ghost?: boolean;
-    dark?: boolean;
-    steel?: boolean;
-    fairy?: boolean;    
-}
 
 const schema = new Schema({
     "name": {
         "type": String
     },
     "banner": String,
-    "releaseStatus": Boolean,
+    "dexNumber":Number,
+    "released": Boolean,
     "facepic": {
         "type": String
     },
-    "type": {},
+    "type": [],
     "energyGain": [],
     "hitPoints": {
         "type": Number

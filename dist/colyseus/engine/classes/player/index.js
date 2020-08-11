@@ -9,6 +9,13 @@ class Player {
         this.isTurn = false;
         this.energyPool = [0, 0, 0, 0, 0];
         this.payupCart = [0, 0, 0, 0, 0];
+        this.myChars = [];
+    }
+    setMyCharsIndex(myChars) {
+        this.myChars = myChars;
+    }
+    getMyCharsIndex() {
+        return this.myChars;
     }
     setTurn(turn) {
         this.isTurn = turn;
@@ -28,21 +35,31 @@ class Player {
     addToPayupCart(cost) {
         this.payupCart = this.payupCart.map((a, i) => a + cost[i]);
     }
-    increaseEnergyPool(energyIndex) {
-        this.energyPool[energyIndex]++;
+    increaseEnergyPool(energyIndex, value) {
+        if (!value)
+            this.energyPool[energyIndex]++;
+        else
+            this.energyPool[energyIndex] += value;
+    }
+    setTotalEnergyPool() {
+        this.energyPool[4] = this.energyPool.slice(0, 4).reduce((ca, cv) => ca + cv);
     }
     getEnergyPool() {
         return this.energyPool;
     }
     returnEnergy(cost) {
-        for (let i = 0; i < 5; i++) {
+        const total = cost.reduce((ca, cv) => ca + cv);
+        for (let i = 0; i < 4; i++) {
             this.energyPool[i] = this.energyPool[i] + cost[i];
         }
+        this.energyPool[4] += total;
     }
     consumeEnergy(cost) {
-        for (let i = 0; i < 5; i++) {
+        const total = cost.reduce((ca, cv) => ca + cv);
+        for (let i = 0; i < 4; i++) {
             this.energyPool[i] = this.energyPool[i] - cost[i];
         }
+        this.energyPool[4] -= total;
     }
 }
 exports.Player = Player;

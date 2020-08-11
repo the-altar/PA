@@ -16,17 +16,25 @@ class Battle extends colyseus_1.Room {
             this.arena.addPlayer(payload.player, payload.team);
             this.constructed++;
             if (this.constructed === 2) {
-                this.broadcast("game-started", this.arena.startGame());
+                const { gameData } = this.arena.startGame();
+                this.broadcast("game-started", gameData);
                 this.delay = this.clock.setInterval(() => {
-                    this.broadcast("start-new-turn", this.arena.startGame());
+                    const { isOver, gameData, winner, loser } = this.arena.startGame();
+                    if (!isOver)
+                        this.broadcast("start-new-turn", gameData);
+                    else
+                        this.broadcast("end-game", { winner, loser });
                 }, this.evaluateGroupInterval);
             }
         });
         this.onMessage('end-game-turn', (client, payload) => {
             this.delay.reset();
             this.arena.processTurn(payload);
-            this.arena.executeSkills();
-            this.broadcast("start-new-turn", this.arena.startGame());
+            const { isOver, gameData, winner, loser } = this.arena.startGame(true);
+            if (!isOver)
+                this.broadcast("start-new-turn", gameData);
+            else
+                this.broadcast("end-game", { winner, loser });
         });
         this.onMessage('add-skill-to-queue', (client, cordinates) => {
             const payload = this.arena.addSkillToTempQueue(cordinates);

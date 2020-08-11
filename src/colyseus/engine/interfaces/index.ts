@@ -1,4 +1,3 @@
-export * from "./effect"
 export * from "./character"
 export * from "./player"
 export * from "./skill"

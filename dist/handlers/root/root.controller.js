@@ -9,10 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.baseController = void 0;
+exports.uploadController = exports.baseController = void 0;
 exports.baseController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    {
-        return res.sendFile('index.html', { root: './public/main' });
-    }
+    return res.sendFile('index.html', { root: './public/main' });
+});
+exports.uploadController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body.name);
+    console.log(req.body.avatar);
+    return res.json([{ "url": "/absolute/path/to/filename.png" }]);
 });
 //# sourceMappingURL=root.controller.js.map

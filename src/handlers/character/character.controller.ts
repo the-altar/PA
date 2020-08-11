@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { CharacterDB, ICharacterModel } from "../../models/character"
 import { join } from 'path'
-import { unlinkSync } from 'fs'
+import { unlinkSync, existsSync } from 'fs'
 
 export const create = async (req: Request, res: Response) => {
     try {
@@ -15,8 +15,17 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
     try {
-        await CharacterDB.findOneAndUpdate({ _id: req.body._id }, { $set: req.body })
+        await CharacterDB.findOneAndUpdate({ _id: req.body._id }, { $set: req.body }, { upsert: true })
         return res.json({ code: 1 })
+    } catch (err) {
+        return res.json({ code: 0 })
+    }
+}
+
+export const find = async (req: Request, res: Response) => {
+    try {
+        const char = await CharacterDB.findById(req.params.id)
+        return res.json(char)
     } catch (err) {
         console.error(err)
         return res.json({ code: 0 })
@@ -36,7 +45,7 @@ export const remove = async (req: Request, res: Response) => {
 
     pics.forEach(pic => {
         const p: string = join(process.cwd(), '/public/img/game/', pic + ".jpg")
-        unlinkSync(p)
+        if(existsSync(p)) unlinkSync(p)
     })
 
     try {
@@ -72,4 +81,20 @@ export const upload = async (req: Request, res: Response) => {
     }
 
     return res.send('File uploaded!');
+}
+
+export const uploadFiles = async (req: Request, res: Response) => {
+    const response = []
+    for (const file in req.files) {
+        const f:any = req.files[file]
+        const p = join(process.cwd(), '/public/img/game/', req.params.filename + ".jpg")
+        f.mv(p, (err: any) => {
+            if (err) {
+                console.log(err)
+                return res.status(500)
+            }
+            response.push({url:`http://localhost:3000/img/game/${req.params.filename}.jpg`})
+        })
+    }
+    return 1
 }

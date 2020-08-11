@@ -1,5 +1,4 @@
-import {targetType} from "../enums"
-import {iEffect} from "../interfaces"
+import {targetType, Types, SkillClassType} from "../enums"
 
 export interface iSkill {
     cost: Array<number>
@@ -7,12 +6,13 @@ export interface iSkill {
     skillpic: string
     name: string
     description: string
-    class: string
+    class: SkillClassType
     startCooldown: number
     baseCooldown: number
-    type: { [key: string]: number }
+    type: Array<Types>
     targetChoices?: {[x:string]:Array<number>}
     limit: number
-    effects: Array<iEffect>,
-    target: targetType
+    effects: Array<any>,
+    targetMode: targetType,
+    mods?: any
 }
