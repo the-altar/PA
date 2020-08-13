@@ -70,9 +70,12 @@ export class Arena {
         console.log("Executing skill Queue")
         if (!complete) this.emptyTempQueue()
 
-        
-        this.executeSkills(activationType.Immediate, triggerClauseType.None)
-        
+        this.clearCharactersNotifications()
+        this.executeSkills(activationType.Immediate, triggerClauseType.None)        
+        this.transferTempToSkillQueue()
+        this.tickSkillsInQueue()
+        this.hasUsedSKill = {}
+
         console.log("End player phase for: " + player2.getId())
         const bCount1 = this.endPlayerPhase(player2)
         if (bCount1 === 3) return {
@@ -81,9 +84,6 @@ export class Arena {
             loser: player2
         }
 
-        this.transferTempToSkillQueue()
-        this.tickSkillsInQueue()
-        this.hasUsedSKill = {}
 
         this.validateSkillQueue()
         console.log("Start player phase for: " + player1.getId())
@@ -249,7 +249,6 @@ export class Arena {
             const c = this.characters[i]
 
             if (!c.isKnockedOut()) {
-                c.clearNotifications()
                 c.lowerCooldowns(c)
                 c.clearDebuffs()
                 const energyIndex = c.generateEnergy()
@@ -313,6 +312,12 @@ export class Arena {
 
     public getTempSkills():Array<iSkillQueue>{
         return this.tempQueue
+    }
+
+    private clearCharactersNotifications(){
+        for(const char of this.characters){
+            char.clearNotifications()
+        }
     }
 }
 

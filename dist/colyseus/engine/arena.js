@@ -82,7 +82,11 @@ class Arena {
         console.log("Executing skill Queue");
         if (!complete)
             this.emptyTempQueue();
+        this.clearCharactersNotifications();
         this.executeSkills(enums_1.activationType.Immediate, enums_1.triggerClauseType.None);
+        this.transferTempToSkillQueue();
+        this.tickSkillsInQueue();
+        this.hasUsedSKill = {};
         console.log("End player phase for: " + player2.getId());
         const bCount1 = this.endPlayerPhase(player2);
         if (bCount1 === 3)
@@ -91,9 +95,6 @@ class Arena {
                 winner: player1,
                 loser: player2
             };
-        this.transferTempToSkillQueue();
-        this.tickSkillsInQueue();
-        this.hasUsedSKill = {};
         this.validateSkillQueue();
         console.log("Start player phase for: " + player1.getId());
         const bCount2 = this.startPlayerPhase(player1);
@@ -237,7 +238,6 @@ class Arena {
         for (const i of player.getMyCharsIndex()) {
             const c = this.characters[i];
             if (!c.isKnockedOut()) {
-                c.clearNotifications();
                 c.lowerCooldowns(c);
                 c.clearDebuffs();
                 const energyIndex = c.generateEnergy();
@@ -297,6 +297,11 @@ class Arena {
     }
     getTempSkills() {
         return this.tempQueue;
+    }
+    clearCharactersNotifications() {
+        for (const char of this.characters) {
+            char.clearNotifications();
+        }
     }
 }
 exports.Arena = Arena;
