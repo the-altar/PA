@@ -5,6 +5,7 @@ export interface iSkill {
     disabled?: boolean
     skillpic: string
     name: string
+    uncounterable:boolean
     description: string
     class: SkillClassType
     startCooldown: number

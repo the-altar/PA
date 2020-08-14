@@ -57,6 +57,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
                 const isInvulnerable = characters[i].isInvulnerable(skill.getTypes())
                 if (!isInvulnerable && !characters[i].isKnockedOut()) choices.choice.push(i)
             }
+            choices.choice.push(self)
             return choices
         }
 

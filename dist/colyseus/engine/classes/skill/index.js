@@ -12,6 +12,7 @@ class Skill {
         this.skillpic = data.skillpic;
         this.name = data.name;
         this.limit = data.limit;
+        this.uncounterable = data.uncounterable || false;
         this.disabled = data.disabled || false;
         this.description = data.description;
         this.cost = data.cost;

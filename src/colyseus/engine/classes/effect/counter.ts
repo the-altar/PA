@@ -29,14 +29,14 @@ export class Counter extends Effect {
             const cordinates = temp[i]
             const char = world.getCharactersByIndex([cordinates.caster])[0]
             const skill = char.getRealSkillByIndex(cordinates.skill)
+            if (this.value === 0) return 
+            if (skill.uncounterable) return
 
             if ((this.counterType === Types.Any || skill.getTypes().includes(this.counterType)) && char.getId() === target.getId()) {
                 temp.splice(i, 1)
                 char.addNotification({ msg: "This character has been countered", id: origin.getId(), skillpic: origin.skillpic, skillName: origin.name })
                 this.value--
             }
-
-            if (this.value === 0) break
         }
     }
 
@@ -47,7 +47,9 @@ export class Counter extends Effect {
             const cordinates = temp[i]
             const char = world.getCharactersByIndex([cordinates.caster])[0]
             const skill = char.getRealSkillByIndex(cordinates.skill)
-
+            if (this.value === 0) return 
+            if (skill.uncounterable) return
+            
             if (this.counterType === Types.Any || skill.getTypes().includes(this.counterType)) {
                 for (const t of cordinates.targets) {
                     const sufferer = world.getCharactersByIndex([t])[0]
@@ -59,8 +61,6 @@ export class Counter extends Effect {
                     }
                 }
             }
-
-            if (this.value === 0) break
         }
     }
 }

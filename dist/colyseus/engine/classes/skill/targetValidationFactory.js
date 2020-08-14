@@ -56,6 +56,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
                 if (!isInvulnerable && !characters[i].isKnockedOut())
                     choices.choice.push(i);
             }
+            choices.choice.push(self);
             return choices;
         }
         case enums_1.targetType.OneAlly: {

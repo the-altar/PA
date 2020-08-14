@@ -20,6 +20,7 @@ export class Skill {
     private limit: number
     private mods: SkillMods
     private targets: Array<number>
+    public uncounterable: boolean
     private targetMode: targetType
     private effects: Array<Effect>
     private targetChoices: { [x: string]: Array<number> }
@@ -31,6 +32,7 @@ export class Skill {
         this.skillpic = data.skillpic
         this.name = data.name
         this.limit = data.limit
+        this.uncounterable = data.uncounterable || false
         this.disabled = data.disabled || false
         this.description = data.description
         this.cost = data.cost
