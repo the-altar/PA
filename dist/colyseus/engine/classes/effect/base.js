@@ -64,12 +64,12 @@ class Effect {
     }
     progressTurn() {
         this.tick++;
+        this.generateToolTip();
         if (this.delay > 0) {
             this.delay--;
             return this.tickOn();
         }
         this.duration--;
-        this.generateToolTip();
         return this.tickOn();
     }
     execute(targets, world, origin, shouldApply) {

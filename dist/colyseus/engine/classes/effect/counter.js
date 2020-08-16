@@ -37,13 +37,13 @@ class Counter extends base_1.Effect {
     DefensiveCounter(target, origin, world) {
         const temp = world.getTempSkills();
         for (let i = temp.length - 1; i >= 0; i--) {
+            if (this.value === 0)
+                return;
             const cordinates = temp[i];
             const char = world.getCharactersByIndex([cordinates.caster])[0];
             const skill = char.getRealSkillByIndex(cordinates.skill);
-            if (this.value === 0)
-                return;
             if (skill.uncounterable)
-                return;
+                continue;
             if (this.counterType === enums_1.Types.Any || skill.getTypes().includes(this.counterType)) {
                 for (const t of cordinates.targets) {
                     const sufferer = world.getCharactersByIndex([t])[0];

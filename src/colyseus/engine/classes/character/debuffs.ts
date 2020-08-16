@@ -21,8 +21,12 @@ export class Debuffs {
 
     public setDamageReduction(params: iDebuffParams) {
         const { skillType, damageType, value } = params
-        this.damageReduction[skillType] = {
-            [damageType]: value
+        if(this.damageReduction[skillType]===undefined) {
+            this.damageReduction[skillType] = {
+                [damageType]: value
+            } 
+        } else {
+            this.damageReduction[skillType][damageType] += value 
         }
     }
 

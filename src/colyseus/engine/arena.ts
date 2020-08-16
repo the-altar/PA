@@ -108,9 +108,11 @@ export class Arena {
         for (const cordinates of this.tempQueue) {
             const char = this.characters[cordinates.caster]
             const skill = char.getCopySkillByIndex(cordinates.skill)
+
             char.setSkillCooldownByIndex(cordinates.skill)
             skill.setTargets(cordinates.targets)
             skill.executeEffects(this, activationType.Immediate, triggerClauseType.None)
+            
             this.skillQueue.push(skill)
         }
         this.tempQueue = []

@@ -209,7 +209,7 @@ export class Skill {
     }
 
     public tickEffectsDuration(world: Arena, origin: Skill) {
-
+        
         for (let i = this.effects.length - 1; i >= 0; i--) {
             const effect = this.effects[i]
             const { terminate } = effect.progressTurn()

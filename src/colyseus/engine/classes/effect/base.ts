@@ -89,12 +89,13 @@ export class Effect {
 
     public progressTurn() {
         this.tick++
+        this.generateToolTip()
+        
         if (this.delay > 0) {
-            this.delay--
+            this.delay--            
             return this.tickOn()
         }
         this.duration--
-        this.generateToolTip()
         return this.tickOn()
     }
 

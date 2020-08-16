@@ -44,11 +44,11 @@ export class Counter extends Effect {
         const temp = world.getTempSkills()
 
         for (let i = temp.length - 1; i >= 0; i--) {
+            if (this.value === 0) return 
             const cordinates = temp[i]
             const char = world.getCharactersByIndex([cordinates.caster])[0]
             const skill = char.getRealSkillByIndex(cordinates.skill)
-            if (this.value === 0) return 
-            if (skill.uncounterable) return
+            if (skill.uncounterable) continue
             
             if (this.counterType === Types.Any || skill.getTypes().includes(this.counterType)) {
                 for (const t of cordinates.targets) {
