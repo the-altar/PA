@@ -11,6 +11,7 @@ export class Character {
     private name: string
     private facepic: string
     private description: string
+    public banner: string 
     private allies: Array<number>
     private enemies: Array<number>
     private id: number
@@ -30,6 +31,7 @@ export class Character {
         this.debuffs = new Debuffs()
         this.notifications = []
         this.isTarget = false
+        this.banner = data.banner
         this.name = data.name
         this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
         this.facepic = data.facepic

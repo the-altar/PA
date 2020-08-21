@@ -6,8 +6,9 @@ import { targetSetter } from "./targetValidationFactory"
 import { Effect } from "../effect/base"
 import { Arena } from "../../arena"
 import { SkillMods } from "./mods"
-export class Skill {
 
+export class Skill {
+    public banner: string 
     private cost: Array<number>
     public disabled?: boolean
     public skillpic: string
@@ -26,7 +27,8 @@ export class Skill {
     private targetChoices: { [x: string]: Array<number> }
     private id: number;
     constructor(data: iSkill, caster: number) {
-
+        
+        this.banner = data.banner
         this.type = data.type
         this.cooldown = 0 || data.startCooldown
         this.skillpic = data.skillpic

@@ -96,7 +96,7 @@ var DebuffTypes;
 var CostTypes;
 (function (CostTypes) {
     CostTypes[CostTypes["Speed"] = 0] = "Speed";
-    CostTypes[CostTypes["Strenght"] = 1] = "Strenght";
+    CostTypes[CostTypes["Strength"] = 1] = "Strength";
     CostTypes[CostTypes["Elemental"] = 2] = "Elemental";
     CostTypes[CostTypes["Wisdom"] = 3] = "Wisdom";
     CostTypes[CostTypes["Random"] = 4] = "Random";

@@ -3,9 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Player = void 0;
 class Player {
     constructor(player) {
+        this.rank = player.rank;
         this.username = player.username;
         this.id = player.id;
-        this.avatarId = player.avatarId;
+        this.avatar = player.avatar;
+        this.elo = player.elo;
+        this.losses = player.losses;
+        this.wins = player.wins;
+        this.streak = player.streak;
         this.isTurn = false;
         this.energyPool = [0, 0, 0, 0, 0];
         this.payupCart = [0, 0, 0, 0, 0];

@@ -32,7 +32,7 @@ export enum DebuffTypes {
 }
 
 export enum CostTypes {
-    Speed, Strenght, Elemental, Wisdom, Random
+    Speed, Strength, Elemental, Wisdom, Random
 }
 
 export enum SkillClassType {

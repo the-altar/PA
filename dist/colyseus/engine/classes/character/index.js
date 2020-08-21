@@ -13,6 +13,7 @@ class Character {
         this.debuffs = new debuffs_1.Debuffs();
         this.notifications = [];
         this.isTarget = false;
+        this.banner = data.banner;
         this.name = data.name;
         this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
         this.facepic = data.facepic;

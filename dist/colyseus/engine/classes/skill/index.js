@@ -7,6 +7,7 @@ const targetValidationFactory_1 = require("./targetValidationFactory");
 const mods_1 = require("./mods");
 class Skill {
     constructor(data, caster) {
+        this.banner = data.banner;
         this.type = data.type;
         this.cooldown = 0 || data.startCooldown;
         this.skillpic = data.skillpic;

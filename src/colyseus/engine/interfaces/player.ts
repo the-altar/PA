@@ -1,5 +1,11 @@
 export interface iPlayer {
     username: string,
-    avatarId: string,
-    id: string
+    avatar: string,
+    id: string,
+    elo: number,
+    wins: number,
+    losses: number,
+    streak: number,
+    isTurn: boolean,
+    rank: string
 }
