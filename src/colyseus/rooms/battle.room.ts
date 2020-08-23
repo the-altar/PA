@@ -37,7 +37,10 @@ export class Battle extends Room {
                     const { isOver, gameData, winner, loser } = this.arena.startGame()
 
                     if (!isOver) this.broadcast("start-new-turn", gameData)
-                    else this.broadcast("end-game", { winner, loser })
+                    else {
+                        this.broadcast("end-game", { winner, loser })
+                        this.disconnect()
+                    }
 
                 }, this.evaluateGroupInterval)
             }
@@ -50,7 +53,10 @@ export class Battle extends Room {
             const { isOver, gameData, winner, loser } = this.arena.startGame(true)
 
             if (!isOver) this.broadcast("start-new-turn", gameData)
-            else this.broadcast("end-game", { winner, loser })
+            else {
+                this.broadcast("end-game", { winner, loser })
+                this.disconnect()
+            }
         })
 
         this.onMessage('add-skill-to-queue', (client: Client, cordinates: iSkillCordinates) => {
@@ -61,6 +67,12 @@ export class Battle extends Room {
         this.onMessage('remove-skill-from-queue', (client: Client, cordinates: iSkillCordinates) => {
             const payload = this.arena.removeSkillFromTempQueue(cordinates)
             client.send('update-temp-queue', payload)
+        })
+
+        this.onMessage('surrender', (client: Client, id:string) => {
+            const { winner, loser } = this.arena.surrender(id)
+            this.broadcast("end-game", { winner, loser })
+            this.disconnect()
         })
     }
 
@@ -78,5 +90,7 @@ export class Battle extends Room {
     onLeave(client: Client, consented: boolean) { }
 
     // Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)
-    onDispose() { }
+    async onDispose() {
+        console.log("Room is being disposed of!")
+    }
 }

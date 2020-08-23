@@ -90,7 +90,6 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
             const allies = characters[self].getAllies();
             choices.auto = choices.auto.concat(allies);
             choices.auto.push(self);
-            console.log(choices);
             return choices;
         }
         case enums_1.targetType.Self: {

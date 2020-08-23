@@ -67,7 +67,7 @@ export class Arena {
         player1.setTurn(true)
         player2.setTurn(false)
 
-        console.log("Executing skill Queue")
+        //console.log("Executing skill Queue")
         if (!complete) this.emptyTempQueue()
 
         this.clearCharactersNotifications()
@@ -76,7 +76,7 @@ export class Arena {
         this.tickSkillsInQueue()
         this.hasUsedSKill = {}
 
-        console.log("End player phase for: " + player2.getId())
+        //console.log("End player phase for: " + player2.getId())
         const bCount1 = this.endPlayerPhase(player2)
         if (bCount1 === 3) return {
             isOver: true,
@@ -86,9 +86,9 @@ export class Arena {
 
 
         this.validateSkillQueue()
-        console.log("Start player phase for: " + player1.getId())
+        //console.log("Start player phase for: " + player1.getId())
         const bCount2 = this.startPlayerPhase(player1)
-        console.log("\n")
+        //console.log("\n")
         if (bCount2 === 3) return {
             isOver: true,
             winner: player2,
@@ -128,7 +128,7 @@ export class Arena {
 
     public executeSkills(aType: activationType, tClause: triggerClauseType) {
         for (const skill of this.skillQueue) {
-            console.log("---> Executing: " + skill.name)
+            //.log("---> Executing: " + skill.name)
             skill.executeEffects(this, aType, tClause)
         }
     }
@@ -193,8 +193,8 @@ export class Arena {
 
         return {
             tempQueue: this.tempQueue,
-            characters: this.characters,
             energyPool: player.getEnergyPool(),
+            characters: this.characters,
             payupCart: player.getPayupCart(),
             playerIndex: index
         }
@@ -228,7 +228,7 @@ export class Arena {
     }
 
     public clearSkillMods(p: Player) {
-        console.log("CLEARED SKILL MODS")
+        //console.log("CLEARED SKILL MODS")
         const arr = p.getMyCharsIndex()
         for (const i of arr) {
             this.characters[i].clearSkillMods()
@@ -246,7 +246,7 @@ export class Arena {
 
     private endPlayerPhase(player: Player): number {
         let bodyCount = 0
-        console.log("-> clearing debuff, lowering cooldowns and increas energy pool")
+        //console.log("-> clearing debuff, lowering cooldowns and increas energy pool")
         for (const i of player.getMyCharsIndex()) {
             const c = this.characters[i]
 
@@ -265,7 +265,7 @@ export class Arena {
         const pool = player.getEnergyPool()
         const myChar = player.getMyCharsIndex()
         let bodyCount = 0
-        console.log("-> validating skils and clearing buffs")
+        //console.log("-> validating skils and clearing buffs")
 
         for (const i of myChar) {
             const c = this.characters[i]
@@ -320,6 +320,26 @@ export class Arena {
         for(const char of this.characters){
             char.clearNotifications()
         }
+    }
+
+    public getClientsLength(){
+        return this.players.length
+    } 
+
+    public surrender(surrenderer:string){
+        let winner, loser;
+        const player1 = this.players[this.turnCount % 2]
+        const player2 = this.players[((this.turnCount % 2) + 1) % 2]
+        
+        if(player2.getId() === surrenderer) {
+            winner = player1
+            loser = player2
+        } else {
+            winner = player2
+            loser = player1
+        }
+
+        return {winner, loser}
     }
 }
 

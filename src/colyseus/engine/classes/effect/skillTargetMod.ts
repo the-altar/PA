@@ -28,7 +28,6 @@ export class SkillTargetMod extends Effect {
                 skill.setTargetMod(this.newTarget)
             }
         }
-        console.log(generateMessage(this.specificSkillIndex, this.newTarget, s))
         char.addNotification({
             msg: generateMessage(this.specificSkillIndex, this.newTarget, s),
             id: origin.getId(),

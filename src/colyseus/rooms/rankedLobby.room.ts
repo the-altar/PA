@@ -50,9 +50,12 @@ class ClientManager {
     }
 
     public removeClientBySessionId(id: string): void {
+        if(this.clientList[id] === undefined) {
+            return
+        }
         const pid = this.clientList[id].pid
         delete this.onlineList[pid]
-        delete this.clientList[id]
+        delete this.clientList[id]        
     }
 
     public countPlayersOnline(): number {
@@ -76,12 +79,14 @@ export class RankedLobby extends Room {
     onCreate(options: any) {
         this.setSimulationInterval(async () => {
             try {
-                const room = await matchMaker.createRoom('battle', {})
                 const queue = this.manager.getRankedMap()
                 for (let i = 1; i < queue.length; i = i + 2) {
+                    const room = await matchMaker.createRoom('battle', {})
+                    
                     for (let j = i - 1; j <= i; j++) {
                         const seat = await matchMaker.reserveSeatFor(room, {})
                         queue[j].connection.send('seat', seat)
+                        this.manager.removeClientBySessionId(queue[j].connection.sessionId)
                     }
                 }
             } catch (err) {
@@ -105,5 +110,9 @@ export class RankedLobby extends Room {
     // When a client leaves the room
     onLeave(client: Client, consented: boolean) {
         this.manager.removeClientBySessionId(client.sessionId)
+    }
+
+    async onDispose(){
+        console.log("RANKED QUEUE HAS BEEN DISPOSED OF")
     }
 }

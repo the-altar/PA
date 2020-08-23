@@ -42,6 +42,9 @@ class ClientManager {
         return this.clientList;
     }
     removeClientBySessionId(id) {
+        if (this.clientList[id] === undefined) {
+            return;
+        }
         const pid = this.clientList[id].pid;
         delete this.onlineList[pid];
         delete this.clientList[id];
@@ -68,12 +71,13 @@ class RankedLobby extends colyseus_1.Room {
     onCreate(options) {
         this.setSimulationInterval(() => __awaiter(this, void 0, void 0, function* () {
             try {
-                const room = yield colyseus_1.matchMaker.createRoom('battle', {});
                 const queue = this.manager.getRankedMap();
                 for (let i = 1; i < queue.length; i = i + 2) {
+                    const room = yield colyseus_1.matchMaker.createRoom('battle', {});
                     for (let j = i - 1; j <= i; j++) {
                         const seat = yield colyseus_1.matchMaker.reserveSeatFor(room, {});
                         queue[j].connection.send('seat', seat);
+                        this.manager.removeClientBySessionId(queue[j].connection.sessionId);
                     }
                 }
             }
@@ -95,6 +99,11 @@ class RankedLobby extends colyseus_1.Room {
     // When a client leaves the room
     onLeave(client, consented) {
         this.manager.removeClientBySessionId(client.sessionId);
+    }
+    onDispose() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("RANKED QUEUE HAS BEEN DISPOSED OF");
+        });
     }
 }
 exports.RankedLobby = RankedLobby;

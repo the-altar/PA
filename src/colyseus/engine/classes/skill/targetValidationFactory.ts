@@ -95,7 +95,6 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
             
             choices.auto = choices.auto.concat(allies)
             choices.auto.push(self)
-            console.log(choices)
             return choices
         }
 

@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Battle = void 0;
 const colyseus_1 = require("colyseus");
@@ -22,8 +31,10 @@ class Battle extends colyseus_1.Room {
                     const { isOver, gameData, winner, loser } = this.arena.startGame();
                     if (!isOver)
                         this.broadcast("start-new-turn", gameData);
-                    else
+                    else {
                         this.broadcast("end-game", { winner, loser });
+                        this.disconnect();
+                    }
                 }, this.evaluateGroupInterval);
             }
         });
@@ -33,8 +44,10 @@ class Battle extends colyseus_1.Room {
             const { isOver, gameData, winner, loser } = this.arena.startGame(true);
             if (!isOver)
                 this.broadcast("start-new-turn", gameData);
-            else
+            else {
                 this.broadcast("end-game", { winner, loser });
+                this.disconnect();
+            }
         });
         this.onMessage('add-skill-to-queue', (client, cordinates) => {
             const payload = this.arena.addSkillToTempQueue(cordinates);
@@ -43,6 +56,11 @@ class Battle extends colyseus_1.Room {
         this.onMessage('remove-skill-from-queue', (client, cordinates) => {
             const payload = this.arena.removeSkillFromTempQueue(cordinates);
             client.send('update-temp-queue', payload);
+        });
+        this.onMessage('surrender', (client, id) => {
+            const { winner, loser } = this.arena.surrender(id);
+            this.broadcast("end-game", { winner, loser });
+            this.disconnect();
         });
     }
     // Authorize client based on provided options before WebSocket handshake is complete
@@ -56,7 +74,11 @@ class Battle extends colyseus_1.Room {
     // When a client leaves the room
     onLeave(client, consented) { }
     // Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)
-    onDispose() { }
+    onDispose() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("Room is being disposed of!");
+        });
+    }
 }
 exports.Battle = Battle;
 //# sourceMappingURL=battle.room.js.map
