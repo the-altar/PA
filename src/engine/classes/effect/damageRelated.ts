@@ -1,7 +1,7 @@
 import { Effect } from "./base"
 import { DamageType, Types, DebuffTypes, triggerClauseType, activationType } from "../../enums"
 import { Character } from "../character";
-import {Skill} from "../../classes";
+import {Skill} from "..";
 import { Arena } from "../../arena";
 
 export class Damage extends Effect {

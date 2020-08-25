@@ -53,8 +53,11 @@ exports.remove = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     pics.push(char.banner);
     pics.forEach(pic => {
         const p = path_1.join(process.cwd(), '/public/img/game/', pic + ".jpg");
-        if (fs_1.existsSync(p))
-            fs_1.unlinkSync(p);
+        fs_1.exists(p, (f) => {
+            if (f) {
+                fs_1.unlink(p, () => { });
+            }
+        });
     });
     try {
         yield character_1.CharacterDB.deleteOne({ _id: char._id });

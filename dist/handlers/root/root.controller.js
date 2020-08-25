@@ -14,8 +14,6 @@ exports.baseController = (req, res) => __awaiter(void 0, void 0, void 0, functio
     return res.sendFile('index.html', { root: './public/main' });
 });
 exports.uploadController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body.name);
-    console.log(req.body.avatar);
     return res.json([{ "url": "/absolute/path/to/filename.png" }]);
 });
 //# sourceMappingURL=root.controller.js.map

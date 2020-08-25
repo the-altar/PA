@@ -2,7 +2,7 @@ import { Effect } from "./base"
 import { Types, effectType } from "../../enums"
 import { Character } from "../character";
 import { Arena } from "../../arena";
-import { Skill } from "../../classes";
+import { Skill } from "..";
 
 export class Counter extends Effect {
     private counterType: Types

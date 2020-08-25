@@ -1,6 +1,6 @@
 import http from "http";
 import { Room, Client, Delayed } from "colyseus";
-import { Arena, iPlayer, iCharacter } from "../engine"
+import { Arena, iPlayer, iCharacter } from "../../engine"
 
 interface iSkillCordinates {
     target?: number
@@ -13,9 +13,6 @@ interface iRegister {
     team: Array<iCharacter>
 }
 
-interface skillQueue {
-    skills: Array<any>
-}
 
 export class Battle extends Room {
     private arena: Arena = new Arena()

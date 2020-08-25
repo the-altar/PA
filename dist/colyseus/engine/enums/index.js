@@ -1,6 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.triggerClauseType = exports.PlayerPhase = exports.SkillClassType = exports.CostTypes = exports.DebuffTypes = exports.BuffTypes = exports.Types = exports.DamageType = exports.effectTargetBehavior = exports.targetType = exports.activationType = exports.effectType = void 0;
+exports.triggerClauseType = exports.PlayerPhase = exports.SkillClassType = exports.CostTypes = exports.DebuffTypes = exports.BuffTypes = exports.Types = exports.DamageType = exports.effectTargetBehavior = exports.targetType = exports.activationType = exports.effectType = exports.memberRank = void 0;
+var memberRank;
+(function (memberRank) {
+    memberRank[memberRank["Guest"] = 0] = "Guest";
+    memberRank[memberRank["Member"] = 1] = "Member";
+    memberRank[memberRank["Admin"] = 2] = "Admin";
+    memberRank[memberRank["Webmaster"] = 3] = "Webmaster";
+})(memberRank = exports.memberRank || (exports.memberRank = {}));
 var effectType;
 (function (effectType) {
     effectType[effectType["Damage"] = 0] = "Damage";

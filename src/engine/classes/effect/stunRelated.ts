@@ -1,4 +1,4 @@
-import { Character } from "../../classes"
+import { Character } from ".."
 import { Effect } from "./base"
 import { Arena } from "../../arena"
 import { DebuffTypes } from "../../enums"

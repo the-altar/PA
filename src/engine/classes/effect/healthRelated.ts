@@ -1,4 +1,4 @@
-import { Character } from "../../classes"
+import { Character } from ".."
 import { Arena } from "../../arena"
 import { Damage } from "./damageRelated"
 import { Effect } from "./base"

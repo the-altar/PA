@@ -1,5 +1,5 @@
 import { Character } from "../character"
-import { Skill } from "../skill"
+import { Skill } from "."
 import { targetType } from "../../enums"
 
 export const targetSetter = function (skill: Skill, targetMode: targetType, characters: Array<Character>, playerId: string, self?: number): { [x: string]: Array<number> } {

@@ -5,12 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
 const express_1 = __importDefault(require("express"));
-const body_parser_1 = __importDefault(require("body-parser"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const body_parser_1 = __importDefault(require("body-parser"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const root_router_1 = require("./handlers/root/root.router");
 const character_router_1 = require("./handlers/character/character.router");
 const game_router_1 = require("./handlers/game/game.router");
+const user_1 = require("./handlers/user");
 class App {
     constructor(appInit) {
         this.app = express_1.default();
@@ -19,14 +21,17 @@ class App {
         this.routes();
     }
     middleware() {
-        this.app.use(express_fileupload_1.default());
-        this.app.use(body_parser_1.default.json());
-        this.app.use(body_parser_1.default.urlencoded({ extended: true }));
-        this.app.use(express_1.default.static('public', { maxAge: "10d" }));
-        this.app.use(express_1.default.static('public/main', { maxAge: '7d' }));
-        this.app.use('/game', express_1.default.static('public/game', { maxAge: '7d' }));
+        this.app
+            .use(express_fileupload_1.default())
+            .use(cookie_parser_1.default())
+            .use(body_parser_1.default.json())
+            .use(body_parser_1.default.urlencoded({ extended: true }))
+            .use(express_1.default.static('public', { maxAge: "10d" }))
+            .use(express_1.default.static('public/main', { maxAge: '7d' }))
+            .use('/game', express_1.default.static('public/game', { maxAge: '7d' }));
     }
     routes() {
+        this.app.use("/user", user_1.userRouter);
         this.app.use('/game', game_router_1.gameRouter);
         this.app.use('/character', character_router_1.characterRouter);
         this.app.use("/", root_router_1.rootRouter);

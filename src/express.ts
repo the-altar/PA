@@ -1,12 +1,14 @@
 import express from 'express'
-import bodyparser from 'body-parser'
 import mongoose from 'mongoose'
+import bodyparser from 'body-parser'
+import cookieParser from 'cookie-parser'
 import fileupload from 'express-fileupload'
 
 import { Application } from 'express'
 import { rootRouter } from './handlers/root/root.router'
 import { characterRouter } from "./handlers/character/character.router"
 import { gameRouter } from "./handlers/game/game.router"
+import { userRouter } from "./handlers/user"
 
 export class App {
     private app: Application
@@ -19,15 +21,18 @@ export class App {
     }
 
     private middleware(): void {
-        this.app.use(fileupload())
-        this.app.use(bodyparser.json())
-        this.app.use(bodyparser.urlencoded({ extended: true }))
-        this.app.use(express.static('public', { maxAge: "10d" }))
-        this.app.use(express.static('public/main', { maxAge: '7d' }))
-        this.app.use('/game', express.static('public/game', { maxAge: '7d' }))
+        this.app
+            .use(fileupload())
+            .use(cookieParser())
+            .use(bodyparser.json())
+            .use(bodyparser.urlencoded({ extended: true }))
+            .use(express.static('public', { maxAge: "10d" }))
+            .use(express.static('public/main', { maxAge: '7d' }))
+            .use('/game', express.static('public/game', { maxAge: '7d' }))
     }
 
     private routes(): void {
+        this.app.use("/user", userRouter)
         this.app.use('/game', gameRouter)
         this.app.use('/character', characterRouter)
         this.app.use("/", rootRouter)

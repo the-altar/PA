@@ -1,3 +1,7 @@
+export enum memberRank {
+    Guest, Member, Admin, Webmaster, 
+}
+
 export enum effectType {
     Damage, Invulnerability, DamageReduction, CooldownIncreasal, CooldownReduction, Healing,
     Stun, HealthDrain, EnergyRemoval, EnergyGain, EnergySteal, SkillTargetMod, Counter

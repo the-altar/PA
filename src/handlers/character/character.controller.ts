@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { CharacterDB, ICharacterModel } from "../../models/character"
 import { join } from 'path'
-import { unlinkSync, existsSync } from 'fs'
+import { unlink, exists } from 'fs'
 
 export const create = async (req: Request, res: Response) => {
     try {
@@ -45,7 +45,11 @@ export const remove = async (req: Request, res: Response) => {
 
     pics.forEach(pic => {
         const p: string = join(process.cwd(), '/public/img/game/', pic + ".jpg")
-        if(existsSync(p)) unlinkSync(p)
+        exists(p, (f)=>{
+            if(f) {
+                unlink(p, ()=>{})
+            }
+        })
     })
 
     try {
