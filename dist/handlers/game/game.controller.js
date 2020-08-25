@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pokemonTypeEnums = exports.file = void 0;
-const enums_1 = require("../../colyseus/engine/enums");
+const enums_1 = require("../../engine/enums");
 exports.file = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return res.sendFile('index.html', { root: './public/game' });
 });

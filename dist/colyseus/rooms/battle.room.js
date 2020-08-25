@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Battle = void 0;
 const colyseus_1 = require("colyseus");
-const engine_1 = require("../engine");
+const engine_1 = require("../../engine");
 class Battle extends colyseus_1.Room {
     constructor() {
         super(...arguments);

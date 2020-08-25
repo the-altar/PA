@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userDataController = exports.loggerMiddleware = void 0;
-const enums_1 = require("../../colyseus/engine/enums");
+const enums_1 = require("../../engine/enums");
 function loggerMiddleware(req, res, next) {
     if (req.cookies.session) {
         req.res.locals.hasCookie = true;

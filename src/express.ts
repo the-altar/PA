@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import bodyparser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import fileupload from 'express-fileupload'
-
+import { Bookshelf } from "./db"
 import { Application } from 'express'
 import { rootRouter } from './handlers/root/root.router'
 import { characterRouter } from "./handlers/character/character.router"
@@ -39,6 +39,14 @@ export class App {
     }
 
     private database(url: string): void {
+        Bookshelf.knex.raw("SELECT 'test connection';").then((message) => {
+            // Success / boot rest of app
+            console.log("SUCCESS")
+        }).catch((err) => {
+            // Failure / timeout
+            console.log(err)
+        })
+
         mongoose.connect(url, {
             useUnifiedTopology: true,
             useNewUrlParser: true,
