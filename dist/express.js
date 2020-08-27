@@ -9,9 +9,9 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
-const db_1 = require("./db");
 const root_router_1 = require("./handlers/root/root.router");
 const character_router_1 = require("./handlers/character/character.router");
+const skill_routes_1 = require("./handlers/skill/skill.routes");
 const game_router_1 = require("./handlers/game/game.router");
 const user_1 = require("./handlers/user");
 class App {
@@ -35,16 +35,10 @@ class App {
         this.app.use("/user", user_1.userRouter);
         this.app.use('/game', game_router_1.gameRouter);
         this.app.use('/character', character_router_1.characterRouter);
+        this.app.use("/skill", skill_routes_1.skillRouter);
         this.app.use("/", root_router_1.rootRouter);
     }
     database(url) {
-        db_1.Bookshelf.knex.raw("SELECT 'test connection';").then((message) => {
-            // Success / boot rest of app
-            console.log("SUCCESS");
-        }).catch((err) => {
-            // Failure / timeout
-            console.log(err);
-        });
         mongoose_1.default.connect(url, {
             useUnifiedTopology: true,
             useNewUrlParser: true,

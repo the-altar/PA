@@ -2,20 +2,27 @@ import { Request, Response } from 'express'
 import { CharacterDB, ICharacterModel } from "../../models/character"
 import { join } from 'path'
 import { unlink, exists } from 'fs'
+import { pool } from "../../db"
 
 export const create = async (req: Request, res: Response) => {
+    const [released, data] = req.body
+    const values = [released, data]
+    const text = "INSERT INTO entity (released, data) VALUES ($1, $2)"
     try {
-        await CharacterDB.create(req.body)
+        await pool.query(text, values)
         return res.json({ code: 1 })
     } catch (err) {
-        console.error(err)
-        return res.json({ code: 0 })
+        throw (err)
     }
 }
 
 export const update = async (req: Request, res: Response) => {
+    const [id, released, data] = req.body
+    const values = [id, released, data]
+    const text = "UPDATE entity SET released = $2, data = $3 WHERE id = $1"
+
     try {
-        await CharacterDB.findOneAndUpdate({ _id: req.body._id }, { $set: req.body }, { upsert: true })
+        await pool.query(text, values)
         return res.json({ code: 1 })
     } catch (err) {
         return res.json({ code: 0 })
@@ -24,8 +31,8 @@ export const update = async (req: Request, res: Response) => {
 
 export const find = async (req: Request, res: Response) => {
     try {
-        const char = await CharacterDB.findById(req.params.id)
-        return res.json(char)
+        const char = await pool.query("SELECT * from entity where entity.id = $1", [req.params.id])
+        return res.json(char.rows[0])
     } catch (err) {
         console.error(err)
         return res.json({ code: 0 })
@@ -40,14 +47,15 @@ export const remove = async (req: Request, res: Response) => {
         pics.push(s.skillpic)
         pics.push(s.banner)
     })
+
     pics.push(char.facepic)
     pics.push(char.banner)
 
     pics.forEach(pic => {
         const p: string = join(process.cwd(), '/public/img/game/', pic + ".jpg")
-        exists(p, (f)=>{
-            if(f) {
-                unlink(p, ()=>{})
+        exists(p, (f) => {
+            if (f) {
+                unlink(p, () => { })
             }
         })
     })
@@ -64,17 +72,28 @@ export const remove = async (req: Request, res: Response) => {
 
 export const getAll = async (req: Request, res: Response) => {
     try {
-        const docs = await CharacterDB.find({})
-        return res.json(docs)
+        const docs = await pool.query("SELECT * from entity")
+        return res.json(docs.rows)
     } catch (err) {
         console.error(err)
         return res.json(false)
     }
 }
 
+export const getIds = async (req:Request, res:Response)=>{
+    const text = "SELECT id, data -> 'name' AS name from entity";
+
+    try {
+        const r = await pool.query(text)
+        res.json(r.rows)
+    }catch(err){
+        res.status(500)
+    }
+}
+
 export const upload = async (req: Request, res: Response) => {
     for (const file in req.files) {
-        const f:any = req.files[file]
+        const f: any = req.files[file]
         const p = join(process.cwd(), '/public/img/game/', f.name + ".jpg")
         f.mv(p, (err: any) => {
             if (err) {
@@ -90,14 +109,14 @@ export const upload = async (req: Request, res: Response) => {
 export const uploadFiles = async (req: Request, res: Response) => {
     const response = []
     for (const file in req.files) {
-        const f:any = req.files[file]
+        const f: any = req.files[file]
         const p = join(process.cwd(), '/public/img/game/', req.params.filename + ".jpg")
         f.mv(p, (err: any) => {
             if (err) {
                 console.log(err)
                 return res.status(500)
             }
-            response.push({url:`http://localhost:3000/img/game/${req.params.filename}.jpg`})
+            response.push({ url: `http://localhost:3000/img/game/${req.params.filename}.jpg` })
         })
     }
     return 1

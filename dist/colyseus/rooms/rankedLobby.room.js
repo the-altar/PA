@@ -82,7 +82,7 @@ class RankedLobby extends colyseus_1.Room {
                 }
             }
             catch (err) {
-                console.error(err);
+                throw (err);
             }
         }), this.evaluateGroupInterval);
     }
@@ -102,7 +102,6 @@ class RankedLobby extends colyseus_1.Room {
     }
     onDispose() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("RANKED QUEUE HAS BEEN DISPOSED OF");
         });
     }
 }

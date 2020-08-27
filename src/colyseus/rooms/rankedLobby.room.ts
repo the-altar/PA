@@ -90,7 +90,7 @@ export class RankedLobby extends Room {
                     }
                 }
             } catch (err) {
-                console.error(err)
+                throw(err)
             }
 
         }, this.evaluateGroupInterval)
@@ -113,6 +113,5 @@ export class RankedLobby extends Room {
     }
 
     async onDispose(){
-        console.log("RANKED QUEUE HAS BEEN DISPOSED OF")
     }
 }

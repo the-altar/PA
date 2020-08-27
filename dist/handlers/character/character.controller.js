@@ -9,23 +9,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadFiles = exports.upload = exports.getAll = exports.remove = exports.find = exports.update = exports.create = void 0;
+exports.uploadFiles = exports.upload = exports.getIds = exports.getAll = exports.remove = exports.find = exports.update = exports.create = void 0;
 const character_1 = require("../../models/character");
 const path_1 = require("path");
 const fs_1 = require("fs");
+const db_1 = require("../../db");
 exports.create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const [released, data] = req.body;
+    const values = [released, data];
+    const text = "INSERT INTO entity (released, data) VALUES ($1, $2)";
     try {
-        yield character_1.CharacterDB.create(req.body);
+        yield db_1.pool.query(text, values);
         return res.json({ code: 1 });
     }
     catch (err) {
-        console.error(err);
-        return res.json({ code: 0 });
+        throw (err);
     }
 });
 exports.update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const [id, released, data] = req.body;
+    const values = [id, released, data];
+    const text = "UPDATE entity SET released = $2, data = $3 WHERE id = $1";
     try {
-        yield character_1.CharacterDB.findOneAndUpdate({ _id: req.body._id }, { $set: req.body }, { upsert: true });
+        yield db_1.pool.query(text, values);
         return res.json({ code: 1 });
     }
     catch (err) {
@@ -34,8 +40,8 @@ exports.update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.find = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const char = yield character_1.CharacterDB.findById(req.params.id);
-        return res.json(char);
+        const char = yield db_1.pool.query("SELECT * from entity where entity.id = $1", [req.params.id]);
+        return res.json(char.rows[0]);
     }
     catch (err) {
         console.error(err);
@@ -70,12 +76,22 @@ exports.remove = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const docs = yield character_1.CharacterDB.find({});
-        return res.json(docs);
+        const docs = yield db_1.pool.query("SELECT * from entity");
+        return res.json(docs.rows);
     }
     catch (err) {
         console.error(err);
         return res.json(false);
+    }
+});
+exports.getIds = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const text = "SELECT id, data -> 'name' AS name from entity";
+    try {
+        const r = yield db_1.pool.query(text);
+        res.json(r.rows);
+    }
+    catch (err) {
+        res.status(500);
     }
 });
 exports.upload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

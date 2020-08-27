@@ -76,7 +76,6 @@ class Battle extends colyseus_1.Room {
     // Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)
     onDispose() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Room is being disposed of!");
         });
     }
 }

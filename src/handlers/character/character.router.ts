@@ -1,8 +1,9 @@
 import { Router } from 'express'
-import { upload, getAll, remove, create, update, find, uploadFiles} from './character.controller'
+import { upload, getAll, getIds, remove, create, update, find, uploadFiles} from './character.controller'
 
 const router: Router = Router()
 router.get("/", getAll)
+router.get("/ids", getIds)
 router.get('/:id', find)
 router.post('/upload', upload)
 router.post("/file/:filename", uploadFiles)

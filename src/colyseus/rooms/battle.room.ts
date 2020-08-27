@@ -88,6 +88,5 @@ export class Battle extends Room {
 
     // Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)
     async onDispose() {
-        console.log("Room is being disposed of!")
     }
 }

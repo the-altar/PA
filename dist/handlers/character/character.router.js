@@ -5,6 +5,7 @@ const express_1 = require("express");
 const character_controller_1 = require("./character.controller");
 const router = express_1.Router();
 router.get("/", character_controller_1.getAll);
+router.get("/ids", character_controller_1.getIds);
 router.get('/:id', character_controller_1.find);
 router.post('/upload', character_controller_1.upload);
 router.post("/file/:filename", character_controller_1.uploadFiles);
