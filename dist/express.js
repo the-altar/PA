@@ -12,6 +12,7 @@ const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const root_router_1 = require("./handlers/root/root.router");
 const character_router_1 = require("./handlers/character/character.router");
 const skill_routes_1 = require("./handlers/skill/skill.routes");
+const effect_router_1 = require("./handlers/effect/effect.router");
 const game_router_1 = require("./handlers/game/game.router");
 const user_1 = require("./handlers/user");
 class App {
@@ -36,6 +37,7 @@ class App {
         this.app.use('/game', game_router_1.gameRouter);
         this.app.use('/character', character_router_1.characterRouter);
         this.app.use("/skill", skill_routes_1.skillRouter);
+        this.app.use("/effect", effect_router_1.effectRouter);
         this.app.use("/", root_router_1.rootRouter);
     }
     database(url) {

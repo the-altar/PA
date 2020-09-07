@@ -1,14 +1,13 @@
 import { Router } from 'express';
-import { get, create, find, update, getIds } from './skill.controller';
+import { get, create, find, update, remove } from './effect.controller';
 
 const router:Router = Router()  
 
-router.get("/", get);
-router.get("/ids", getIds);
 router.get("/:id", find);
-
+router.post("/", get);
 router.post("/delete");
 router.post("/update", update);
 router.post("/new", create);
+router.delete("/:id", remove);
 
-export const skillRouter = router
+export const effectRouter = router

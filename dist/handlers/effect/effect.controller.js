@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getIds = exports.update = exports.find = exports.get = exports.create = void 0;
+exports.remove = exports.update = exports.find = exports.get = exports.create = void 0;
 const db_1 = require("../../db");
 exports.create = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const skill = [req.body];
-        const text = "INSERT INTO skill (data) values ($1)";
+        const skill = req.body;
+        const text = "INSERT INTO effect (data,skill_id) values ($1, $2)";
         try {
             yield db_1.pool.query(text, skill);
             return res.json({ code: 1 });
@@ -26,12 +26,15 @@ exports.create = function (req, res) {
 };
 exports.get = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        const values = [req.body];
+        const TEXT = "select * from effect where skill_id = any ($1);";
         try {
-            const data = yield db_1.pool.query("SELECT * FROM skill");
+            const data = yield db_1.pool.query(TEXT, values);
             return res.json(data.rows);
         }
         catch (err) {
-            return res.status(500);
+            res.status(500);
+            return res.json({});
         }
     });
 };
@@ -39,7 +42,7 @@ exports.find = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const id = req.params.id;
         const value = [id];
-        const text = "SELECT * FROM skill WHERE id = $1";
+        const text = "SELECT * FROM effect WHERE id = $1";
         try {
             const data = yield db_1.pool.query(text, value);
             return res.json(data.rows[0]);
@@ -51,7 +54,7 @@ exports.find = function (req, res) {
 };
 exports.update = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const text = "UPDATE skill SET data = $1, entity_id = $3 where id = $2";
+        const text = "UPDATE effect SET data = $1, skill_id = $3 where id = $2";
         const values = req.body;
         try {
             yield db_1.pool.query(text, values);
@@ -62,17 +65,20 @@ exports.update = function (req, res) {
         }
     });
 };
-exports.getIds = function (req, res) {
+exports.remove = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const text = "SELECT id, data -> 'name' AS name from skill";
+        const text = "DELETE from effect where id = $1";
+        const values = [Number(req.params.id)];
+        console.log(values);
         try {
-            const r = yield db_1.pool.query(text);
-            return res.json(r.rows);
+            yield db_1.pool.query(text, values);
+            res.status(200);
+            return res.json({ code: 1 });
         }
         catch (err) {
-            res.status(500);
-            return res.send("Something went wrong...");
+            res.status(404);
+            throw (err);
         }
     });
 };
-//# sourceMappingURL=skill.controller.js.map
+//# sourceMappingURL=effect.controller.js.map

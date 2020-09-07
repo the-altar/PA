@@ -82,7 +82,6 @@ export const getAll = async (req: Request, res: Response) => {
 
 export const getIds = async (req:Request, res:Response)=>{
     const text = "SELECT id, data -> 'name' AS name from entity";
-
     try {
         const r = await pool.query(text)
         res.json(r.rows)

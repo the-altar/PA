@@ -20,14 +20,13 @@ export const userDataController = async function (req: Request, res: Response) {
 }
 
 export const userCharacters = async (req: Request, res: Response) => {
-    const text = `select 
-	jsonb_build_object('id', entity.id) || entity."data" || 
-	jsonb_build_object('skills', 
-		jsonb_agg( skill."data" || jsonb_build_object('id', skill.id))) 
-    as "char" 
-    from entity
-    join skill on skill.entity_id = entity.id 
-    group by entity.id;`
+    const text = `select jsonb_build_object('id', entity.id) || entity.data || 
+    jsonb_build_object('skills', jsonb_agg(skills.data)) as data 
+    from entity join (select skill.id, skill.data || 
+    jsonb_build_object('id', skill.id) || jsonb_build_object('effects', jsonb_agg( effect.data || 
+    jsonb_build_object('id', effect.id))) as data, skill.entity_id from skill 
+    join effect on effect.skill_id = skill.id group by skill.id 
+    ) as skills on skills.entity_id = entity.id group by entity.id;`
 
     try {
         const r = await pool.query(text)

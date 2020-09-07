@@ -8,9 +8,9 @@ import { Application } from 'express'
 import { rootRouter } from './handlers/root/root.router'
 import { characterRouter } from "./handlers/character/character.router"
 import { skillRouter } from "./handlers/skill/skill.routes"
+import { effectRouter } from "./handlers/effect/effect.router"
 import { gameRouter } from "./handlers/game/game.router"
 import { userRouter } from "./handlers/user"
-import { pool } from './db'
 
 export class App {
     private app: Application
@@ -38,6 +38,7 @@ export class App {
         this.app.use('/game', gameRouter)
         this.app.use('/character', characterRouter)
         this.app.use("/skill", skillRouter)
+        this.app.use("/effect", effectRouter)
         this.app.use("/", rootRouter)
     }
 
