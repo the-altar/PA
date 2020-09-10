@@ -11,6 +11,7 @@ export class Effect {
     protected delay?: number
     protected linked?: boolean
     protected message: string
+    protected triggerRate: number
     protected disabled?: boolean
     protected triggered: boolean
     protected isInvisible: boolean
@@ -33,6 +34,7 @@ export class Effect {
         this.type = data.type
         this.caster = caster
         this.triggered = false
+        this.triggerRate = data.triggerRate || 100
         this.compulsory = data.compulsory || false
         this.triggerClause = data.triggerClause || triggerClauseType.None
         this.behavior = data.behavior || effectTargetBehavior.Default
@@ -50,7 +52,11 @@ export class Effect {
     }
 
     public shouldApply(acType: activationType, tClause: triggerClauseType): boolean {
-        if (acType === this.activationType && tClause === this.triggerClause) return true;
+        const triggerRate = Math.floor(Math.random() * 101);
+
+        if (acType === this.activationType &&
+            tClause === this.triggerClause &&
+            triggerRate <= this.triggerRate) return true;
         return false
     }
 
@@ -90,22 +96,22 @@ export class Effect {
     public progressTurn() {
         this.tick++
         this.generateToolTip()
-        
+
         if (this.delay > 0) {
-            this.delay--            
+            this.delay--
             return this.tickOn()
         }
         this.duration--
         return this.tickOn()
     }
 
-    public execute(targets: Array<number>, world: Arena, origin:Skill, shouldApply: boolean): boolean {
+    public execute(targets: Array<number>, world: Arena, origin: Skill, shouldApply: boolean): boolean {
         const t = []
         const { activate, terminate } = this.tickOn()
         switch (this.behavior) {
             case effectTargetBehavior.Default: {
                 for (const i of targets) {
-                    const char = world.getCharactersByIndex([i])[0]             
+                    const char = world.getCharactersByIndex([i])[0]
                     if (char.isKnockedOut()) continue
                     if (shouldApply && activate && !char.isInvulnerable(origin.getTypes())) {
                         this.functionality(char, origin, world)
@@ -140,22 +146,22 @@ export class Effect {
             } break;
 
             case effectTargetBehavior.IfAlly: {
-                const {char} = world.findCharacterById(this.caster)
+                const { char } = world.findCharacterById(this.caster)
                 const allies = char.getAllies()
-                for(const i of targets){
-                    if(allies.includes(i)){
+                for (const i of targets) {
+                    if (allies.includes(i)) {
                         const ally = world.getCharactersByIndex([i])[0]
-                        if(ally.isKnockedOut()) continue
-                        if(shouldApply && activate && !ally.isInvulnerable(origin.getTypes())){
+                        if (ally.isKnockedOut()) continue
+                        if (shouldApply && activate && !ally.isInvulnerable(origin.getTypes())) {
                             this.functionality(ally, origin, world)
                         }
                         t.push(i)
                     }
                 }
-            }break;
+            } break;
 
             case effectTargetBehavior.IfEnemy: {
-                const {char} = world.findCharacterById(this.caster)
+                const { char } = world.findCharacterById(this.caster)
                 const enemies = char.getEnemies()
 
                 for (const i of enemies) {
@@ -172,7 +178,7 @@ export class Effect {
             } break;
 
             case effectTargetBehavior.ifSelf: {
-                const {char, index} = world.findCharacterById(this.caster)
+                const { char, index } = world.findCharacterById(this.caster)
                 if (!char.isKnockedOut()) {
                     if (shouldApply && activate && !char.isInvulnerable(origin.getTypes())) {
                         this.functionality(char, origin, world)

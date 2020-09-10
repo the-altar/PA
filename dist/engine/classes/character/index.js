@@ -108,6 +108,12 @@ class Character {
     getRealSkillByIndex(index) {
         return this.skills[index];
     }
+    getRealSkillById(id) {
+        for (const skill of this.skills) {
+            if (skill.getId() === id)
+                return skill;
+        }
+    }
     setSkillCooldownByIndex(index) {
         const n = this.buffs.getCooldownReduction() + this.debuffs.getCooldownIncreasal();
         this.skills[index].startCooldown(n);
@@ -132,11 +138,18 @@ class Character {
     setBuff(params) {
         const { buffType } = params;
         switch (buffType) {
-            case enums_1.BuffTypes.Invulnerability: {
-                this.buffs.setInvulnerability(params);
-            }
-            case enums_1.BuffTypes.CooldownReduction: {
-                this.buffs.setCooldownReduction(params);
+            case enums_1.BuffTypes.Invulnerability:
+                {
+                    this.buffs.setInvulnerability(params);
+                }
+                break;
+            case enums_1.BuffTypes.CooldownReduction:
+                {
+                    this.buffs.setCooldownReduction(params);
+                }
+                break;
+            case enums_1.BuffTypes.DecreaseDamageTaken: {
+                this.buffs.setDecreaseDamageTaken(params);
             }
         }
     }
@@ -147,12 +160,21 @@ class Character {
                     this.debuffs.setDamageReduction(params);
                 }
                 break;
-            case enums_1.DebuffTypes.CooldownIncreasal: {
-                this.debuffs.setCooldownIncreasal(params);
-            }
-            case enums_1.DebuffTypes.Stun: {
-                this.debuffs.setStun(params);
-            }
+            case enums_1.DebuffTypes.CooldownIncreasal:
+                {
+                    this.debuffs.setCooldownIncreasal(params);
+                }
+                break;
+            case enums_1.DebuffTypes.Stun:
+                {
+                    this.debuffs.setStun(params);
+                }
+                break;
+            case enums_1.DebuffTypes.IncreaseDamageTaken:
+                {
+                    this.debuffs.setIncreasedDamage(params);
+                }
+                break;
         }
     }
     isInvulnerable(types) {
@@ -161,9 +183,9 @@ class Character {
     clearBuffs() {
         this.buffs.clearInvulnerability();
         this.buffs.clearCooldownReduction();
+        this.buffs.clearDecreaseDamageTaken();
     }
     clearEnemyPhaseBuffs() {
-        console.log(`Buffs cleared [${this.getOwner()}]`);
         this.buffs.clearInvulnerability();
     }
     clearPlayerPhaseBuffs() {

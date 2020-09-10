@@ -23,7 +23,7 @@ class Skill {
         this.targetChoices = data.targetChoices || {};
         this.effects = [];
         this.mods = new mods_1.SkillMods(data.mods);
-        this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
+        this.id = data.id;
         for (const e of data.effects) {
             const built = effect_1.effectFactory(e, caster);
             this.effects.push(built);

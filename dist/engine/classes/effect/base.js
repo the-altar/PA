@@ -15,6 +15,7 @@ class Effect {
         this.type = data.type;
         this.caster = caster;
         this.triggered = false;
+        this.triggerRate = data.triggerRate || 100;
         this.compulsory = data.compulsory || false;
         this.triggerClause = data.triggerClause || enums_1.triggerClauseType.None;
         this.behavior = data.behavior || enums_1.effectTargetBehavior.Default;
@@ -29,7 +30,10 @@ class Effect {
         this.targets = targets;
     }
     shouldApply(acType, tClause) {
-        if (acType === this.activationType && tClause === this.triggerClause)
+        const triggerRate = Math.floor(Math.random() * 101);
+        if (acType === this.activationType &&
+            tClause === this.triggerClause &&
+            triggerRate <= this.triggerRate)
             return true;
         return false;
     }

@@ -1,7 +1,7 @@
 import { effectType } from "../../enums"
 import { Effect } from "./base"
 import { Invulnerability } from "./invulnerability"
-import { Damage, DamageReduction } from './damageRelated'
+import { Damage, DamageReduction, IncreaseDamageTaken, DecreaseDamageTaken } from './damageRelated'
 import { Healing, HealthDrain } from "./healthRelated"
 import { CooldownReduction, CooldownIncreasal } from "./cooldownRelated"
 import { EnergyGain } from "./energyRelated"
@@ -44,7 +44,13 @@ export const effectFactory = function (effect: any, caster: number): Effect {
         }
         case effectType.Counter: {
             return new Counter(effect, caster)
+        }
+        case effectType.IncreaseDamageTaken: {
+            return new IncreaseDamageTaken(effect, caster)
         } 
+        case effectType.DecreaseDamageTaken: {
+            return new DecreaseDamageTaken(effect, caster)   
+        }
         default: {
             return new Effect(effect, caster)
         }

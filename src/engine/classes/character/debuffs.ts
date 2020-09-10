@@ -10,13 +10,50 @@ export interface iDebuffParams {
 
 export class Debuffs {
     damageReduction: { [x: string]: { [x: string]: number } }
+    increaseDamageTaken: { [x: string]: { [x: string]: number } }
     cooldownIncreasal: { [x: string]: number }
     stun: { [x: string]: boolean }
 
     constructor() {
         this.damageReduction = {}
+        this.increaseDamageTaken = {}
         this.cooldownIncreasal = { any: 0 }
         this.stun = { }
+    }
+
+    public setIncreasedDamage(params:iDebuffParams){
+        const {skillType, damageType, value} = params
+        if(this.increaseDamageTaken[skillType]===undefined) {
+            this.increaseDamageTaken[skillType] = {
+                [damageType]: value
+            } 
+        } else {
+            this.increaseDamageTaken[skillType][damageType] += value 
+        }
+    }
+
+    public getIncreasedDamage(params: iDebuffParams) {
+        const { skillType, damageType } = params
+        const res = {
+            increasal: 0,
+            hasBeenIncreased: false
+        }
+
+        if (this.increaseDamageTaken[Types.Any] !== undefined) {
+            res.increasal += this.increaseDamageTaken[Types.Any][damageType] || 0
+            res.hasBeenIncreased = true
+        }
+
+        if (skillType !== Types.Any) {
+            if (this.increaseDamageTaken[skillType] !== undefined) {
+                if (this.increaseDamageTaken[skillType][damageType] !== undefined) {
+                    res.increasal += this.increaseDamageTaken[skillType][damageType] || 0
+                    res.hasBeenIncreased = true
+                }
+            }
+        }
+        
+        return res
     }
 
     public setDamageReduction(params: iDebuffParams) {

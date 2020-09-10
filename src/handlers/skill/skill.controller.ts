@@ -2,11 +2,10 @@ import { Request, Response } from 'express'
 import { pool } from "../../db"
 
 export const create = async function (req: Request, res: Response) {
-    const skill = [req.body]
     const text = "INSERT INTO skill (data) values ($1)";
 
     try {
-        await pool.query(text, skill)
+        await pool.query(text, req.body)
         return res.json({ code: 1 })
     } catch (err) {
         return res.json({ code: 0 })

@@ -12,7 +12,7 @@ class SkillTargetMod extends base_1.Effect {
         this.specificSkillIndex = data.specificSkillIndex || -1;
     }
     functionality(char, origin, world) {
-        const s = char.getRealSkillByIndex(this.specificSkillIndex);
+        const s = char.getRealSkillById(this.specificSkillIndex);
         if (this.targetSpecificSkill) {
             s.setTargetMod(this.newTarget);
         }

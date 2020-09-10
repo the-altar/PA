@@ -13,10 +13,9 @@ exports.getIds = exports.update = exports.find = exports.get = exports.create = 
 const db_1 = require("../../db");
 exports.create = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const skill = [req.body];
         const text = "INSERT INTO skill (data) values ($1)";
         try {
-            yield db_1.pool.query(text, skill);
+            yield db_1.pool.query(text, req.body);
             return res.json({ code: 1 });
         }
         catch (err) {

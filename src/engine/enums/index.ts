@@ -4,7 +4,8 @@ export enum memberRank {
 
 export enum effectType {
     Damage, Invulnerability, DamageReduction, CooldownIncreasal, CooldownReduction, Healing,
-    Stun, HealthDrain, EnergyRemoval, EnergyGain, EnergySteal, SkillTargetMod, Counter
+    Stun, HealthDrain, EnergyRemoval, EnergyGain, EnergySteal, SkillTargetMod, Counter, IncreaseDamageTaken,
+    DecreaseDamageTaken
 }
 
 export enum activationType {
@@ -28,11 +29,11 @@ export enum Types {
 }
 
 export enum BuffTypes {
-    Invulnerability, CooldownReduction
+    Invulnerability, CooldownReduction, DecreaseDamageTaken
 }
 
 export enum DebuffTypes {
-    DamageReduction, CooldownIncreasal, Stun
+    DamageReduction, CooldownIncreasal, Stun, IncreaseDamageTaken
 }
 
 export enum CostTypes {

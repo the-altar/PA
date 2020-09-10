@@ -6,6 +6,7 @@ class Buffs {
     constructor() {
         this.invulnerability = {};
         this.cooldownReduction = { any: 0 };
+        this.decreaseDamageTaken = {};
     }
     setInvulnerability(params) {
         const { skillType } = params;
@@ -19,6 +20,37 @@ class Buffs {
                 return true;
         }
         return false;
+    }
+    setDecreaseDamageTaken(params) {
+        const { damageType, value, skillType } = params;
+        if (this.decreaseDamageTaken[skillType] === undefined) {
+            this.decreaseDamageTaken[skillType] = {
+                [damageType]: value
+            };
+        }
+        else {
+            this.decreaseDamageTaken[skillType][damageType] += value;
+        }
+    }
+    getDecreaseDamageTaken(params) {
+        const { skillType, damageType } = params;
+        const res = {
+            decreased: 0,
+            hasBeenDecreased: false
+        };
+        if (this.decreaseDamageTaken[enums_1.Types.Any] !== undefined) {
+            res.decreased += this.decreaseDamageTaken[enums_1.Types.Any][damageType] || 0;
+            res.hasBeenDecreased = true;
+        }
+        if (skillType !== enums_1.Types.Any) {
+            if (this.decreaseDamageTaken[skillType] !== undefined) {
+                if (this.decreaseDamageTaken[skillType][damageType] !== undefined) {
+                    res.decreased += this.decreaseDamageTaken[skillType][damageType] || 0;
+                    res.hasBeenDecreased = true;
+                }
+            }
+        }
+        return res;
     }
     setCooldownReduction(params) {
         const { specific, value } = params;
@@ -42,6 +74,9 @@ class Buffs {
     }
     clearInvulnerability() {
         this.invulnerability = {};
+    }
+    clearDecreaseDamageTaken() {
+        this.decreaseDamageTaken = {};
     }
 }
 exports.Buffs = Buffs;

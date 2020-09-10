@@ -138,6 +138,12 @@ export class Character {
         return this.skills[index]
     }
 
+    public getRealSkillById(id:number): Skill {
+        for(const skill of this.skills){
+            if(skill.getId() === id) return skill
+        }
+    }
+
     public setSkillCooldownByIndex(index: number) {
         const n = this.buffs.getCooldownReduction() + this.debuffs.getCooldownIncreasal()
         this.skills[index].startCooldown(n)
@@ -164,14 +170,17 @@ export class Character {
         })
     }
 
-    public setBuff(params: iBuffParams) {
+    public setBuff(params:any) {
         const { buffType } = params
         switch (buffType) {
             case BuffTypes.Invulnerability: {
                 this.buffs.setInvulnerability(params)
-            }
+            }break;
             case BuffTypes.CooldownReduction: {
                 this.buffs.setCooldownReduction(params)
+            }break;
+            case BuffTypes.DecreaseDamageTaken: {
+                this.buffs.setDecreaseDamageTaken(params)
             }
         }
     }
@@ -183,10 +192,13 @@ export class Character {
             } break;
             case DebuffTypes.CooldownIncreasal: {
                 this.debuffs.setCooldownIncreasal(params)
-            }
+            }break;
             case DebuffTypes.Stun: {
                 this.debuffs.setStun(params)
-            }
+            }break;
+            case DebuffTypes.IncreaseDamageTaken: {
+                this.debuffs.setIncreasedDamage(params)
+            }break;
         }
     }
 
@@ -197,10 +209,10 @@ export class Character {
     public clearBuffs() {
         this.buffs.clearInvulnerability()
         this.buffs.clearCooldownReduction()
+        this.buffs.clearDecreaseDamageTaken()
     }
 
     public clearEnemyPhaseBuffs() {
-        console.log(`Buffs cleared [${this.getOwner()}]`)
         this.buffs.clearInvulnerability()
     }
 

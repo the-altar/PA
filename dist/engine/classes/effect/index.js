@@ -57,6 +57,12 @@ exports.effectFactory = function (effect, caster) {
         case enums_1.effectType.Counter: {
             return new counter_1.Counter(effect, caster);
         }
+        case enums_1.effectType.IncreaseDamageTaken: {
+            return new damageRelated_1.IncreaseDamageTaken(effect, caster);
+        }
+        case enums_1.effectType.DecreaseDamageTaken: {
+            return new damageRelated_1.DecreaseDamageTaken(effect, caster);
+        }
         default: {
             return new base_1.Effect(effect, caster);
         }

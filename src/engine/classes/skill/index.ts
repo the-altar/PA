@@ -27,7 +27,6 @@ export class Skill {
     private targetChoices: { [x: string]: Array<number> }
     private id: number;
     constructor(data: iSkill, caster: number) {
-        
         this.banner = data.banner
         this.type = data.type
         this.cooldown = 0 || data.startCooldown
@@ -44,7 +43,7 @@ export class Skill {
         this.targetChoices = data.targetChoices || {}
         this.effects = []
         this.mods = new SkillMods(data.mods)
-        this.id = Math.floor(Math.random() * (0 - 99999) + 99999);
+        this.id = data.id
         for (const e of data.effects) {
             const built = effectFactory(e, caster)
             this.effects.push(built)

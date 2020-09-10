@@ -23,6 +23,8 @@ var effectType;
     effectType[effectType["EnergySteal"] = 10] = "EnergySteal";
     effectType[effectType["SkillTargetMod"] = 11] = "SkillTargetMod";
     effectType[effectType["Counter"] = 12] = "Counter";
+    effectType[effectType["IncreaseDamageTaken"] = 13] = "IncreaseDamageTaken";
+    effectType[effectType["DecreaseDamageTaken"] = 14] = "DecreaseDamageTaken";
 })(effectType = exports.effectType || (exports.effectType = {}));
 var activationType;
 (function (activationType) {
@@ -93,12 +95,14 @@ var BuffTypes;
 (function (BuffTypes) {
     BuffTypes[BuffTypes["Invulnerability"] = 0] = "Invulnerability";
     BuffTypes[BuffTypes["CooldownReduction"] = 1] = "CooldownReduction";
+    BuffTypes[BuffTypes["DecreaseDamageTaken"] = 2] = "DecreaseDamageTaken";
 })(BuffTypes = exports.BuffTypes || (exports.BuffTypes = {}));
 var DebuffTypes;
 (function (DebuffTypes) {
     DebuffTypes[DebuffTypes["DamageReduction"] = 0] = "DamageReduction";
     DebuffTypes[DebuffTypes["CooldownIncreasal"] = 1] = "CooldownIncreasal";
     DebuffTypes[DebuffTypes["Stun"] = 2] = "Stun";
+    DebuffTypes[DebuffTypes["IncreaseDamageTaken"] = 3] = "IncreaseDamageTaken";
 })(DebuffTypes = exports.DebuffTypes || (exports.DebuffTypes = {}));
 var CostTypes;
 (function (CostTypes) {

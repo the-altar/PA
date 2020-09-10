@@ -1,6 +1,7 @@
 import {targetType, Types, SkillClassType} from "../enums"
 
 export interface iSkill {
+    id:number
     cost: Array<number>
     disabled?: boolean
     skillpic: string

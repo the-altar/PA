@@ -19,7 +19,7 @@ export class SkillTargetMod extends Effect {
     }
 
     public functionality(char: Character, origin: Skill, world?: Arena) {
-        const s = char.getRealSkillByIndex(this.specificSkillIndex)
+        const s = char.getRealSkillById(this.specificSkillIndex)
         if (this.targetSpecificSkill) {
             s.setTargetMod(this.newTarget)
         } else {
