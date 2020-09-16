@@ -13,7 +13,6 @@ interface iRegister {
     team: Array<iCharacter>
 }
 
-
 export class Battle extends Room {
     private arena: Arena = new Arena()
     private constructed: number = 0

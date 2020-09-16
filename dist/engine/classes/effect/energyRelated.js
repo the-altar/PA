@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EnergyGain = void 0;
+exports.EnergyRemoval = exports.EnergyGain = void 0;
 const base_1 = require("./base");
 const enums_1 = require("../../enums");
 class EnergyGain extends base_1.Effect {
@@ -37,4 +37,26 @@ class EnergyGain extends base_1.Effect {
     }
 }
 exports.EnergyGain = EnergyGain;
+class EnergyRemoval extends base_1.Effect {
+    constructor(data, caster) {
+        super(data, caster);
+        this.energyType = data.energyType;
+    }
+    functionality(char, origin, world) {
+        const p = world.findPlayerByChar(char);
+        let index;
+        if (this.energyType === enums_1.CostTypes.Random) {
+            do {
+                index = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+            } while (p.getEnergyPool()[index] === 0);
+        }
+        else
+            index = this.energyType;
+        p.decreaseEnergyPool(index, this.value);
+    }
+    generateToolTip() {
+        this.message = `This character will lose ${this.value} PP`;
+    }
+}
+exports.EnergyRemoval = EnergyRemoval;
 //# sourceMappingURL=energyRelated.js.map

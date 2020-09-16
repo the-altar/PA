@@ -16,12 +16,14 @@ export class Damage extends Effect {
         const reduction = this.getDamageReduction(world, origin)
         const { increasal } = char.getDebuffs().getIncreasedDamage({ damageType: this.damageType, skillType: origin.getTypes()[0] })
         const { decreased } = char.getBuffs().getDecreaseDamageTaken({ damageType: this.damageType, skillType: origin.getTypes()[0] })
-        
+        const { conversionRate } = char.getBuffs().getAbsorbDamage({skillType:origin.getTypes()[0], damageType:this.damageType})
 
-        let damage = (this.value - ((reduction + decreased) - increasal)) * this.calculateDamageBonus(origin, char)
-        if (damage < 0) damage = 0
+        const damageVal = Number(this.altValue) || this.value
+        let damage = (damageVal - ((reduction + decreased) - increasal)) * this.calculateDamageBonus(origin, char)
+        if (damage < 0) damage = 0        
+        const absorbed = damage * (conversionRate/100)
 
-        const hp = char.geHitPoints() - Math.round(damage / 5) * 5
+        const hp = char.geHitPoints() - (Math.round(damage / 5) * 5) + Math.round(absorbed / 5) * 5
         char.setHitPoints(hp)
 
         if (char.isKnockedOut()) {
@@ -41,12 +43,16 @@ export class Damage extends Effect {
     }
 
     protected generateToolTip() {
+        
+        const damageVal = Number(this.altValue) || this.value
+
         if (this.delay > 0) {
-            this.message = `this character will take ${this.value} damage for ${this.duration} turns in ${this.delay} turns`
+            this.message = `this character will take ${damageVal} damage for ${this.duration} turns in ${this.delay} turns`
         } else {
-            this.message = `this.character will take ${this.value} damage`
+            this.message = `this.character will take ${damageVal} damage`
         }
     }
+    
 }
 
 export class DamageReduction extends Effect {
@@ -69,11 +75,42 @@ export class DamageReduction extends Effect {
         })
     }
 
+    protected generateToolTip() {   
+        const damageVal = Number(this.altValue) || this.value
+        
+        if (this.delay > 0) {
+            this.message = `This character will deal ${damageVal} less damage in ${this.delay} turns`
+        } else {
+            this.message = `This character will deal ${damageVal} less damage`
+        }
+    }
+}
+
+export class DamageIncreasal extends Effect {
+
+    private skillType: Types
+    private damageType: DamageType
+
+    constructor(data: any, caster: number) {
+        super(data, caster)
+        this.skillType = data.skillType
+        this.damageType = data.damageType
+    }
+
+    public functionality(char: Character, origin: Skill) {
+        char.setBuff({
+            damageType: this.damageType,
+            value: this.value,
+            skillType: this.skillType,
+            buffType: BuffTypes.DamageIncreasal
+        })
+    }
+
     protected generateToolTip() {
         if (this.delay > 0) {
-            this.message = `This character will deal ${this.value} less damage in ${this.delay} turns`
+            this.message = `This character will deal ${this.value} more damage`
         } else {
-            this.message = `This character will deal ${this.value} less damage`
+            this.message = `This character will deal ${this.value} more damage`
         }
     }
 }
@@ -127,3 +164,30 @@ export class DecreaseDamageTaken extends Effect {
         this.message = `This character has ${this.value} points of damage reduction`
     }
 }
+
+export class AbsorbDamage extends Effect {
+    private skillType: Types
+    private damageType: DamageType
+
+    constructor(data: any, caster: number) {
+        super(data, caster)
+        this.skillType = data.skillType
+        this.damageType = data.damageType
+    }
+
+    public functionality(char: Character, origin: Skill) {
+        char.setBuff({
+            damageType: this.damageType,
+            value: this.value,
+            skillType: this.skillType,
+            buffType: BuffTypes.AbsorbDamage
+            //class?: SkillClassType;
+        })
+    }
+
+    protected generateToolTip() {
+        if(this.value === 100) this.message = `This character takes no damage from ${Types[this.skillType]} skills`
+        else this.message = `This character will be healed by ${Types[this.skillType]} skills`
+    }
+}
+

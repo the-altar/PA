@@ -52,6 +52,9 @@ class Skill {
     disable() {
         this.disabled = true;
     }
+    resetCooldown() {
+        this.cooldown = 0;
+    }
     lowerCooldown(extra) {
         if (this.cooldown > 0)
             this.cooldown -= (1 + extra);
@@ -136,6 +139,15 @@ class Skill {
     setTargets(targets) {
         this.targets = targets;
     }
+    removeCharFromTargets(char, world) {
+        for (let i = this.targets.length - 1; i >= 0; i--) {
+            const targeted = world.getCharactersByIndex([this.targets[i]])[0];
+            if (targeted.getId() === char.getId()) {
+                this.targets.splice(i, 1);
+                break;
+            }
+        }
+    }
     getTargets() {
         return this.targets;
     }
@@ -144,6 +156,8 @@ class Skill {
     }
     executeEffects(world, aType, triggerClause) {
         for (const effect of this.effects) {
+            if (!effect.activate)
+                continue;
             const shouldApply = effect.shouldApply(aType, triggerClause);
             effect.execute(this.targets, world, this, shouldApply);
         }

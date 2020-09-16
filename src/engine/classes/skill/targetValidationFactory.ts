@@ -1,6 +1,6 @@
 import { Character } from "../character"
 import { Skill } from "."
-import { targetType } from "../../enums"
+import { targetType, effectType } from "../../enums"
 
 export const targetSetter = function (skill: Skill, targetMode: targetType, characters: Array<Character>, playerId: string, self?: number): { [x: string]: Array<number> } {
     let choices: { [x: string]: Array<number> } = {}
@@ -12,7 +12,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
         case targetType.OneEnemy: {
             characters.forEach((char, index) => {
                 if (!char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes())
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), effectType.None)
                     if (!isInvulnerable) choices.choice.push(index)
                 }
             })
@@ -22,7 +22,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
         case targetType.OneEnemyAndSelf: {
             characters.forEach((char, index) => {
                 if (!char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes())
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), effectType.None)
                     if (!isInvulnerable) choices.choice.push(index)
                 }
             })
@@ -33,7 +33,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
         case targetType.OneAllyAndSelf: {
             characters.forEach((char, index) => {
                 if (char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes())
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), effectType.None)
                     if (!isInvulnerable) choices.choice.push(index)
                 }
             })
@@ -44,7 +44,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
         case targetType.AllEnemies: {
             characters.forEach((char, index) => {
                 if (!char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes())
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), effectType.None)
                     if (!isInvulnerable) choices.choice.push(index)
                 }
             })
@@ -54,7 +54,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
         case targetType.AllAllies: {
             const allies = characters[self].getAllies()
             for (let i of allies) {
-                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes())
+                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes(), effectType.None)
                 if (!isInvulnerable && !characters[i].isKnockedOut()) choices.choice.push(i)
             }
             choices.choice.push(self)
@@ -64,7 +64,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
         case targetType.OneAlly: {
             const allies = characters[self].getAllies()
             for (let i of allies) {
-                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes())
+                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes(), effectType.None)
                 if (!isInvulnerable && !characters[i].isKnockedOut()) choices.choice.push(i)
             }
             return choices
@@ -73,7 +73,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
         case targetType.AllEnemiesAndSelf: {
             characters.forEach((char, index) => {
                 if (!char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes())
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), effectType.None)
                     if (!isInvulnerable && !char.isKnockedOut()) choices.choice.push(index)
                 }
             })
@@ -85,7 +85,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
             const indexes = characters[self].getEnemies()
             
             for(const i of indexes){
-                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes())
+                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes(), effectType.None)
                 if(!isInvulnerable && !characters[i].isKnockedOut()) {
                     choices.choice.push(i)
                 }
@@ -99,7 +99,7 @@ export const targetSetter = function (skill: Skill, targetMode: targetType, char
         }
 
         case targetType.Self: {
-            const isInvulnerable = characters[self].isInvulnerable(skill.getTypes())
+            const isInvulnerable = characters[self].isInvulnerable(skill.getTypes(), effectType.None)
             if (!isInvulnerable && !characters[self].isKnockedOut()) choices.choice.push(self)
             return choices
         }

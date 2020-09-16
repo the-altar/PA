@@ -1,4 +1,5 @@
-import { Types, BuffTypes, DamageType, SkillClassType } from "../../enums"
+import { Types, BuffTypes, DamageType, SkillClassType, effectType } from "../../enums"
+import {isHarmful} from "../effect/z.helpers"
 
 export interface iBuffParams {
     value?: number,
@@ -12,11 +13,15 @@ export class Buffs {
     invulnerability: { [x: string]: boolean }
     cooldownReduction: { [x: string]: number }
     decreaseDamageTaken: { [x: string]: { [x: string]: number } }
+    damageIncreasal: { [x: string]: { [x: string]: number } }
+    absorbDamage: { [x: string]: { [x: string]: number } }
 
     constructor() {
         this.invulnerability = {}
-        this.cooldownReduction = {any:0}
+        this.cooldownReduction = { any: 0 }
         this.decreaseDamageTaken = {}
+        this.damageIncreasal = {}
+        this.absorbDamage = {}
     }
 
     public setInvulnerability(params: iBuffParams) {
@@ -24,7 +29,8 @@ export class Buffs {
         this.invulnerability[skillType] = true
     }
 
-    public isInvulnerable(types: Array<Types>): boolean {
+    public isInvulnerable(types: Array<Types>, eType:effectType): boolean {
+        if(!isHarmful(eType)) return false
         if (this.invulnerability[Types.Any]) return true
         for (const t of types) {
             if (this.invulnerability[t]) return true
@@ -32,19 +38,19 @@ export class Buffs {
         return false
     }
 
-    public setDecreaseDamageTaken(params:{damageType:DamageType, value:number, skillType:Types, class?: SkillClassType}){
-        const {damageType, value, skillType} = params 
-        
-        if(this.decreaseDamageTaken[skillType]===undefined) {
+    public setDecreaseDamageTaken(params: { damageType: DamageType, value: number, skillType: Types, class?: SkillClassType }) {
+        const { damageType, value, skillType } = params
+
+        if (this.decreaseDamageTaken[skillType] === undefined) {
             this.decreaseDamageTaken[skillType] = {
                 [damageType]: value
-            } 
+            }
         } else {
-            this.decreaseDamageTaken[skillType][damageType] += value 
+            this.decreaseDamageTaken[skillType][damageType] += value
         }
     }
 
-    public getDecreaseDamageTaken(params:{damageType:DamageType, skillType:Types, class?: SkillClassType}){
+    public getDecreaseDamageTaken(params: { damageType: DamageType, skillType: Types, class?: SkillClassType }) {
         const { skillType, damageType } = params
         const res = {
             decreased: 0,
@@ -64,7 +70,42 @@ export class Buffs {
                 }
             }
         }
-        
+
+        return res
+    }
+
+    public setDamageIncreasal(params: { skillType: Types, value: number, damageType: DamageType }) {
+        const { skillType, damageType, value } = params
+        if (this.damageIncreasal[skillType] === undefined) {
+            this.damageIncreasal[skillType] = {
+                [damageType]: value
+            }
+        } else {
+            this.damageIncreasal[skillType][damageType] += value
+        }
+    }
+
+    public getDamageIncreasal(params: { skillType: Types, damageType: DamageType }) {
+        const { skillType, damageType } = params
+        const res = {
+            increased: 0,
+            hasBeenIncreased: false
+        }
+
+        if (this.damageIncreasal[Types.Any] !== undefined) {
+            res.increased += this.damageIncreasal[Types.Any][damageType] || 0
+            res.hasBeenIncreased = true
+        }
+
+        if (skillType !== Types.Any) {
+            if (this.damageIncreasal[skillType] !== undefined) {
+                if (this.damageIncreasal[skillType][damageType] !== undefined) {
+                    res.increased += this.damageIncreasal[skillType][damageType] || 0
+                    res.hasBeenIncreased = true
+                }
+            }
+        }
+
         return res
     }
 
@@ -87,16 +128,65 @@ export class Buffs {
         return -r
     }
 
-    public clearCooldownReduction(){
-        this.cooldownReduction = {any:0}
-    } 
+    public setAbsorbDamage(params: { skillType: Types, value: number, damageType: DamageType }){
+        const { skillType, damageType, value } = params
+        if (this.absorbDamage[skillType] === undefined) {
+            this.absorbDamage[skillType] = {
+                [damageType]: value
+            }
+        } else {
+            this.absorbDamage[skillType][damageType] += value
+        }
+    }
 
-    public clearInvulnerability(){
+    public getAbsorbDamage(params:{skillType:Types, damageType:DamageType}){
+        const { skillType, damageType } = params
+        const res = {
+            conversionRate: 0,
+            hasBeenAbsorbed: false
+        }
+
+        if (this.absorbDamage[Types.Any] !== undefined) {
+
+            const t = this.absorbDamage[Types.Any][DamageType.True] || 0
+            res.conversionRate += (this.absorbDamage[Types.Any][damageType] || 0) + t
+            res.hasBeenAbsorbed = true
+        }
+
+        if (skillType !== Types.Any) {
+            if (this.absorbDamage[skillType] !== undefined) {
+
+                const t = this.absorbDamage[skillType][DamageType.True] || 0
+                if (this.absorbDamage[skillType][damageType] !== undefined) {
+                    res.conversionRate += this.absorbDamage[skillType][damageType] || 0
+                    res.hasBeenAbsorbed = true
+                }
+                if(t > 0) res.hasBeenAbsorbed = true
+                res.conversionRate += t
+            }
+        }
+        
+        return res
+    }
+
+    public clearCooldownReduction() {
+        this.cooldownReduction = { any: 0 }
+    }
+
+    public clearInvulnerability() {
         this.invulnerability = {}
-    } 
-    
-    public clearDecreaseDamageTaken(){
+    }
+
+    public clearDamageIncreasal() {
+        this.damageIncreasal = {}
+    }
+
+    public clearDecreaseDamageTaken() {
         this.decreaseDamageTaken = {}
+    }
+
+    public clearAbsorbDamage(){
+        this.absorbDamage = {}
     }
 }
 

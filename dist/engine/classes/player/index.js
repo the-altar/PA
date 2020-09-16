@@ -46,6 +46,12 @@ class Player {
         else
             this.energyPool[energyIndex] += value;
     }
+    decreaseEnergyPool(energyIndex, value) {
+        if (!value)
+            this.energyPool[energyIndex]--;
+        else
+            this.energyPool[energyIndex] += value;
+    }
     setTotalEnergyPool() {
         this.energyPool[4] = this.energyPool.slice(0, 4).reduce((ca, cv) => ca + cv);
     }

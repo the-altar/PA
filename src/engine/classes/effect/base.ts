@@ -6,9 +6,16 @@ import { Skill } from "../skill";
 
 export class Effect {
     protected value: number
+    protected altValue: number | null
     protected tick: number
     protected duration: number
     protected delay?: number
+    public mods: {
+        increment: {
+            value: number,
+            isMultiplier: boolean
+        }
+    }
     protected linked?: boolean
     protected message: string
     protected triggerRate: number
@@ -22,6 +29,8 @@ export class Effect {
     protected type: effectType
     protected caster: number
     protected targets: Array<number>
+    protected terminate: boolean
+    public activate:boolean
 
     constructor(data: any, caster: number) {
         this.value = data.value
@@ -39,12 +48,32 @@ export class Effect {
         this.triggerClause = data.triggerClause || triggerClauseType.None
         this.behavior = data.behavior || effectTargetBehavior.Default
         this.targets = []
+        this.activate = data.activate || true
         this.activationType = data.activationType || activationType.Immediate
+        this.altValue = data.altValue || null
+        this.mods = data.mods || {
+            increment: {
+                value: data.increment || 0,
+                isMultiplier: data.isMultiplier || false
+            }
+        }
     }
 
     public functionality(char: Character, origin?: Skill, world?: Arena) {
         console.log("This does nothing!")
         return
+    }
+
+    public setAltValue(value: number) {
+        this.altValue = value
+    }
+
+    public setIncrement(value:number){
+        this.mods.increment.value = value
+    }
+
+    public getAltValue(): number {
+        return this.altValue
     }
 
     public setTargets(targets: Array<number>) {
@@ -84,13 +113,16 @@ export class Effect {
 
         /*  An even tick means it's your opponent's turn, odd means its yours.*/
         /*  The default behavior is for your skills to activate on odd ticks*/
-        let terminate: boolean = false
-        let activate: boolean = false
+        this.terminate = false
+        this.activate = false
 
-        if (this.tick % 2 === PlayerPhase.MyTurn || this.compulsory) activate = true
-        if (this.duration <= 0) terminate = true
+        if (this.tick % 2 === PlayerPhase.MyTurn || this.compulsory) {
+            this.activate = true
+        }
 
-        return { terminate, activate }
+        if (this.duration <= 0) this.terminate = true
+
+        return { terminate: this.terminate, activate: this.activate }
     }
 
     public progressTurn() {
@@ -102,18 +134,20 @@ export class Effect {
             return this.tickOn()
         }
         this.duration--
-        return this.tickOn()
+        const {terminate, activate} = this.tickOn()
+        if(terminate) this.effectConclusion()
+        return {terminate, activate}
     }
 
-    public execute(targets: Array<number>, world: Arena, origin: Skill, shouldApply: boolean): boolean {
+    public execute(targets: Array<number>, world: Arena, origin: Skill, shouldApply: boolean) {
         const t = []
-        const { activate, terminate } = this.tickOn()
+        
         switch (this.behavior) {
             case effectTargetBehavior.Default: {
                 for (const i of targets) {
                     const char = world.getCharactersByIndex([i])[0]
                     if (char.isKnockedOut()) continue
-                    if (shouldApply && activate && !char.isInvulnerable(origin.getTypes())) {
+                    if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
                         this.functionality(char, origin, world)
                     }
                     t.push(i)
@@ -123,7 +157,7 @@ export class Effect {
             case effectTargetBehavior.OnlyOne: {
                 const char = world.getCharactersByIndex([targets[0]])[0]
                 if (!char.isKnockedOut()) {
-                    if (shouldApply && activate && !char.isInvulnerable(origin.getTypes())) {
+                    if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
                         this.functionality(char, origin, world)
                     }
                     t.push(targets[0])
@@ -137,7 +171,7 @@ export class Effect {
                     const char = world.getCharactersByIndex([i])[0]
 
                     if (char.isKnockedOut()) continue
-                    if (shouldApply && activate && !char.isInvulnerable(origin.getTypes())) {
+                    if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
                         this.functionality(char, origin, world)
                     }
                     t.push(i)
@@ -152,7 +186,7 @@ export class Effect {
                     if (allies.includes(i)) {
                         const ally = world.getCharactersByIndex([i])[0]
                         if (ally.isKnockedOut()) continue
-                        if (shouldApply && activate && !ally.isInvulnerable(origin.getTypes())) {
+                        if (shouldApply && this.activate && !ally.isInvulnerable(origin.getTypes(), this.type)) {
                             this.functionality(ally, origin, world)
                         }
                         t.push(i)
@@ -168,7 +202,7 @@ export class Effect {
                     if (targets.includes(i)) {
                         const char = world.getCharactersByIndex([i])[0]
                         if (char.isKnockedOut()) continue
-                        if (shouldApply && activate && !char.isInvulnerable(origin.getTypes())) {
+                        if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
                             this.functionality(char, origin, world)
                         }
                         t.push(i)
@@ -180,15 +214,20 @@ export class Effect {
             case effectTargetBehavior.ifSelf: {
                 const { char, index } = world.findCharacterById(this.caster)
                 if (!char.isKnockedOut()) {
-                    if (shouldApply && activate && !char.isInvulnerable(origin.getTypes())) {
+                    if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
                         this.functionality(char, origin, world)
                     }
                     t.push(index)
                 }
             } break;
         }
-        if (!terminate) this.setTargets(t)
-        return terminate
+
+        if(this.activate && shouldApply) {
+            if (this.mods.increment.isMultiplier) this.value *= this.mods.increment.value
+            else this.value += this.mods.increment.value
+        }
+        
+        this.setTargets(t)
     }
 
     public getType(): effectType {
@@ -197,6 +236,10 @@ export class Effect {
 
     protected generateToolTip() {
         this.message = "This character is being targeted"
+    }
+
+    protected effectConclusion() { 
+        
     }
 
     public getTargets() {

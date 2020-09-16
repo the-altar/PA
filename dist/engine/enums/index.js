@@ -25,6 +25,12 @@ var effectType;
     effectType[effectType["Counter"] = 12] = "Counter";
     effectType[effectType["IncreaseDamageTaken"] = 13] = "IncreaseDamageTaken";
     effectType[effectType["DecreaseDamageTaken"] = 14] = "DecreaseDamageTaken";
+    effectType[effectType["EffectRemoval"] = 15] = "EffectRemoval";
+    effectType[effectType["DamageIncreasal"] = 16] = "DamageIncreasal";
+    effectType[effectType["AbsorbDamage"] = 17] = "AbsorbDamage";
+    effectType[effectType["AlterEffectValue"] = 18] = "AlterEffectValue";
+    effectType[effectType["None"] = 19] = "None";
+    effectType[effectType["ResetCooldown"] = 20] = "ResetCooldown";
 })(effectType = exports.effectType || (exports.effectType = {}));
 var activationType;
 (function (activationType) {
@@ -96,6 +102,8 @@ var BuffTypes;
     BuffTypes[BuffTypes["Invulnerability"] = 0] = "Invulnerability";
     BuffTypes[BuffTypes["CooldownReduction"] = 1] = "CooldownReduction";
     BuffTypes[BuffTypes["DecreaseDamageTaken"] = 2] = "DecreaseDamageTaken";
+    BuffTypes[BuffTypes["DamageIncreasal"] = 3] = "DamageIncreasal";
+    BuffTypes[BuffTypes["AbsorbDamage"] = 4] = "AbsorbDamage";
 })(BuffTypes = exports.BuffTypes || (exports.BuffTypes = {}));
 var DebuffTypes;
 (function (DebuffTypes) {

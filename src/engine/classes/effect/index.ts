@@ -1,13 +1,15 @@
 import { effectType } from "../../enums"
 import { Effect } from "./base"
 import { Invulnerability } from "./invulnerability"
-import { Damage, DamageReduction, IncreaseDamageTaken, DecreaseDamageTaken } from './damageRelated'
+import { Damage, DamageReduction, IncreaseDamageTaken, DecreaseDamageTaken, DamageIncreasal, AbsorbDamage } from './damageRelated'
 import { Healing, HealthDrain } from "./healthRelated"
-import { CooldownReduction, CooldownIncreasal } from "./cooldownRelated"
-import { EnergyGain } from "./energyRelated"
+import { CooldownReduction, CooldownIncreasal, ResetCooldown } from "./cooldownRelated"
+import { EnergyGain, EnergyRemoval } from "./energyRelated"
 import { Stun } from "./stunRelated"
 import { SkillTargetMod } from "./skillTargetMod"
 import { Counter } from "./counter"
+import { EffectRemoval } from "./effectRemoval"
+import { AlterEffectValue } from "./alterEffectValue"
 export * from "./base"
 
 export const effectFactory = function (effect: any, caster: number): Effect {
@@ -51,6 +53,24 @@ export const effectFactory = function (effect: any, caster: number): Effect {
         case effectType.DecreaseDamageTaken: {
             return new DecreaseDamageTaken(effect, caster)   
         }
+        case effectType.EffectRemoval:{
+            return new EffectRemoval(effect, caster)
+        }
+        case effectType.DamageIncreasal:{
+            return new DamageIncreasal(effect, caster)
+        }
+        case effectType.AbsorbDamage:{
+            return new AbsorbDamage(effect, caster)
+        }
+        case effectType.AlterEffectValue:{
+            return new AlterEffectValue(effect, caster)
+        }
+        case effectType.EnergyRemoval: {
+            return new EnergyRemoval(effect, caster)
+        }
+        case effectType.ResetCooldown:{
+            return new ResetCooldown(effect, caster);
+        }        
         default: {
             return new Effect(effect, caster)
         }

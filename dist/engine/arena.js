@@ -71,6 +71,7 @@ class Arena {
         this.clearSkillMods(player);
         if (!energySpent)
             return;
+        player.consumeEnergy(energySpent);
         player.resetPayupCart();
     }
     startGame(complete) {
@@ -83,8 +84,8 @@ class Arena {
         if (!complete)
             this.emptyTempQueue();
         this.clearCharactersNotifications();
-        this.executeSkills(enums_1.activationType.Immediate, enums_1.triggerClauseType.None);
         this.transferTempToSkillQueue();
+        this.executeSkills(enums_1.activationType.Immediate, enums_1.triggerClauseType.None);
         this.tickSkillsInQueue();
         this.hasUsedSKill = {};
         //console.log("End player phase for: " + player2.getId())
@@ -112,14 +113,12 @@ class Arena {
         };
     }
     transferTempToSkillQueue() {
-        this.executeSkills(enums_1.activationType.Targeted, enums_1.triggerClauseType.None);
         for (const cordinates of this.tempQueue) {
             const char = this.characters[cordinates.caster];
             const skill = char.getCopySkillByIndex(cordinates.skill);
             char.setSkillCooldownByIndex(cordinates.skill);
             skill.setTargets(cordinates.targets);
-            skill.executeEffects(this, enums_1.activationType.Immediate, enums_1.triggerClauseType.None);
-            this.skillQueue.push(skill);
+            this.skillQueue.unshift(skill);
         }
         this.tempQueue = [];
     }
@@ -212,6 +211,12 @@ class Arena {
     }
     findPlayerByCharacterIndex(index) {
         const { char } = this.findCharacterById(index);
+        for (const player of this.players) {
+            if (char.belongsTo(player.getId()))
+                return player;
+        }
+    }
+    findPlayerByChar(char) {
         for (const player of this.players) {
             if (char.belongsTo(player.getId()))
                 return player;
@@ -319,6 +324,9 @@ class Arena {
             loser = player1;
         }
         return { winner, loser };
+    }
+    getActiveSkills() {
+        return this.skillQueue;
     }
 }
 exports.Arena = Arena;

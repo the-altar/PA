@@ -148,9 +148,21 @@ class Character {
                     this.buffs.setCooldownReduction(params);
                 }
                 break;
-            case enums_1.BuffTypes.DecreaseDamageTaken: {
-                this.buffs.setDecreaseDamageTaken(params);
-            }
+            case enums_1.BuffTypes.DecreaseDamageTaken:
+                {
+                    this.buffs.setDecreaseDamageTaken(params);
+                }
+                break;
+            case enums_1.BuffTypes.DamageIncreasal:
+                {
+                    this.buffs.setDamageIncreasal(params);
+                }
+                break;
+            case enums_1.BuffTypes.AbsorbDamage:
+                {
+                    this.buffs.setAbsorbDamage(params);
+                }
+                break;
         }
     }
     setDebuff(params) {
@@ -177,13 +189,15 @@ class Character {
                 break;
         }
     }
-    isInvulnerable(types) {
-        return this.buffs.isInvulnerable(types);
+    isInvulnerable(types, eType) {
+        return this.buffs.isInvulnerable(types, eType);
     }
     clearBuffs() {
         this.buffs.clearInvulnerability();
         this.buffs.clearCooldownReduction();
         this.buffs.clearDecreaseDamageTaken();
+        this.buffs.clearAbsorbDamage();
+        this.buffs.clearDamageIncreasal();
     }
     clearEnemyPhaseBuffs() {
         this.buffs.clearInvulnerability();

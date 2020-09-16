@@ -21,6 +21,8 @@ const energyRelated_1 = require("./energyRelated");
 const stunRelated_1 = require("./stunRelated");
 const skillTargetMod_1 = require("./skillTargetMod");
 const counter_1 = require("./counter");
+const effectRemoval_1 = require("./effectRemoval");
+const alterEffectValue_1 = require("./alterEffectValue");
 __exportStar(require("./base"), exports);
 exports.effectFactory = function (effect, caster) {
     switch (effect.type) {
@@ -62,6 +64,24 @@ exports.effectFactory = function (effect, caster) {
         }
         case enums_1.effectType.DecreaseDamageTaken: {
             return new damageRelated_1.DecreaseDamageTaken(effect, caster);
+        }
+        case enums_1.effectType.EffectRemoval: {
+            return new effectRemoval_1.EffectRemoval(effect, caster);
+        }
+        case enums_1.effectType.DamageIncreasal: {
+            return new damageRelated_1.DamageIncreasal(effect, caster);
+        }
+        case enums_1.effectType.AbsorbDamage: {
+            return new damageRelated_1.AbsorbDamage(effect, caster);
+        }
+        case enums_1.effectType.AlterEffectValue: {
+            return new alterEffectValue_1.AlterEffectValue(effect, caster);
+        }
+        case enums_1.effectType.EnergyRemoval: {
+            return new energyRelated_1.EnergyRemoval(effect, caster);
+        }
+        case enums_1.effectType.ResetCooldown: {
+            return new cooldownRelated_1.ResetCooldown(effect, caster);
         }
         default: {
             return new base_1.Effect(effect, caster);

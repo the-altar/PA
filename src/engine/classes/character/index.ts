@@ -1,5 +1,5 @@
 import { iCharacter } from "../../interfaces"
-import { Types, BuffTypes, DebuffTypes } from "../../enums"
+import { Types, BuffTypes, DebuffTypes, effectType } from "../../enums"
 import { Skill } from "../skill"
 
 // IMPORTANT TO THIS CLASS ONLY
@@ -181,7 +181,13 @@ export class Character {
             }break;
             case BuffTypes.DecreaseDamageTaken: {
                 this.buffs.setDecreaseDamageTaken(params)
-            }
+            }break;
+            case BuffTypes.DamageIncreasal:{
+                this.buffs.setDamageIncreasal(params)
+            }break;
+            case BuffTypes.AbsorbDamage:{
+                this.buffs.setAbsorbDamage(params)
+            }break;
         }
     }
 
@@ -202,14 +208,16 @@ export class Character {
         }
     }
 
-    public isInvulnerable(types: Array<Types>): boolean {
-        return this.buffs.isInvulnerable(types)
+    public isInvulnerable(types: Array<Types>, eType:effectType): boolean {
+        return this.buffs.isInvulnerable(types, eType)
     }
 
     public clearBuffs() {
         this.buffs.clearInvulnerability()
         this.buffs.clearCooldownReduction()
         this.buffs.clearDecreaseDamageTaken()
+        this.buffs.clearAbsorbDamage()
+        this.buffs.clearDamageIncreasal()
     }
 
     public clearEnemyPhaseBuffs() {

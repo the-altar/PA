@@ -56,6 +56,11 @@ export class Player {
         if (!value) this.energyPool[energyIndex]++
         else this.energyPool[energyIndex] += value
     }
+    public decreaseEnergyPool(energyIndex:number, value?:number){
+        if (!value) this.energyPool[energyIndex]--
+        else this.energyPool[energyIndex] += value
+    }
+
     public setTotalEnergyPool() {
         this.energyPool[4] = this.energyPool.slice(0, 4).reduce((ca, cv) => ca + cv)
     }

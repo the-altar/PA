@@ -10,7 +10,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
         case enums_1.targetType.OneEnemy: {
             characters.forEach((char, index) => {
                 if (!char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes());
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), enums_1.effectType.None);
                     if (!isInvulnerable)
                         choices.choice.push(index);
                 }
@@ -20,7 +20,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
         case enums_1.targetType.OneEnemyAndSelf: {
             characters.forEach((char, index) => {
                 if (!char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes());
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), enums_1.effectType.None);
                     if (!isInvulnerable)
                         choices.choice.push(index);
                 }
@@ -31,7 +31,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
         case enums_1.targetType.OneAllyAndSelf: {
             characters.forEach((char, index) => {
                 if (char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes());
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), enums_1.effectType.None);
                     if (!isInvulnerable)
                         choices.choice.push(index);
                 }
@@ -42,7 +42,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
         case enums_1.targetType.AllEnemies: {
             characters.forEach((char, index) => {
                 if (!char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes());
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), enums_1.effectType.None);
                     if (!isInvulnerable)
                         choices.choice.push(index);
                 }
@@ -52,7 +52,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
         case enums_1.targetType.AllAllies: {
             const allies = characters[self].getAllies();
             for (let i of allies) {
-                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes());
+                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes(), enums_1.effectType.None);
                 if (!isInvulnerable && !characters[i].isKnockedOut())
                     choices.choice.push(i);
             }
@@ -62,7 +62,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
         case enums_1.targetType.OneAlly: {
             const allies = characters[self].getAllies();
             for (let i of allies) {
-                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes());
+                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes(), enums_1.effectType.None);
                 if (!isInvulnerable && !characters[i].isKnockedOut())
                     choices.choice.push(i);
             }
@@ -71,7 +71,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
         case enums_1.targetType.AllEnemiesAndSelf: {
             characters.forEach((char, index) => {
                 if (!char.belongsTo(playerId) && !char.isKnockedOut()) {
-                    const isInvulnerable = char.isInvulnerable(skill.getTypes());
+                    const isInvulnerable = char.isInvulnerable(skill.getTypes(), enums_1.effectType.None);
                     if (!isInvulnerable && !char.isKnockedOut())
                         choices.choice.push(index);
                 }
@@ -82,7 +82,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
         case enums_1.targetType.OneEnemyAndAllAllies: {
             const indexes = characters[self].getEnemies();
             for (const i of indexes) {
-                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes());
+                const isInvulnerable = characters[i].isInvulnerable(skill.getTypes(), enums_1.effectType.None);
                 if (!isInvulnerable && !characters[i].isKnockedOut()) {
                     choices.choice.push(i);
                 }
@@ -93,7 +93,7 @@ exports.targetSetter = function (skill, targetMode, characters, playerId, self) 
             return choices;
         }
         case enums_1.targetType.Self: {
-            const isInvulnerable = characters[self].isInvulnerable(skill.getTypes());
+            const isInvulnerable = characters[self].isInvulnerable(skill.getTypes(), enums_1.effectType.None);
             if (!isInvulnerable && !characters[self].isKnockedOut())
                 choices.choice.push(self);
             return choices;

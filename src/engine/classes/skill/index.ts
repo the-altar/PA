@@ -19,13 +19,14 @@ export class Skill {
     private baseCooldown: number
     private type: Array<Types>
     private limit: number
-    private mods: SkillMods
+    public mods: SkillMods
     private targets: Array<number>
     public uncounterable: boolean
     private targetMode: targetType
-    private effects: Array<Effect>
+    public effects: Array<Effect>
     private targetChoices: { [x: string]: Array<number> }
     private id: number;
+
     constructor(data: iSkill, caster: number) {
         this.banner = data.banner
         this.type = data.type
@@ -77,6 +78,10 @@ export class Skill {
 
     public disable() {
         this.disabled = true
+    }
+
+    public resetCooldown(){
+        this.cooldown = 0
     }
 
     public lowerCooldown(extra: number) {
@@ -180,6 +185,17 @@ export class Skill {
         this.targets = targets
     }
 
+    public removeCharFromTargets(char:Character, world:Arena){
+        for(let i = this.targets.length - 1; i >= 0; i--){
+            const targeted = world.getCharactersByIndex([this.targets[i]])[0]
+
+            if(targeted.getId() === char.getId()){
+                this.targets.splice(i, 1)
+                break
+            }
+        }
+    }
+
     public getTargets(): Array<number> {
         return this.targets
     }
@@ -190,6 +206,7 @@ export class Skill {
 
     public executeEffects(world: Arena, aType: activationType, triggerClause?: triggerClauseType) {
         for (const effect of this.effects) {
+            if(!effect.activate) continue
             const shouldApply = effect.shouldApply(aType, triggerClause)
             effect.execute(this.targets, world, this, shouldApply)
         }
@@ -210,8 +227,9 @@ export class Skill {
     }
 
     public tickEffectsDuration(world: Arena, origin: Skill) {
-        
+
         for (let i = this.effects.length - 1; i >= 0; i--) {
+            
             const effect = this.effects[i]
             const { terminate } = effect.progressTurn()
 

@@ -59,3 +59,25 @@ export class CooldownReduction extends Effect {
     }
 
 }
+
+export class ResetCooldown extends Effect{
+    private specificSkill:boolean
+    private skillId:number
+
+    constructor(data: any, caster: number) {
+        super(data, caster)
+        this.specificSkill = data.specificSkill || false
+        this.skillId = data.skillId
+    }
+
+    public functionality(char: Character, origin:Skill) {
+        for(const skill of char.getSkills()){
+            if(this.specificSkill && this.skillId !== skill.getId()) continue
+            skill.resetCooldown()
+        }
+    }
+
+    protected generateToolTip(){
+        this.message = "Active cooldowns will be reset"
+    }
+}

@@ -55,7 +55,9 @@ export class Arena {
     public processTurn(energySpent: Array<number>) {
         const player = this.players[this.turnCount % 2]
         this.clearSkillMods(player)
-        if (!energySpent) return        
+        if (!energySpent) return 
+        
+        player.consumeEnergy(energySpent)
         player.resetPayupCart()
     }
 
@@ -71,9 +73,10 @@ export class Arena {
         if (!complete) this.emptyTempQueue()
 
         this.clearCharactersNotifications()
-        this.executeSkills(activationType.Immediate, triggerClauseType.None)        
+            
         this.transferTempToSkillQueue()
-        this.tickSkillsInQueue()
+        this.executeSkills(activationType.Immediate, triggerClauseType.None)          
+        this.tickSkillsInQueue()  
         this.hasUsedSKill = {}
 
         //console.log("End player phase for: " + player2.getId())
@@ -103,7 +106,6 @@ export class Arena {
     }
 
     public transferTempToSkillQueue() {
-        this.executeSkills(activationType.Targeted, triggerClauseType.None)
         
         for (const cordinates of this.tempQueue) {
             const char = this.characters[cordinates.caster]
@@ -111,10 +113,10 @@ export class Arena {
 
             char.setSkillCooldownByIndex(cordinates.skill)
             skill.setTargets(cordinates.targets)
-            skill.executeEffects(this, activationType.Immediate, triggerClauseType.None)
             
-            this.skillQueue.push(skill)
+            this.skillQueue.unshift(skill)
         }
+
         this.tempQueue = []
     }
 
@@ -222,6 +224,12 @@ export class Arena {
 
     public findPlayerByCharacterIndex(index: number) {
         const {char} = this.findCharacterById(index)
+        for (const player of this.players) {
+            if (char.belongsTo(player.getId())) return player
+        }
+    }
+
+    public findPlayerByChar(char:Character){
         for (const player of this.players) {
             if (char.belongsTo(player.getId())) return player
         }
@@ -340,6 +348,10 @@ export class Arena {
         }
 
         return {winner, loser}
+    }
+
+    public getActiveSkills():Array<Skill>{
+        return this.skillQueue
     }
 }
 
