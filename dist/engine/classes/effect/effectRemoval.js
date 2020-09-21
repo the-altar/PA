@@ -18,8 +18,7 @@ class EffectRemoval extends base_1.Effect {
             for (const effect of skill.effects) {
                 if (!z_helpers_1.isHarmful(effect.getType()))
                     continue;
-                reduceTargets(effect, char, world);
-                wasRemoved = true;
+                wasRemoved = reduceTargets(effect, char, world);
             }
             if (wasRemoved)
                 skill.removeCharFromTargets(char, world);
@@ -39,13 +38,14 @@ class EffectRemoval extends base_1.Effect {
 }
 exports.EffectRemoval = EffectRemoval;
 function reduceTargets(arr, char, world) {
-    const newTargetArr = arr.getTargets().filter(index => {
-        const affected = world.getCharactersByIndex([index])[0];
-        if (affected.getId() !== char.getId())
+    let targetList = arr.getTargets();
+    for (let i = targetList.length - 1; i >= 0; i--) {
+        const target = world.getCharactersByIndex([targetList[0]])[0];
+        if (target.getId() === char.getId()) {
+            targetList.splice(i, 1);
             return true;
-        return false;
-    });
-    arr.setTargets(newTargetArr);
-    return newTargetArr;
+        }
+    }
+    return false;
 }
 //# sourceMappingURL=effectRemoval.js.map

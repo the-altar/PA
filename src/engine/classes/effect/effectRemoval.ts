@@ -23,14 +23,12 @@ export class EffectRemoval extends Effect {
 
         const skills = world.getActiveSkills()
         for (const skill of skills) {
-            let wasRemoved = false; 
+            let wasRemoved = false;
             for (const effect of skill.effects) {
-                if(!isHarmful(effect.getType())) continue
-                reduceTargets(effect, char, world)
-                wasRemoved = true
+                if (!isHarmful(effect.getType())) continue
+                wasRemoved = reduceTargets(effect, char, world)
             }
-            
-            if(wasRemoved) skill.removeCharFromTargets(char, world)
+            if (wasRemoved) skill.removeCharFromTargets(char, world)
         }
     }
 
@@ -46,12 +44,17 @@ export class EffectRemoval extends Effect {
 }
 
 function reduceTargets(arr: Skill | Effect, char: Character, world: Arena) {
-    const newTargetArr = arr.getTargets().filter(index => {
-        const affected = world.getCharactersByIndex([index])[0]
-        if (affected.getId() !== char.getId()) return true
-        return false
-    })
 
-    arr.setTargets(newTargetArr)
-    return newTargetArr
+    let targetList = arr.getTargets()
+
+    for (let i = targetList.length - 1; i >= 0; i--) {
+        const target = world.getCharactersByIndex([targetList[0]])[0]
+
+        if (target.getId() === char.getId()) {
+            targetList.splice(i, 1)
+            return true
+        }
+    }
+
+    return false
 }
