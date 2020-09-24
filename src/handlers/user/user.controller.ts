@@ -85,7 +85,7 @@ export const login = async (req: Request, res: Response) => {
         on u.id = lb.user_id 
     left join user_rank as ur 
         on u.user_rank_id = ur.id
-    where u.id = $1;`
+    where u.username = $1;`
 
     try {
         const data = await pool.query(text, [req.body.username])
