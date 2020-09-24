@@ -172,7 +172,7 @@ export class Skill {
         }
     }
 
-    public setTargetChoices(characters: Array<Character>, playerId: string, self?: number) {
+    public setTargetChoices(characters: Array<Character>, playerId: number, self?: number) {
         const targetMode = this.getTargetMod() || this.targetMode
         this.targetChoices = targetSetter(this, targetMode, characters, playerId, self)
     }

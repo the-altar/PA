@@ -74,7 +74,8 @@ class Character {
         return this.energyGain;
     }
     getOwner() {
-        return Object.keys(this.belongs)[0];
+        console.log(this.belongs);
+        return Number(Object.keys(this.belongs)[0]);
     }
     validadeSkillsCompletely(pool, chars, playerId, self) {
         for (const skill of this.skills) {

@@ -21,13 +21,13 @@ class ClientManager {
             return true;
         return false;
     }
-    addClient(id, client, connection) {
+    addClient(id, payload, connection) {
         this.clientList[id] = {
-            elo: client.elo,
+            player: payload.player,
+            team: payload.team,
             connection: connection,
-            pid: client.pid
         };
-        this.onlineList[client.pid] = true;
+        this.onlineList[payload.player.id] = true;
     }
     getClientConnectionBySessionId(id) {
         return this.clientList[id];
@@ -45,8 +45,8 @@ class ClientManager {
         if (this.clientList[id] === undefined) {
             return;
         }
-        const pid = this.clientList[id].pid;
-        delete this.onlineList[pid];
+        const playerId = this.clientList[id].player.id;
+        delete this.onlineList[playerId];
         delete this.clientList[id];
     }
     countPlayersOnline() {
@@ -54,7 +54,7 @@ class ClientManager {
     }
     getRankedMap() {
         const mappedHash = Object.keys(this.clientList).sort((a, b) => {
-            return this.clientList[a].elo - this.clientList[b].elo;
+            return this.clientList[a].player.elo - this.clientList[b].player.elo;
         }).map((sortedKey) => {
             return this.clientList[sortedKey];
         });
@@ -75,8 +75,9 @@ class RankedLobby extends colyseus_1.Room {
                 for (let i = 1; i < queue.length; i = i + 2) {
                     const room = yield colyseus_1.matchMaker.createRoom('battle', {});
                     for (let j = i - 1; j <= i; j++) {
-                        const seat = yield colyseus_1.matchMaker.reserveSeatFor(room, {});
-                        queue[j].connection.send('seat', seat);
+                        const p = queue[j];
+                        const seat = yield colyseus_1.matchMaker.reserveSeatFor(room, { player: p.player, team: p.team });
+                        p.connection.send('seat', seat);
                         this.manager.removeClientBySessionId(queue[j].connection.sessionId);
                     }
                 }
@@ -88,7 +89,7 @@ class RankedLobby extends colyseus_1.Room {
     }
     // Authorize client based on provided options before WebSocket handshake is complete
     onAuth(client, options, request) {
-        if (this.manager.isClientConnected(options.pid))
+        if (this.manager.isClientConnected(options.player.id))
             return false;
         return true;
     }

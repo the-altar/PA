@@ -2,7 +2,7 @@ import { Character } from "../character"
 import { Skill } from "."
 import { targetType, effectType } from "../../enums"
 
-export const targetSetter = function (skill: Skill, targetMode: targetType, characters: Array<Character>, playerId: string, self?: number): { [x: string]: Array<number> } {
+export const targetSetter = function (skill: Skill, targetMode: targetType, characters: Array<Character>, playerId: number, self?: number): { [x: string]: Array<number> } {
     let choices: { [x: string]: Array<number> } = {}
     choices.choice = []
     choices.auto = []

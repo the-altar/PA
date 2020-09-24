@@ -109,7 +109,8 @@ class Arena {
         return {
             gameData: this.getClientData(),
             isOver: false,
-            winner: {}
+            winner: player1,
+            loser: player2
         };
     }
     transferTempToSkillQueue() {

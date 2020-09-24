@@ -1,15 +1,8 @@
 import http from "http";
 import { Room, Client, matchMaker } from "colyseus";
 
-export interface iClient {
-    elo: number,
-    pid:string,
-    connection?: Client,
-}
-
-
 class ClientManager {
-    private clientList: {[key:string]:iClient}
+    private clientList: {[key:string]:{player:any, team:any, connection:Client}}
     private onlineList: {[key:string]:boolean}
 
     constructor() {
@@ -22,16 +15,16 @@ class ClientManager {
         return false 
     }
 
-    public addClient(id: string, client: iClient, connection: Client): void {
+    public addClient(id:string, payload:any, connection: Client): void {
         this.clientList[id] = {
-            elo: client.elo,
+            player:payload.player,
+            team:payload.team,
             connection: connection,
-            pid:client.pid
         } 
-        this.onlineList[client.pid] =  true
+        this.onlineList[payload.player.id] =  true
     }
 
-    public getClientConnectionBySessionId(id: string): iClient {
+    public getClientConnectionBySessionId(id: string) {
         return this.clientList[id]
     }
 
@@ -39,13 +32,13 @@ class ClientManager {
         return Object.keys(this.clientList)
     }
 
-    public getClientBySessionId(id: string): iClient {
+    public getClientBySessionId(id: string){
         return {
             ...this.clientList[id]
         }
     }
 
-    public getAllClients(): {[key: string]: iClient}{
+    public getAllClients(){
         return this.clientList
     }
 
@@ -53,8 +46,8 @@ class ClientManager {
         if(this.clientList[id] === undefined) {
             return
         }
-        const pid = this.clientList[id].pid
-        delete this.onlineList[pid]
+        const playerId = this.clientList[id].player.id
+        delete this.onlineList[playerId]
         delete this.clientList[id]        
     }
 
@@ -62,9 +55,9 @@ class ClientManager {
         return Object.keys(this.clientList).length
     }
 
-    public getRankedMap(): Array<iClient> {
+    public getRankedMap(){
         const mappedHash = Object.keys(this.clientList).sort((a, b) => {
-            return this.clientList[a].elo - this.clientList[b].elo
+            return this.clientList[a].player.elo - this.clientList[b].player.elo
         }).map((sortedKey) => {
             return this.clientList[sortedKey]
         })
@@ -77,28 +70,35 @@ export class RankedLobby extends Room {
     private evaluateGroupInterval: number = 5000
     // When room is initialized
     onCreate(options: any) {
+
         this.setSimulationInterval(async () => {
             try {
                 const queue = this.manager.getRankedMap()
+
                 for (let i = 1; i < queue.length; i = i + 2) {
                     const room = await matchMaker.createRoom('battle', {})
                     
                     for (let j = i - 1; j <= i; j++) {
-                        const seat = await matchMaker.reserveSeatFor(room, {})
-                        queue[j].connection.send('seat', seat)
+                        const p = queue[j]
+
+                        const seat = await matchMaker.reserveSeatFor(room, {player:p.player, team:p.team})
+                        p.connection.send('seat', seat)
                         this.manager.removeClientBySessionId(queue[j].connection.sessionId)
                     }
+
                 }
+
             } catch (err) {
                 throw(err)
             }
 
         }, this.evaluateGroupInterval)
+    
     }
 
     // Authorize client based on provided options before WebSocket handshake is complete
     onAuth(client: Client, options: any, request: http.IncomingMessage): boolean {
-        if(this.manager.isClientConnected(options.pid)) return false
+        if(this.manager.isClientConnected(options.player.id)) return false
         return true
     }
 

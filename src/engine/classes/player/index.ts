@@ -1,32 +1,33 @@
-import { iPlayer } from "../../interfaces"
-
 export class Player {
     private username: string
     private avatar: string
-    private id: string
-    private elo: number
-    private wins: number
-    private losses: number
-    private streak: number
+    private id: number
     private isTurn: boolean
+    public coins:number
+    public season: {
+        elo: number,
+        wins: number,
+        losses: number,
+        streak: number,
+        exp: number,
+        maxStreak: number,
+        seasonRank: string,
+        seasonLevel:number,
+    } 
     private energyPool: Array<number>
     private payupCart: Array<number>
     private myChars: Array<number>
-    private rank: string
     
-    constructor(player: iPlayer) {
-        this.rank = player.rank
+    constructor(player:any) {
         this.username = player.username
         this.id = player.id
         this.avatar = player.avatar
-        this.elo = player.elo
-        this.losses = player.losses
-        this.wins = player.wins
-        this.streak = player.streak
         this.isTurn = false
         this.energyPool = [0, 0, 0, 0, 0]
         this.payupCart = [0, 0, 0, 0, 0]
         this.myChars = []
+        this.coins = player.coins
+        this.season = player.season
     }
     public setMyCharsIndex(myChars: Array<number>) {
         this.myChars = myChars
@@ -37,7 +38,7 @@ export class Player {
     public setTurn(turn: boolean) {
         this.isTurn = turn
     }
-    public getId(): string {
+    public getId(): number {
         return this.id
     }
     public getPayupCart(): Array<number> {
@@ -60,7 +61,6 @@ export class Player {
         if (!value) this.energyPool[energyIndex]--
         else this.energyPool[energyIndex] += value
     }
-
     public setTotalEnergyPool() {
         this.energyPool[4] = this.energyPool.slice(0, 4).reduce((ca, cv) => ca + cv)
     }

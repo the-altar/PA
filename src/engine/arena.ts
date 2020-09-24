@@ -1,5 +1,5 @@
 import { Character, Player, Skill } from "./classes"
-import { iCharacter, iPlayer, iSkillQueue } from "./interfaces"
+import { iCharacter, iSkillQueue } from "./interfaces"
 import { triggerClauseType, activationType } from "./enums"
 
 
@@ -21,8 +21,9 @@ export class Arena {
         this.hasUsedSKill = {}
     }
 
-    public addPlayer(player: iPlayer, team: Array<iCharacter>): void {
+    public addPlayer(player:any, team: Array<iCharacter>): void {
         this.players.push(new Player(player))
+        
         if (this.players.length === 1) {
             const i = Math.floor(Math.random() * (3 + 1));
             this.players[0].increaseEnergyPool(i)
@@ -101,7 +102,8 @@ export class Arena {
         return {
             gameData: this.getClientData(),
             isOver: false,
-            winner: {}
+            winner: player1,
+            loser: player2
         }
     }
 
@@ -309,7 +311,7 @@ export class Arena {
         }
     }
 
-    private findPlayerById(id: string) {
+    private findPlayerById(id: number) {
         for (let i = 0; i < 2; i++) {
             if (this.players[i].getId() === id) {
                 return {
@@ -334,7 +336,7 @@ export class Arena {
         return this.players.length
     } 
 
-    public surrender(surrenderer:string){
+    public surrender(surrenderer:number){
         let winner, loser;
         const player1 = this.players[this.turnCount % 2]
         const player2 = this.players[((this.turnCount % 2) + 1) % 2]

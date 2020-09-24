@@ -23,10 +23,10 @@ export class Character {
     private notifications: Array<Notification>
     private type: Array<Types>
     private energyGain: Array<number>
-    private belongs: { [key: string]: boolean }
+    private belongs: { [key: number]: boolean }
     private skills: Array<Skill>
 
-    constructor(data: iCharacter, playerId: string) {
+    constructor(data: iCharacter, playerId: number) {
         this.buffs = new Buffs()
         this.debuffs = new Debuffs()
         this.notifications = []
@@ -78,7 +78,7 @@ export class Character {
         } else if (this.hitPoints > 100) this.hitPoints = 100
     }
 
-    public belongsTo(id: string): boolean {
+    public belongsTo(id: number): boolean {
         return this.belongs[id]
     }
 
@@ -100,11 +100,12 @@ export class Character {
         return this.energyGain
     }
 
-    public getOwner(): string {
-        return Object.keys(this.belongs)[0]
+    public getOwner(): number{
+        console.log(this.belongs)
+        return Number(Object.keys(this.belongs)[0])
     }
 
-    public validadeSkillsCompletely(pool: Array<number>, chars: Array<Character>, playerId: string, self?: number) {
+    public validadeSkillsCompletely(pool: Array<number>, chars: Array<Character>, playerId: number, self?: number) {
         for (const skill of this.skills) {
             if (this.isStunned()) {
                 skill.disable()
