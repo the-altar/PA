@@ -45,10 +45,12 @@ class Buffs {
         };
         if (this.decreaseDamageTaken[enums_1.Types.Any] !== undefined) {
             res.decreased += this.decreaseDamageTaken[enums_1.Types.Any][damageType] || 0;
+            res.decreased += this.decreaseDamageTaken[enums_1.Types.Any][enums_1.DamageType.True] || 0;
             res.hasBeenDecreased = true;
         }
         if (skillType !== enums_1.Types.Any) {
             if (this.decreaseDamageTaken[skillType] !== undefined) {
+                res.decreased += this.decreaseDamageTaken[skillType][enums_1.DamageType.True] || 0;
                 if (this.decreaseDamageTaken[skillType][damageType] !== undefined) {
                     res.decreased += this.decreaseDamageTaken[skillType][damageType] || 0;
                     res.hasBeenDecreased = true;

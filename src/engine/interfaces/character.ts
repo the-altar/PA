@@ -1,4 +1,3 @@
-import { iSkill } from "./skill";
 import { Types } from "../enums";
 
 export interface iCharacter {
@@ -9,5 +8,5 @@ export interface iCharacter {
     hitPoints: number
     energyGain: Array<number>
     type: Array<Types> 
-    skills:Array<iSkill>
+    skills:Array<any>
 }

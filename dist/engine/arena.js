@@ -84,8 +84,8 @@ class Arena {
         if (!complete)
             this.emptyTempQueue();
         this.clearCharactersNotifications();
-        this.transferTempToSkillQueue();
         this.executeSkills(enums_1.activationType.Immediate, enums_1.triggerClauseType.None);
+        this.executeNewSkills();
         this.tickSkillsInQueue();
         this.hasUsedSKill = {};
         //console.log("End player phase for: " + player2.getId())
@@ -113,15 +113,17 @@ class Arena {
             loser: player2
         };
     }
-    transferTempToSkillQueue() {
-        for (const cordinates of this.tempQueue) {
+    executeNewSkills() {
+        const list = this.tempQueue;
+        this.tempQueue = [];
+        for (const cordinates of list) {
             const char = this.characters[cordinates.caster];
             const skill = char.getCopySkillByIndex(cordinates.skill);
             char.setSkillCooldownByIndex(cordinates.skill);
             skill.setTargets(cordinates.targets);
-            this.skillQueue.unshift(skill);
+            skill.executeEffects(this, enums_1.activationType.Immediate, enums_1.triggerClauseType.None);
+            this.skillQueue.push(skill);
         }
-        this.tempQueue = [];
     }
     tickSkillsInQueue() {
         for (let i = this.skillQueue.length - 1; i >= 0; i--) {

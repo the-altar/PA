@@ -53,7 +53,6 @@ export const update = async function (req: Request, res: Response) {
 export const remove = async function(req: Request, res:Response) {
     const text = "DELETE from effect where id = $1";
     const values = [Number(req.params.id)]
-    console.log(values)
     try {
         await pool.query(text, values)
         res.status(200)

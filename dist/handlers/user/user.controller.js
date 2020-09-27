@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateGameResults = exports.logout = exports.login = exports.register = exports.userCharacters = exports.userDataController = exports.loggerMiddleware = void 0;
+exports.updateGameResults = exports.user = exports.logout = exports.login = exports.register = exports.userCharacters = exports.mount = exports.loggerMiddleware = void 0;
 const bcrypt_1 = require("bcrypt");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const db_1 = require("../../db");
@@ -18,45 +18,33 @@ function loggerMiddleware(req, res, next) {
         try {
             const token = req.cookies.session_id;
             if (token) {
+                const u = yield jsonwebtoken_1.verify(token, process.env.TOKEN_SECRET);
+                req.res.locals.user = u;
                 req.res.locals.guest = false;
-                req.res.locals.user = yield jsonwebtoken_1.verify(token, process.env.TOKEN_SECRET);
             }
             else
                 req.res.locals.guest = true;
             next();
         }
         catch (err) {
+            res.status(401).end();
             throw (err);
         }
     });
 }
 exports.loggerMiddleware = loggerMiddleware;
-exports.userDataController = function (req, res) {
+exports.mount = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        let user;
         if (req.res.locals.guest) {
-            user = generateGuest();
-            return res.json(user);
+            return res.json({ authLevel: -1, auth: false });
         }
-        const text = `select u.id, u.avatar, u.username, u.passhash, u.coins, 
-    jsonb_build_object('elo', lb.elo, 'wins', lb.wins, 'losses', lb.losses, 'streak', lb.streak, 'maxStreak', lb.max_streak, 'exp', lb.experience, 'seasonRank', lb.season_rank, 'seasonLevel', lb.season_level) as season, 
-    jsonb_build_object('authLevel', ur.auth_level, 'rankName', ur."name") as rank 
-    from users as u 
-    left join ladderboard as lb 
-        on u.id = lb.user_id 
-    left join user_rank as ur 
-        on u.user_rank_id = ur.id
-    where u.id = $1;`;
-        try {
-            const id = req.res.locals.user.id;
-            const data = yield db_1.pool.query(text, [id]);
-            delete data.rows[0].passhash;
-            validateRanking(data.rows[0]);
-            return res.json(data.rows[0]);
-        }
-        catch (err) {
-            throw (err);
-        }
+        const u = req.res.locals.user;
+        return res.json({
+            username: u.username,
+            authLevel: u.authLevel,
+            id: u.id,
+            auth: u.auth
+        });
     });
 };
 exports.userCharacters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -88,22 +76,23 @@ exports.register = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const text = `select u.id, u.avatar, u.username, u.passhash, u.coins, 
-    jsonb_build_object('elo', lb.elo, 'wins', lb.wins, 'losses', lb.losses, 'streak', lb.streak, 'maxStreak', lb.max_streak, 'exp', lb.experience, 'seasonRank', lb.season_rank, 'seasonLevel', lb.season_level) as season, 
-    jsonb_build_object('authLevel', ur.auth_level, 'rankName', ur."name") as rank 
-    from users as u 
-    left join ladderboard as lb 
-        on u.id = lb.user_id 
+    const text = `select u.id, u.username, u.passhash, ur.auth_level as "authLevel"
+    from users as u
     left join user_rank as ur 
         on u.user_rank_id = ur.id
-    where u.id = $1;`;
+    where u.username = $1;`;
     try {
         const data = yield db_1.pool.query(text, [req.body.username]);
         const user = data.rows[0];
         const match = yield bcrypt_1.compare(req.body.password, user.passhash);
         if (match) {
             delete user.passhash;
-            const token = jsonwebtoken_1.sign({ id: user.id, authLevel: user.rank.authLevel }, process.env.TOKEN_SECRET, { expiresIn: '365d' });
+            const token = jsonwebtoken_1.sign({
+                id: user.id,
+                authLevel: user.authLevel,
+                auth: true,
+                username: user.username
+            }, process.env.TOKEN_SECRET, { expiresIn: '365d' });
             res.cookie('session_id', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000 });
             return res.json({ userData: user, success: true });
         }
@@ -115,13 +104,35 @@ exports.login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.clearCookie("session_id");
-    return res.json(generateGuest());
+    return res.status(200).end();
+});
+exports.user = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const username = req.body.username || req.params.username;
+    const text = `select u.id, u.avatar, u.username, 
+    jsonb_build_object('elo', lb.elo, 'wins', lb.wins, 'losses', lb.losses, 'streak', lb.streak, 'maxStreak', lb.max_streak, 'exp', lb.experience, 'seasonRank', lb.season_rank, 'seasonLevel', lb.season_level) as season, 
+    jsonb_build_object('authLevel', ur.auth_level, 'rankName', ur."name") as rank 
+    from users as u 
+    left join ladderboard as lb 
+        on u.id = lb.user_id 
+    left join user_rank as ur 
+        on u.user_rank_id = ur.id
+    where u.username = $1;
+    `;
+    try {
+        const doc = yield db_1.pool.query(text, [username]);
+        res.status(200).json(doc.rows[0]);
+    }
+    catch (err) {
+        throw (err);
+    }
 });
 exports.updateGameResults = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (payload.id < 0)
         return;
     const text = `
-    update ladderboard 
+    INSERT INTO ladderboard (season, user_id, wins, losses, elo, streak, max_streak, experience, season_level, season_rank)
+    values ($9,$10,$1,$2,$3,$4,$5,$6,$7,$8)
+    on conflict (season, user_id) do update 
     set 
         wins = $1, 
         losses = $2,	
@@ -130,9 +141,7 @@ exports.updateGameResults = (payload) => __awaiter(void 0, void 0, void 0, funct
         max_streak = $5, 
         experience = $6,
         season_level = $7,
-        season_rank = $8
-    where season = $9 and user_id = $10;	
-    `;
+        season_rank = $8;`;
     const userText = `update users set coins=$1 where id=$2`;
     const { wins, losses, streak, elo, id, exp, maxStreak, seasonLevel, seasonRank, coins } = payload;
     const values = [wins, losses, elo, streak, maxStreak, exp, seasonLevel, seasonRank, 0, id];
@@ -144,9 +153,10 @@ exports.updateGameResults = (payload) => __awaiter(void 0, void 0, void 0, funct
         throw (err);
     }
 });
-const generateGuest = () => {
+/*const generateGuest = () => {
     return {
-        "rank": { "authLevel": -1, "rankName": "Guest" },
+        "rank":
+            { "authLevel": -1, "rankName": "Guest" },
         "id": Math.floor((Math.random() * 1000000) + 1) * -1,
         "avatar": "1.jpg",
         "coins": 0,
@@ -164,24 +174,6 @@ const generateGuest = () => {
             seasonRank: "Rookie",
             seasonLevel: 0
         }
-    };
-};
-const validateRanking = (data) => {
-    if (data.season.elo === null || data.season.elo === undefined) {
-        db_1.pool.query(`insert into ladderboard(season, user_id) values($1, $2)`, [0, data.id]).catch(err => {
-            throw (err);
-        });
-        data.season = {
-            elo: 1000,
-            wins: 0,
-            losses: 0,
-            streak: 0,
-            exp: 0,
-            maxStreak: 0,
-            seasonRank: 'Rookie',
-            seasonLevel: 1,
-        };
-        return;
     }
-};
+}*/ 
 //# sourceMappingURL=user.controller.js.map

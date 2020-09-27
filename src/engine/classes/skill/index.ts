@@ -1,5 +1,4 @@
 import { Character } from "../character"
-import { iSkill } from "../../interfaces"
 import { targetType, activationType, Types, SkillClassType, triggerClauseType } from "../../enums"
 import { effectFactory } from "../effect"
 import { targetSetter } from "./targetValidationFactory"
@@ -17,6 +16,7 @@ export class Skill {
     private class: SkillClassType
     private cooldown: number
     private baseCooldown: number
+    private harmful:boolean
     private type: Array<Types>
     private limit: number
     public mods: SkillMods
@@ -27,7 +27,7 @@ export class Skill {
     private targetChoices: { [x: string]: Array<number> }
     private id: number;
 
-    constructor(data: iSkill, caster: number) {
+    constructor(data:any, caster: number) {
         this.banner = data.banner
         this.type = data.type
         this.cooldown = 0 || data.startCooldown
@@ -45,6 +45,7 @@ export class Skill {
         this.effects = []
         this.mods = new SkillMods(data.mods)
         this.id = data.id
+        this.harmful = data.harmful || false
         for (const e of data.effects) {
             const built = effectFactory(e, caster)
             this.effects.push(built)
@@ -283,4 +284,6 @@ export class Skill {
     public getId(): number {
         return this.id
     }
+
+    public isHarmful():boolean { return this.harmful }
 }

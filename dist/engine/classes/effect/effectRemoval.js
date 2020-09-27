@@ -40,7 +40,7 @@ exports.EffectRemoval = EffectRemoval;
 function reduceTargets(arr, char, world) {
     let targetList = arr.getTargets();
     for (let i = targetList.length - 1; i >= 0; i--) {
-        const target = world.getCharactersByIndex([targetList[0]])[0];
+        const target = world.getCharactersByIndex([targetList[i]])[0];
         if (target.getId() === char.getId()) {
             targetList.splice(i, 1);
             return true;

@@ -74,9 +74,9 @@ export class Arena {
         if (!complete) this.emptyTempQueue()
 
         this.clearCharactersNotifications()
-            
-        this.transferTempToSkillQueue()
-        this.executeSkills(activationType.Immediate, triggerClauseType.None)          
+                    
+        this.executeSkills(activationType.Immediate, triggerClauseType.None)  
+        this.executeNewSkills()        
         this.tickSkillsInQueue()  
         this.hasUsedSKill = {}
 
@@ -107,19 +107,22 @@ export class Arena {
         }
     }
 
-    public transferTempToSkillQueue() {
+    public executeNewSkills() {
         
-        for (const cordinates of this.tempQueue) {
+        const list = this.tempQueue;
+        this.tempQueue = []
+        
+        for (const cordinates of list) {
             const char = this.characters[cordinates.caster]
             const skill = char.getCopySkillByIndex(cordinates.skill)
 
             char.setSkillCooldownByIndex(cordinates.skill)
             skill.setTargets(cordinates.targets)
-            
-            this.skillQueue.unshift(skill)
+            skill.executeEffects(this, activationType.Immediate, triggerClauseType.None)
+            this.skillQueue.push(skill)
         }
 
-        this.tempQueue = []
+        
     }
 
     public tickSkillsInQueue() {
@@ -322,7 +325,7 @@ export class Arena {
         }
     }
 
-    public getTempSkills():Array<iSkillQueue>{
+    public getTempSkills(){
         return this.tempQueue
     }
 

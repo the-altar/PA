@@ -84,9 +84,9 @@ export const getIds = async (req:Request, res:Response)=>{
     const text = "SELECT id, data -> 'name' AS name from entity";
     try {
         const r = await pool.query(text)
-        res.json(r.rows)
+        return res.json(r.rows)
     }catch(err){
-        res.status(500)
+        return res.status(500).end()
     }
 }
 
@@ -97,7 +97,7 @@ export const upload = async (req: Request, res: Response) => {
         f.mv(p, (err: any) => {
             if (err) {
                 console.log(err)
-                return res.status(500)
+                return res.status(500).json({})
             }
         })
     }
@@ -112,8 +112,7 @@ export const uploadFiles = async (req: Request, res: Response) => {
         const p = join(process.cwd(), '/public/img/game/', req.params.filename + ".jpg")
         f.mv(p, (err: any) => {
             if (err) {
-                console.log(err)
-                return res.status(500)
+                return res.status(500).json({})
             }
             response.push({ url: `http://localhost:3000/img/game/${req.params.filename}.jpg` })
         })

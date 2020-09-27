@@ -85,7 +85,8 @@ export class Effect {
 
         if (acType === this.activationType &&
             tClause === this.triggerClause &&
-            triggerRate <= this.triggerRate) return true;
+            triggerRate <= this.triggerRate &&
+            this.delay <= 0) return true;
         return false
     }
 

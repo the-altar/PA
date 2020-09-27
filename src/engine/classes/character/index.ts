@@ -8,7 +8,7 @@ import { Notification } from "./notifications";
 import { Debuffs, iDebuffParams } from "./debuffs";
 
 export class Character {
-    private name: string
+    public name: string
     private facepic: string
     private description: string
     public banner: string 
@@ -101,7 +101,6 @@ export class Character {
     }
 
     public getOwner(): number{
-        console.log(this.belongs)
         return Number(Object.keys(this.belongs)[0])
     }
 

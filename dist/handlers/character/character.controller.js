@@ -88,10 +88,10 @@ exports.getIds = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const text = "SELECT id, data -> 'name' AS name from entity";
     try {
         const r = yield db_1.pool.query(text);
-        res.json(r.rows);
+        return res.json(r.rows);
     }
     catch (err) {
-        res.status(500);
+        return res.status(500).end();
     }
 });
 exports.upload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -101,7 +101,7 @@ exports.upload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         f.mv(p, (err) => {
             if (err) {
                 console.log(err);
-                return res.status(500);
+                return res.status(500).json({});
             }
         });
     }
@@ -114,8 +114,7 @@ exports.uploadFiles = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const p = path_1.join(process.cwd(), '/public/img/game/', req.params.filename + ".jpg");
         f.mv(p, (err) => {
             if (err) {
-                console.log(err);
-                return res.status(500);
+                return res.status(500).json({});
             }
             response.push({ url: `http://localhost:3000/img/game/${req.params.filename}.jpg` });
         });

@@ -69,7 +69,6 @@ exports.remove = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const text = "DELETE from effect where id = $1";
         const values = [Number(req.params.id)];
-        console.log(values);
         try {
             yield db_1.pool.query(text, values);
             res.status(200);

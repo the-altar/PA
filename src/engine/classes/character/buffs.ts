@@ -1,5 +1,6 @@
 import { Types, BuffTypes, DamageType, SkillClassType, effectType } from "../../enums"
-import {isHarmful} from "../effect/z.helpers"
+import { Damage } from "../effect/damageRelated"
+import { isHarmful } from "../effect/z.helpers"
 
 export interface iBuffParams {
     value?: number,
@@ -29,8 +30,8 @@ export class Buffs {
         this.invulnerability[skillType] = true
     }
 
-    public isInvulnerable(types: Array<Types>, eType:effectType): boolean {
-        if(!isHarmful(eType)) return false
+    public isInvulnerable(types: Array<Types>, eType: effectType): boolean {
+        if (!isHarmful(eType)) return false
         if (this.invulnerability[Types.Any]) return true
         for (const t of types) {
             if (this.invulnerability[t]) return true
@@ -56,14 +57,18 @@ export class Buffs {
             decreased: 0,
             hasBeenDecreased: false
         }
-
+        
         if (this.decreaseDamageTaken[Types.Any] !== undefined) {
             res.decreased += this.decreaseDamageTaken[Types.Any][damageType] || 0
+            res.decreased += this.decreaseDamageTaken[Types.Any][DamageType.True] || 0
             res.hasBeenDecreased = true
         }
 
         if (skillType !== Types.Any) {
             if (this.decreaseDamageTaken[skillType] !== undefined) {
+
+                res.decreased += this.decreaseDamageTaken[skillType][DamageType.True] || 0
+                
                 if (this.decreaseDamageTaken[skillType][damageType] !== undefined) {
                     res.decreased += this.decreaseDamageTaken[skillType][damageType] || 0
                     res.hasBeenDecreased = true
@@ -128,7 +133,7 @@ export class Buffs {
         return -r
     }
 
-    public setAbsorbDamage(params: { skillType: Types, value: number, damageType: DamageType }){
+    public setAbsorbDamage(params: { skillType: Types, value: number, damageType: DamageType }) {
         const { skillType, damageType, value } = params
         if (this.absorbDamage[skillType] === undefined) {
             this.absorbDamage[skillType] = {
@@ -139,7 +144,7 @@ export class Buffs {
         }
     }
 
-    public getAbsorbDamage(params:{skillType:Types, damageType:DamageType}){
+    public getAbsorbDamage(params: { skillType: Types, damageType: DamageType }) {
         const { skillType, damageType } = params
         const res = {
             conversionRate: 0,
@@ -161,11 +166,11 @@ export class Buffs {
                     res.conversionRate += this.absorbDamage[skillType][damageType] || 0
                     res.hasBeenAbsorbed = true
                 }
-                if(t > 0) res.hasBeenAbsorbed = true
+                if (t > 0) res.hasBeenAbsorbed = true
                 res.conversionRate += t
             }
         }
-        
+
         return res
     }
 
@@ -185,7 +190,7 @@ export class Buffs {
         this.decreaseDamageTaken = {}
     }
 
-    public clearAbsorbDamage(){
+    public clearAbsorbDamage() {
         this.absorbDamage = {}
     }
 }

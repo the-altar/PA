@@ -24,6 +24,7 @@ class Skill {
         this.effects = [];
         this.mods = new mods_1.SkillMods(data.mods);
         this.id = data.id;
+        this.harmful = data.harmful || false;
         for (const e of data.effects) {
             const built = effect_1.effectFactory(e, caster);
             this.effects.push(built);
@@ -218,6 +219,7 @@ class Skill {
     getId() {
         return this.id;
     }
+    isHarmful() { return this.harmful; }
 }
 exports.Skill = Skill;
 //# sourceMappingURL=index.js.map
