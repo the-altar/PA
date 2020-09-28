@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import { hash, compare } from 'bcrypt'
 import { sign, verify } from 'jsonwebtoken'
+import { join } from 'path'
 import { pool } from "../../db"
 
 export async function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -17,7 +18,6 @@ export async function loggerMiddleware(req: Request, res: Response, next: NextFu
         throw (err)
     }
 }
-
 export const mount = async function (req: Request, res: Response) {
 
     if (req.res.locals.guest) {
@@ -122,6 +122,38 @@ export const user = async (req: Request, res: Response) => {
 
 }
 
+export const uploadAvatar = async (req:Request, res:Response) => {
+    const id = Number(req.params.id)
+    const filename =  id * 100
+    const file:any = req.files.file
+    const p = join(process.cwd(), `/public/img/avatars/${filename}.jpg`)
+    
+    try {
+        await file.mv(p)
+        await pool.query("UPDATE users SET avatar = $1 where id = $2", [
+            `${filename}.jpg`,
+            id
+        ])
+        return res.status(200).json({success:true})
+    }catch(err){
+        res.status(501).end()
+        throw (err)
+    }
+
+} 
+
+export const defaultAvatar = async(req:Request, res:Response) => {
+    const filename = req.params.filename + '.jpg'
+    const id = Number(req.params.id)
+
+    try {
+        await pool.query("UPDATE users SET avatar = $1 where id = $2", [filename, id])
+        return res.status(200).json({success:true})
+    } catch(err){
+        return res.status(500).json({success:false})
+    }
+}
+
 export const updateGameResults = async (payload: {
     wins: number,
     losses: number,
@@ -161,26 +193,3 @@ export const updateGameResults = async (payload: {
     }
 }
 
-/*const generateGuest = () => {
-    return {
-        "rank":
-            { "authLevel": -1, "rankName": "Guest" },
-        "id": Math.floor((Math.random() * 1000000) + 1) * -1,
-        "avatar": "1.jpg",
-        "coins": 0,
-        "username": `GUEST-${Math.random()
-            .toString(36)
-            .replace(/[^a-z]+/g, "")
-            .substr(0, 2)}`,
-        "season": {
-            elo: 1000,
-            wins: 0,
-            losses: 0,
-            streak: 0,
-            exp: 0,
-            maxStreak: 0,
-            seasonRank: "Rookie",
-            seasonLevel: 0
-        }
-    }
-}*/

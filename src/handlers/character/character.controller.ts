@@ -64,6 +64,7 @@ export const remove = async (req: Request, res: Response) => {
         await CharacterDB.deleteOne({ _id: char._id })
         return res.json({ code: 1 })
     }
+    
     catch (err) {
         console.error(err)
         return res.json({ code: 0 })

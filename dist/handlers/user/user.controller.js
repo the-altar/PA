@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateGameResults = exports.user = exports.logout = exports.login = exports.register = exports.userCharacters = exports.mount = exports.loggerMiddleware = void 0;
+exports.updateGameResults = exports.defaultAvatar = exports.uploadAvatar = exports.user = exports.logout = exports.login = exports.register = exports.userCharacters = exports.mount = exports.loggerMiddleware = void 0;
 const bcrypt_1 = require("bcrypt");
 const jsonwebtoken_1 = require("jsonwebtoken");
+const path_1 = require("path");
 const db_1 = require("../../db");
 function loggerMiddleware(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -126,6 +127,35 @@ exports.user = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         throw (err);
     }
 });
+exports.uploadAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = Number(req.params.id);
+    const filename = id * 100;
+    const file = req.files.file;
+    const p = path_1.join(process.cwd(), `/public/img/avatars/${filename}.jpg`);
+    try {
+        yield file.mv(p);
+        yield db_1.pool.query("UPDATE users SET avatar = $1 where id = $2", [
+            `${filename}.jpg`,
+            id
+        ]);
+        return res.status(200).json({ success: true });
+    }
+    catch (err) {
+        res.status(501).end();
+        throw (err);
+    }
+});
+exports.defaultAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filename = req.params.filename + '.jpg';
+    const id = Number(req.params.id);
+    try {
+        yield db_1.pool.query("UPDATE users SET avatar = $1 where id = $2", [filename, id]);
+        return res.status(200).json({ success: true });
+    }
+    catch (err) {
+        return res.status(500).json({ success: false });
+    }
+});
 exports.updateGameResults = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (payload.id < 0)
         return;
@@ -153,27 +183,4 @@ exports.updateGameResults = (payload) => __awaiter(void 0, void 0, void 0, funct
         throw (err);
     }
 });
-/*const generateGuest = () => {
-    return {
-        "rank":
-            { "authLevel": -1, "rankName": "Guest" },
-        "id": Math.floor((Math.random() * 1000000) + 1) * -1,
-        "avatar": "1.jpg",
-        "coins": 0,
-        "username": `GUEST-${Math.random()
-            .toString(36)
-            .replace(/[^a-z]+/g, "")
-            .substr(0, 2)}`,
-        "season": {
-            elo: 1000,
-            wins: 0,
-            losses: 0,
-            streak: 0,
-            exp: 0,
-            maxStreak: 0,
-            seasonRank: "Rookie",
-            seasonLevel: 0
-        }
-    }
-}*/ 
 //# sourceMappingURL=user.controller.js.map
