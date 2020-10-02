@@ -73,8 +73,10 @@ export const login = async (req: Request, res: Response) => {
     try {
         const data = await pool.query(text, [req.body.username])
         const user = data.rows[0]
-        const match = await compare(req.body.password, user.passhash)
+        if(data.rowCount === 0) return res.json({ success: false })
 
+        const match = await compare(req.body.password, user.passhash)
+        
         if (match) {
             delete user.passhash
             const token = sign({
@@ -145,7 +147,6 @@ export const uploadAvatar = async (req:Request, res:Response) => {
 export const defaultAvatar = async(req:Request, res:Response) => {
     const filename = req.params.filename + '.jpg'
     const id = Number(req.params.id)
-
     try {
         await pool.query("UPDATE users SET avatar = $1 where id = $2", [filename, id])
         return res.status(200).json({success:true})

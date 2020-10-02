@@ -85,6 +85,8 @@ exports.login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = yield db_1.pool.query(text, [req.body.username]);
         const user = data.rows[0];
+        if (data.rowCount === 0)
+            return res.json({ success: false });
         const match = yield bcrypt_1.compare(req.body.password, user.passhash);
         if (match) {
             delete user.passhash;

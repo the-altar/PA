@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authUserGameSession = exports.authenticate = void 0;
+exports.authenticateAdmin = exports.authUserGameSession = exports.authenticate = void 0;
 const jsonwebtoken_1 = require("jsonwebtoken");
 function authenticate(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -49,6 +49,25 @@ function authUserGameSession(req, res, next) {
     });
 }
 exports.authUserGameSession = authUserGameSession;
+function authenticateAdmin(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = req.cookies.session_id;
+            if (!token)
+                return res.status(401).end();
+            const u = yield jsonwebtoken_1.verify(token, process.env.TOKEN_SECRET);
+            if (u.authLevel < 100)
+                return res.status(401).end();
+            else
+                next();
+        }
+        catch (err) {
+            res.status(401).end();
+            throw (err);
+        }
+    });
+}
+exports.authenticateAdmin = authenticateAdmin;
 const generateGuest = () => {
     return {
         "rank": { "authLevel": -1, "rankName": "Guest" },

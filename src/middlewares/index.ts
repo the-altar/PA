@@ -36,6 +36,23 @@ export async function authUserGameSession(req: Request, res: Response, next: Nex
     }
 }
 
+
+export async function authenticateAdmin(req: Request, res: Response, next: NextFunction) {
+    try {
+        const token = req.cookies.session_id
+        if (!token) return res.status(401).end()
+
+        const u: any = await verify(token, process.env.TOKEN_SECRET as string)
+        if(u.authLevel < 100) return res.status(401).end()
+
+        else next()
+
+    } catch (err) {
+        res.status(401).end()
+        throw (err)
+    }
+}
+
 const generateGuest = () => {
     return {
         "rank":
