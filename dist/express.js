@@ -15,6 +15,7 @@ const skill_routes_1 = require("./handlers/skill/skill.routes");
 const effect_router_1 = require("./handlers/effect/effect.router");
 const game_router_1 = require("./handlers/game/game.router");
 const user_1 = require("./handlers/user");
+const thread_1 = require("./handlers/thread");
 class App {
     constructor(appInit) {
         this.app = express_1.default();
@@ -38,6 +39,7 @@ class App {
         this.app.use('/character', character_router_1.characterRouter);
         this.app.use("/skill", skill_routes_1.skillRouter);
         this.app.use("/effect", effect_router_1.effectRouter);
+        this.app.use("/thread", thread_1.threadRouter);
         this.app.use("/", root_router_1.rootRouter);
     }
     database(url) {

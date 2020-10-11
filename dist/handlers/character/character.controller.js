@@ -9,17 +9,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadFiles = exports.upload = exports.getIds = exports.getAll = exports.remove = exports.find = exports.update = exports.create = void 0;
+exports.uploadFiles = exports.upload = exports.purchase = exports.getIds = exports.getAll = exports.remove = exports.find = exports.update = exports.create = void 0;
 const character_1 = require("../../models/character");
 const path_1 = require("path");
 const fs_1 = require("fs");
 const db_1 = require("../../db");
 exports.create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const [released, data] = req.body;
-    const values = [released, data];
-    const text = "INSERT INTO entity (released, data) VALUES ($1, $2)";
+    // Req.body = [released, charData, isFree, cost]
+    const text = "INSERT INTO entity (released, data, isfree, cost) VALUES ($1, $2, $3, $4)";
     try {
-        yield db_1.pool.query(text, values);
+        yield db_1.pool.query(text, req.body);
         return res.json({ code: 1 });
     }
     catch (err) {
@@ -27,11 +26,10 @@ exports.create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const [id, released, data] = req.body;
-    const values = [id, released, data];
-    const text = "UPDATE entity SET released = $2, data = $3 WHERE id = $1";
+    // Req.body = [id, released, charData, isFree, cost]
+    const text = "UPDATE entity SET released = $2, data = $3, isfree = $4, cost = $5 WHERE id = $1";
     try {
-        yield db_1.pool.query(text, values);
+        yield db_1.pool.query(text, req.body);
         return res.json({ code: 1 });
     }
     catch (err) {
@@ -92,6 +90,19 @@ exports.getIds = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (err) {
         return res.status(500).end();
+    }
+});
+exports.purchase = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const sql1 = `UPDATE users SET coins = coins - $1 where id = $2`;
+    const sql2 = `INSERT into obtained_entity (entity_id, user_id) VALUES ($1, $2)`;
+    try {
+        yield db_1.pool.query(sql1, [req.body.coins, req.body.userId]);
+        yield db_1.pool.query(sql2, [req.body.characterId, req.body.userId]);
+        return res.json({ success: true });
+    }
+    catch (err) {
+        res.json({ success: true });
+        throw (err);
     }
 });
 exports.upload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

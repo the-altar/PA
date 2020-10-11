@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RankedLobby = void 0;
 const colyseus_1 = require("colyseus");
+const db_1 = require("../../db");
 class ClientManager {
     constructor() {
         this.clientList = {};
@@ -24,7 +25,7 @@ class ClientManager {
     addClient(id, payload, connection) {
         this.clientList[id] = {
             player: payload.player,
-            team: payload.team,
+            team: payload.team.map((e) => { return Object.assign({}, e.data); }),
             connection: connection,
         };
         this.onlineList[payload.player.id] = true;
@@ -95,7 +96,33 @@ class RankedLobby extends colyseus_1.Room {
     }
     // When client successfully join the room
     onJoin(client, options, auth) {
-        this.manager.addClient(client.sessionId, options, client);
+        return __awaiter(this, void 0, void 0, function* () {
+            const sql = `
+            select jsonb_build_object('id', entity.id) || entity.data || jsonb_build_object('skills', jsonb_agg(skills.data)) as data
+            from
+                entity
+            join (
+                select
+                    skill.id, skill.data || jsonb_build_object('id', skill.id) || jsonb_build_object('effects', jsonb_agg( effect.data || jsonb_build_object('id', effect.id))) as data, skill.entity_id
+                from
+                    skill
+                join effect on
+                    effect.skill_id = skill.id
+                group by
+                    skill.id ) as skills on
+                skills.entity_id = entity.id
+            where entity.id in ($1, $2, $3)
+            group by
+                entity.id;        
+        `;
+            try {
+                options.team = (yield db_1.pool.query(sql, options.team)).rows;
+                this.manager.addClient(client.sessionId, options, client);
+            }
+            catch (err) {
+                throw (err);
+            }
+        });
     }
     // When a client leaves the room
     onLeave(client, consented) {

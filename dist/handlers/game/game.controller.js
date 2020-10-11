@@ -30,15 +30,37 @@ exports.pokemonTypeEnums = (req, res) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.user = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.res.locals.id;
-    const text = `select u.id, u.avatar, u.username, u.coins,
-    jsonb_build_object('elo', lb.elo, 'wins', lb.wins, 'losses', lb.losses, 'streak', lb.streak, 'maxStreak', lb.max_streak, 'exp', lb.experience, 'seasonRank', lb.season_rank, 'seasonLevel', lb.season_level) as season, 
-    jsonb_build_object('authLevel', ur.auth_level, 'rankName', ur."name") as rank 
-    from users as u 
-    left join ladderboard as lb 
-        on u.id = lb.user_id 
-    left join user_rank as ur 
-        on u.user_rank_id = ur.id
-    where u.id = $1;
+    const text = `
+        select
+            u.id,
+            u.avatar,
+            u.username,
+            u.coins,
+            jsonb_build_object('elo', lb.elo, 'wins', lb.wins, 'losses', lb.losses, 'streak', lb.streak, 'maxStreak', lb.max_streak, 'exp', lb.experience, 'seasonRank', lb.season_rank, 'seasonLevel', lb.season_level) as season,
+            jsonb_build_object('authLevel', ur.auth_level, 'rankName', ur."name") as rank,
+            array_agg(obtained_entity.entity_id) as unlocked
+        from
+            users as u
+        left join ladderboard as lb on
+            u.id = lb.user_id
+        left join user_rank as ur on
+            u.user_rank_id = ur.id
+        left join obtained_entity on
+            obtained_entity.user_id = u.id
+        where
+            u.id = $1
+        group by
+            (u.id,
+            lb.elo,
+            lb.wins,
+            lb.losses,
+            lb.streak,
+            lb.max_streak,
+            lb.experience,
+            lb.season_rank,
+            lb.season_level,
+            ur.auth_level,
+	        ur."name")
     `;
     try {
         const doc = yield db_1.pool.query(text, [id]);

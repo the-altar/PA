@@ -34,13 +34,17 @@ export const mount = async function (req: Request, res: Response) {
 }
 
 export const userCharacters = async (req: Request, res: Response) => {
-    const text = `select jsonb_build_object('id', entity.id) || entity.data || 
-    jsonb_build_object('skills', jsonb_agg(skills.data)) as data 
-    from entity join (select skill.id, skill.data || 
-    jsonb_build_object('id', skill.id) || jsonb_build_object('effects', jsonb_agg( effect.data || 
-    jsonb_build_object('id', effect.id))) as data, skill.entity_id from skill 
-    join effect on effect.skill_id = skill.id group by skill.id 
-    ) as skills on skills.entity_id = entity.id group by entity.id;`
+    const text = `
+        select
+            jsonb_build_object('id', entity.id, 'isFree', entity.isfree, 'cost', entity.cost) || entity.data || jsonb_build_object('skills', jsonb_agg(sk.data)) as data
+        from
+            entity
+        join skill as sk on
+            sk.entity_id = entity.id
+        where entity.released = true    
+        group by
+            entity.id;        
+    `
 
     try {
         const r = await pool.query(text)
@@ -69,14 +73,13 @@ export const login = async (req: Request, res: Response) => {
     left join user_rank as ur 
         on u.user_rank_id = ur.id
     where u.username = $1;`
-
     try {
         const data = await pool.query(text, [req.body.username])
         const user = data.rows[0]
-        if(data.rowCount === 0) return res.json({ success: false })
+        if (data.rowCount === 0) return res.json({ success: false })
 
         const match = await compare(req.body.password, user.passhash)
-        
+
         if (match) {
             delete user.passhash
             const token = sign({
@@ -124,34 +127,34 @@ export const user = async (req: Request, res: Response) => {
 
 }
 
-export const uploadAvatar = async (req:Request, res:Response) => {
+export const uploadAvatar = async (req: Request, res: Response) => {
     const id = Number(req.params.id)
-    const filename =  id * 100
-    const file:any = req.files.file
+    const filename = id * 100
+    const file: any = req.files.file
     const p = join(process.cwd(), `/public/img/avatars/${filename}.jpg`)
-    
+
     try {
         await file.mv(p)
         await pool.query("UPDATE users SET avatar = $1 where id = $2", [
             `${filename}.jpg`,
             id
         ])
-        return res.status(200).json({success:true})
-    }catch(err){
+        return res.status(200).json({ success: true })
+    } catch (err) {
         res.status(501).end()
         throw (err)
     }
 
-} 
+}
 
-export const defaultAvatar = async(req:Request, res:Response) => {
+export const defaultAvatar = async (req: Request, res: Response) => {
     const filename = req.params.filename + '.jpg'
     const id = Number(req.params.id)
     try {
         await pool.query("UPDATE users SET avatar = $1 where id = $2", [filename, id])
-        return res.status(200).json({success:true})
-    } catch(err){
-        return res.status(500).json({success:false})
+        return res.status(200).json({ success: true })
+    } catch (err) {
+        return res.status(500).json({ success: false })
     }
 }
 

@@ -73,6 +73,7 @@ const generateGuest = () => {
             maxStreak: 0,
             seasonRank: "Rookie",
             seasonLevel: 0
-        }
+        },
+        "unlocked":[Number]
     }
 }
