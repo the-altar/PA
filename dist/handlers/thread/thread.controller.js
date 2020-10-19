@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postComment = exports.updateThread = exports.postThread = exports.findThread = exports.news = void 0;
+exports.getPosts = exports.postComment = exports.updateThread = exports.postThread = exports.findThread = exports.news = void 0;
 const db_1 = require("../../db");
 exports.news = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const text = `
@@ -78,10 +78,29 @@ exports.postComment = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const sql = `UPDATE thread SET post_count = post_count + 1 WHERE id = $1`;
     try {
         yield db_1.pool.query(text, req.body);
-        yield db_1.pool.query(sql, [req.body[3]]);
+        yield db_1.pool.query(sql, [req.body[2]]);
+        return res.status(200).json({ success: true });
     }
     catch (err) {
         res.status(501).end();
+        throw (err);
+    }
+});
+exports.getPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const limit = Number(req.params.limit);
+    const threadId = Number(req.params.id);
+    const sql = `
+        select post.id, post."content", post.created_at, jsonb_build_object('username', users.username, 'rank', user_rank."name", 'avatar', users.avatar) as "author"  from post 
+        join users on post.author = users.id 
+        join user_rank on user_rank.id = users.user_rank_id
+        where post.thread_id = $1 and post.id > $2 and post.id < $3;
+    `;
+    try {
+        const data = yield db_1.pool.query(sql, [threadId, (limit - 50), limit]);
+        return res.status(200).json(data.rows);
+    }
+    catch (err) {
+        res.status(501);
         throw (err);
     }
 });

@@ -1,3 +1,4 @@
+import { json } from "body-parser"
 import { Request, Response } from "express"
 import { pool } from "../../db"
 
@@ -72,9 +73,29 @@ export const postComment = async (req: Request, res: Response) => {
     const sql = `UPDATE thread SET post_count = post_count + 1 WHERE id = $1`
     try {
         await pool.query(text, req.body)
-        await pool.query(sql, [req.body[3]])
+        await pool.query(sql, [req.body[2]])
+        return res.status(200).json({success: true})
     } catch (err) {
         res.status(501).end()
         throw (err)
     }
 }
+
+export const getPosts = async (req: Request, res: Response) => {
+    const limit = Number(req.params.limit)
+    const threadId = Number(req.params.id)
+
+    const sql = `
+        select post.id, post."content", post.created_at, jsonb_build_object('username', users.username, 'rank', user_rank."name", 'avatar', users.avatar) as "author"  from post 
+        join users on post.author = users.id 
+        join user_rank on user_rank.id = users.user_rank_id
+        where post.thread_id = $1 and post.id > $2 and post.id < $3;
+    `
+    try {
+        const data = await pool.query(sql, [threadId, (limit - 50), limit])
+        return res.status(200).json(data.rows)
+    } catch (err) {
+        res.status(501)
+        throw (err)
+    }
+} 
