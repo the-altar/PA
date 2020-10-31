@@ -5,7 +5,8 @@ export enum memberRank {
 export enum effectType {
     Damage, Invulnerability, DamageReduction, CooldownIncreasal, CooldownReduction, Healing,
     Stun, HealthDrain, EnergyRemoval, EnergyGain, EnergySteal, SkillTargetMod, Counter, IncreaseDamageTaken,
-    DecreaseDamageTaken, EffectRemoval, DamageIncreasal, AbsorbDamage, AlterEffectValue, None, ResetCooldown
+    DecreaseDamageTaken, EffectRemoval, DamageIncreasal, AbsorbDamage, AlterEffectValue, None, ResetCooldown,
+    DestructibleDefense
 }
 
 export enum activationType {
@@ -17,7 +18,7 @@ export enum targetType {
 }
 
 export enum effectTargetBehavior {
-    Default, OnlyOne, AllOthers, IfEnemy, IfAlly, ifSelf, Random
+    Default, OnlyOne, AllOthers, IfEnemy, IfAlly, ifSelf, Random, First, Second, Third, Fourth, Fifth, Sixth
 }
 
 export enum DamageType {
@@ -29,7 +30,7 @@ export enum Types {
 }
 
 export enum BuffTypes {
-    Invulnerability, CooldownReduction, DecreaseDamageTaken, DamageIncreasal, AbsorbDamage
+    Invulnerability, CooldownReduction, DecreaseDamageTaken, DamageIncreasal, AbsorbDamage, DestructibleDefense
 }
 
 export enum DebuffTypes {

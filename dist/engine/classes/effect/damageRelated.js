@@ -13,12 +13,18 @@ class Damage extends base_1.Effect {
         const { increasal } = char.getDebuffs().getIncreasedDamage({ damageType: this.damageType, skillType: origin.getTypes()[0] });
         const { decreased } = char.getBuffs().getDecreaseDamageTaken({ damageType: this.damageType, skillType: origin.getTypes()[0] });
         const { conversionRate } = char.getBuffs().getAbsorbDamage({ skillType: origin.getTypes()[0], damageType: this.damageType });
-        const damageVal = Number(this.altValue) || this.value;
+        let destructibleDefense = char.getBuffs().destructibleDefense || 0;
+        let damageVal = Number(this.altValue) || this.value;
         let damage = (damageVal - ((reduction + decreased) - increasal)) * this.calculateDamageBonus(origin, char);
-        if (damage < 0)
-            damage = 0;
+        damage = (Math.round(damage / 5) * 5);
+        if (destructibleDefense > 0) {
+            const ogDamage = damage;
+            damage -= destructibleDefense;
+            damage = Math.max(0, damage);
+            char.getBuffs().destructibleDefense = Math.max(0, (destructibleDefense - ogDamage));
+        }
         const absorbed = damage * (conversionRate / 100);
-        const hp = char.geHitPoints() - (Math.round(damage / 5) * 5) + Math.round(absorbed / 5) * 5;
+        const hp = char.geHitPoints() - damage + Math.round(absorbed / 5) * 5;
         char.setHitPoints(hp);
         if (char.isKnockedOut()) {
             world.executeSkills(enums_1.activationType.Immediate, enums_1.triggerClauseType.onKnockOut);

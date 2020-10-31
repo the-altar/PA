@@ -11,7 +11,7 @@ export class Character {
     public name: string
     private facepic: string
     private description: string
-    public banner: string 
+    public banner: string
     private allies: Array<number>
     private enemies: Array<number>
     private id: number
@@ -100,7 +100,7 @@ export class Character {
         return this.energyGain
     }
 
-    public getOwner(): number{
+    public getOwner(): number {
         return Number(Object.keys(this.belongs)[0])
     }
 
@@ -129,18 +129,18 @@ export class Character {
         }
     }
 
-    public getCopySkillByIndex(index:number):Skill {
+    public getCopySkillByIndex(index: number): Skill {
         const newObj = JSON.parse(JSON.stringify(this.skills[index]))
         return new Skill(newObj, this.id)
     }
 
-    public getRealSkillByIndex(index:number): Skill {
+    public getRealSkillByIndex(index: number): Skill {
         return this.skills[index]
     }
 
-    public getRealSkillById(id:number): Skill {
-        for(const skill of this.skills){
-            if(skill.getId() === id) return skill
+    public getRealSkillById(id: number): Skill {
+        for (const skill of this.skills) {
+            if (skill.getId() === id) return skill
         }
     }
 
@@ -170,24 +170,27 @@ export class Character {
         })
     }
 
-    public setBuff(params:any) {
+    public setBuff(params: any) {
         const { buffType } = params
         switch (buffType) {
             case BuffTypes.Invulnerability: {
                 this.buffs.setInvulnerability(params)
-            }break;
+            } break;
             case BuffTypes.CooldownReduction: {
                 this.buffs.setCooldownReduction(params)
-            }break;
+            } break;
             case BuffTypes.DecreaseDamageTaken: {
                 this.buffs.setDecreaseDamageTaken(params)
-            }break;
-            case BuffTypes.DamageIncreasal:{
+            } break;
+            case BuffTypes.DamageIncreasal: {
                 this.buffs.setDamageIncreasal(params)
-            }break;
-            case BuffTypes.AbsorbDamage:{
+            } break;
+            case BuffTypes.AbsorbDamage: {
                 this.buffs.setAbsorbDamage(params)
-            }break;
+            } break;
+            case BuffTypes.DestructibleDefense: {
+                this.buffs.setDestructibleDefense(params.value)
+            }
         }
     }
 
@@ -198,17 +201,17 @@ export class Character {
             } break;
             case DebuffTypes.CooldownIncreasal: {
                 this.debuffs.setCooldownIncreasal(params)
-            }break;
+            } break;
             case DebuffTypes.Stun: {
                 this.debuffs.setStun(params)
-            }break;
+            } break;
             case DebuffTypes.IncreaseDamageTaken: {
                 this.debuffs.setIncreasedDamage(params)
-            }break;
+            } break;
         }
     }
 
-    public isInvulnerable(types: Array<Types>, eType:effectType): boolean {
+    public isInvulnerable(types: Array<Types>, eType: effectType): boolean {
         return this.buffs.isInvulnerable(types, eType)
     }
 
@@ -252,21 +255,21 @@ export class Character {
         return this.debuffs.isStunned(Types.Any)
     }
 
-    public getSkills():Array<Skill>{
+    public getSkills(): Array<Skill> {
         return this.skills
     }
 
-    public clearSkillMods(){
-        for(const skill of this.skills){
+    public clearSkillMods() {
+        for (const skill of this.skills) {
             skill.clearMods()
         }
     }
 
-    public addNotification(data:{msg:string, id:number, skillpic:string, skillName:string}){
+    public addNotification(data: { msg: string, id: number, skillpic: string, skillName: string }) {
         this.notifications.push(new Notification(data))
     }
 
-    public clearNotifications(){
+    public clearNotifications() {
         this.notifications = []
     }
 }

@@ -16,6 +16,7 @@ export class Buffs {
     decreaseDamageTaken: { [x: string]: { [x: string]: number } }
     damageIncreasal: { [x: string]: { [x: string]: number } }
     absorbDamage: { [x: string]: { [x: string]: number } }
+    destructibleDefense: number
 
     constructor() {
         this.invulnerability = {}
@@ -23,6 +24,7 @@ export class Buffs {
         this.decreaseDamageTaken = {}
         this.damageIncreasal = {}
         this.absorbDamage = {}
+        this.destructibleDefense = 0;
     }
 
     public setInvulnerability(params: iBuffParams) {
@@ -57,7 +59,7 @@ export class Buffs {
             decreased: 0,
             hasBeenDecreased: false
         }
-        
+
         if (this.decreaseDamageTaken[Types.Any] !== undefined) {
             res.decreased += this.decreaseDamageTaken[Types.Any][damageType] || 0
             res.decreased += this.decreaseDamageTaken[Types.Any][DamageType.True] || 0
@@ -68,7 +70,7 @@ export class Buffs {
             if (this.decreaseDamageTaken[skillType] !== undefined) {
 
                 res.decreased += this.decreaseDamageTaken[skillType][DamageType.True] || 0
-                
+
                 if (this.decreaseDamageTaken[skillType][damageType] !== undefined) {
                     res.decreased += this.decreaseDamageTaken[skillType][damageType] || 0
                     res.hasBeenDecreased = true
@@ -192,6 +194,16 @@ export class Buffs {
 
     public clearAbsorbDamage() {
         this.absorbDamage = {}
+    }
+
+    public clearDestructibleDefense() {}
+
+    public setDestructibleDefense(dd: number) {
+        this.destructibleDefense += dd;
+    }
+    
+    public getDestructibleDefense() {
+        return this.destructibleDefense
     }
 }
 

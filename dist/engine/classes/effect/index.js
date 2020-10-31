@@ -23,6 +23,7 @@ const skillTargetMod_1 = require("./skillTargetMod");
 const counter_1 = require("./counter");
 const effectRemoval_1 = require("./effectRemoval");
 const alterEffectValue_1 = require("./alterEffectValue");
+const destructibleDefense_1 = require("./destructibleDefense");
 __exportStar(require("./base"), exports);
 exports.effectFactory = function (effect, caster) {
     switch (effect.type) {
@@ -82,6 +83,9 @@ exports.effectFactory = function (effect, caster) {
         }
         case enums_1.effectType.ResetCooldown: {
             return new cooldownRelated_1.ResetCooldown(effect, caster);
+        }
+        case enums_1.effectType.DestructibleDefense: {
+            return new destructibleDefense_1.DestructibleDefense(effect, caster);
         }
         default: {
             return new base_1.Effect(effect, caster);

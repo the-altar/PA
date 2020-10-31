@@ -10,6 +10,7 @@ import { SkillTargetMod } from "./skillTargetMod"
 import { Counter } from "./counter"
 import { EffectRemoval } from "./effectRemoval"
 import { AlterEffectValue } from "./alterEffectValue"
+import { DestructibleDefense } from "./destructibleDefense"
 export * from "./base"
 
 export const effectFactory = function (effect: any, caster: number): Effect {
@@ -70,7 +71,10 @@ export const effectFactory = function (effect: any, caster: number): Effect {
         }
         case effectType.ResetCooldown:{
             return new ResetCooldown(effect, caster);
-        }        
+        }   
+        case effectType.DestructibleDefense:{
+            return new DestructibleDefense(effect, caster);
+        }     
         default: {
             return new Effect(effect, caster)
         }

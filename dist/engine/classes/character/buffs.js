@@ -10,6 +10,7 @@ class Buffs {
         this.decreaseDamageTaken = {};
         this.damageIncreasal = {};
         this.absorbDamage = {};
+        this.destructibleDefense = 0;
     }
     setInvulnerability(params) {
         const { skillType } = params;
@@ -157,6 +158,13 @@ class Buffs {
     }
     clearAbsorbDamage() {
         this.absorbDamage = {};
+    }
+    clearDestructibleDefense() { }
+    setDestructibleDefense(dd) {
+        this.destructibleDefense += dd;
+    }
+    getDestructibleDefense() {
+        return this.destructibleDefense;
     }
 }
 exports.Buffs = Buffs;

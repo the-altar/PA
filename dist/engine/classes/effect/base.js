@@ -23,6 +23,7 @@ class Effect {
         this.activate = data.activate || true;
         this.activationType = data.activationType || enums_1.activationType.Immediate;
         this.altValue = data.altValue || null;
+        this.terminateSkill = data.terminateSkill || null;
         this.mods = data.mods || {
             increment: {
                 value: data.increment || 0,
@@ -181,6 +182,43 @@ class Effect {
                             this.functionality(char, origin, world);
                         }
                         t.push(index);
+                    }
+                }
+                break;
+            case enums_1.effectTargetBehavior.First:
+                {
+                    const char = world.getCharactersByIndex([targets[0]])[0];
+                    if (char !== undefined && !char.isKnockedOut()) {
+                        if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
+                            this.functionality(char, origin, world);
+                        }
+                        t.push(targets[0]);
+                    }
+                }
+                break;
+            case enums_1.effectTargetBehavior.Second:
+                {
+                    if (targets.length < 2)
+                        break;
+                    const char = world.getCharactersByIndex([targets[1]])[0];
+                    if (!char.isKnockedOut()) {
+                        if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
+                            this.functionality(char, origin, world);
+                        }
+                        t.push(targets[1]);
+                    }
+                }
+                break;
+            case enums_1.effectTargetBehavior.Third:
+                {
+                    if (targets.length < 3)
+                        break;
+                    const char = world.getCharactersByIndex([targets[2]])[0];
+                    if (!char.isKnockedOut()) {
+                        if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
+                            this.functionality(char, origin, world);
+                        }
+                        t.push(targets[2]);
                     }
                 }
                 break;

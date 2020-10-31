@@ -31,6 +31,7 @@ var effectType;
     effectType[effectType["AlterEffectValue"] = 18] = "AlterEffectValue";
     effectType[effectType["None"] = 19] = "None";
     effectType[effectType["ResetCooldown"] = 20] = "ResetCooldown";
+    effectType[effectType["DestructibleDefense"] = 21] = "DestructibleDefense";
 })(effectType = exports.effectType || (exports.effectType = {}));
 var activationType;
 (function (activationType) {
@@ -67,6 +68,12 @@ var effectTargetBehavior;
     effectTargetBehavior[effectTargetBehavior["IfAlly"] = 4] = "IfAlly";
     effectTargetBehavior[effectTargetBehavior["ifSelf"] = 5] = "ifSelf";
     effectTargetBehavior[effectTargetBehavior["Random"] = 6] = "Random";
+    effectTargetBehavior[effectTargetBehavior["First"] = 7] = "First";
+    effectTargetBehavior[effectTargetBehavior["Second"] = 8] = "Second";
+    effectTargetBehavior[effectTargetBehavior["Third"] = 9] = "Third";
+    effectTargetBehavior[effectTargetBehavior["Fourth"] = 10] = "Fourth";
+    effectTargetBehavior[effectTargetBehavior["Fifth"] = 11] = "Fifth";
+    effectTargetBehavior[effectTargetBehavior["Sixth"] = 12] = "Sixth";
 })(effectTargetBehavior = exports.effectTargetBehavior || (exports.effectTargetBehavior = {}));
 var DamageType;
 (function (DamageType) {
@@ -104,6 +111,7 @@ var BuffTypes;
     BuffTypes[BuffTypes["DecreaseDamageTaken"] = 2] = "DecreaseDamageTaken";
     BuffTypes[BuffTypes["DamageIncreasal"] = 3] = "DamageIncreasal";
     BuffTypes[BuffTypes["AbsorbDamage"] = 4] = "AbsorbDamage";
+    BuffTypes[BuffTypes["DestructibleDefense"] = 5] = "DestructibleDefense";
 })(BuffTypes = exports.BuffTypes || (exports.BuffTypes = {}));
 var DebuffTypes;
 (function (DebuffTypes) {

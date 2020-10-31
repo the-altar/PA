@@ -31,7 +31,7 @@ class App {
             .use(body_parser_1.default.urlencoded({ extended: true }))
             .use(express_1.default.static('public', { maxAge: "10d" }))
             .use(express_1.default.static('public/main', { maxAge: '7d' }))
-            .use('/game', express_1.default.static('public/game', { maxAge: '7d' }));
+            .use('/game', express_1.default.static('public/game' /*, { maxAge: '7d' }*/));
     }
     routes() {
         this.app.use("/user", user_1.userRouter);

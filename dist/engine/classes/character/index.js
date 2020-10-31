@@ -163,6 +163,9 @@ class Character {
                     this.buffs.setAbsorbDamage(params);
                 }
                 break;
+            case enums_1.BuffTypes.DestructibleDefense: {
+                this.buffs.setDestructibleDefense(params.value);
+            }
         }
     }
     setDebuff(params) {

@@ -30,7 +30,8 @@ export class Effect {
     protected caster: number
     protected targets: Array<number>
     protected terminate: boolean
-    public activate:boolean
+    protected terminateSkill: boolean
+    public activate: boolean
 
     constructor(data: any, caster: number) {
         this.value = data.value
@@ -51,6 +52,7 @@ export class Effect {
         this.activate = data.activate || true
         this.activationType = data.activationType || activationType.Immediate
         this.altValue = data.altValue || null
+        this.terminateSkill = data.terminateSkill || null
         this.mods = data.mods || {
             increment: {
                 value: data.increment || 0,
@@ -68,7 +70,7 @@ export class Effect {
         this.altValue = value
     }
 
-    public setIncrement(value:number){
+    public setIncrement(value: number) {
         this.mods.increment.value = value
     }
 
@@ -135,14 +137,14 @@ export class Effect {
             return this.tickOn()
         }
         this.duration--
-        const {terminate, activate} = this.tickOn()
-        if(terminate) this.effectConclusion()
-        return {terminate, activate}
+        const { terminate, activate } = this.tickOn()
+        if (terminate) this.effectConclusion()
+        return { terminate, activate }
     }
 
     public execute(targets: Array<number>, world: Arena, origin: Skill, shouldApply: boolean) {
         const t = []
-        
+
         switch (this.behavior) {
             case effectTargetBehavior.Default: {
                 for (const i of targets) {
@@ -221,13 +223,45 @@ export class Effect {
                     t.push(index)
                 }
             } break;
+
+            case effectTargetBehavior.First: {
+                const char = world.getCharactersByIndex([targets[0]])[0]
+                if (char!==undefined && !char.isKnockedOut()) {
+                    if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
+                        this.functionality(char, origin, world)
+                    }
+                    t.push(targets[0])
+                }
+            } break;
+
+            case effectTargetBehavior.Second: {
+                if(targets.length < 2) break;
+                const char = world.getCharactersByIndex([targets[1]])[0]
+                if (!char.isKnockedOut()) {
+                    if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
+                        this.functionality(char, origin, world)
+                    }
+                    t.push(targets[1])
+                }
+            } break;
+
+            case effectTargetBehavior.Third: {
+                if(targets.length < 3 ) break;
+                const char = world.getCharactersByIndex([targets[2]])[0]
+                if (!char.isKnockedOut()) {
+                    if (shouldApply && this.activate && !char.isInvulnerable(origin.getTypes(), this.type)) {
+                        this.functionality(char, origin, world)
+                    }
+                    t.push(targets[2])
+                }
+            } break;
         }
 
-        if(this.activate && shouldApply) {
+        if (this.activate && shouldApply) {
             if (this.mods.increment.isMultiplier) this.value *= this.mods.increment.value
             else this.value += this.mods.increment.value
         }
-        
+
         this.setTargets(t)
     }
 
@@ -239,8 +273,8 @@ export class Effect {
         this.message = "This character is being targeted"
     }
 
-    protected effectConclusion() { 
-        
+    protected effectConclusion() {
+
     }
 
     public getTargets() {

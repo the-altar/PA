@@ -6,7 +6,6 @@ import { Arena } from "../../arena";
 
 export class Damage extends Effect {
     private damageType: DamageType
-
     constructor(data: any, caster: number) {
         super(data, caster)
         this.damageType = data.damageType
@@ -16,14 +15,23 @@ export class Damage extends Effect {
         const reduction = this.getDamageReduction(world, origin)
         const { increasal } = char.getDebuffs().getIncreasedDamage({ damageType: this.damageType, skillType: origin.getTypes()[0] })
         const { decreased } = char.getBuffs().getDecreaseDamageTaken({ damageType: this.damageType, skillType: origin.getTypes()[0] })
-        const { conversionRate } = char.getBuffs().getAbsorbDamage({skillType:origin.getTypes()[0], damageType:this.damageType})
-
-        const damageVal = Number(this.altValue) || this.value
+        const { conversionRate } = char.getBuffs().getAbsorbDamage({ skillType: origin.getTypes()[0], damageType: this.damageType })
+        let destructibleDefense = char.getBuffs().destructibleDefense || 0;
+        let damageVal = Number(this.altValue) || this.value
         let damage = (damageVal - ((reduction + decreased) - increasal)) * this.calculateDamageBonus(origin, char)
-        if (damage < 0) damage = 0        
-        const absorbed = damage * (conversionRate/100)
+        damage = (Math.round(damage / 5) * 5)
 
-        const hp = char.geHitPoints() - (Math.round(damage / 5) * 5) + Math.round(absorbed / 5) * 5
+        if (destructibleDefense > 0) {
+            const ogDamage = damage
+            damage -= destructibleDefense
+            damage = Math.max(0, damage)
+            char.getBuffs().destructibleDefense = Math.max(0, (destructibleDefense - ogDamage))
+        }
+
+
+        const absorbed = damage * (conversionRate / 100)
+
+        const hp = char.geHitPoints() - damage + Math.round(absorbed / 5) * 5
         char.setHitPoints(hp)
 
         if (char.isKnockedOut()) {
@@ -43,7 +51,7 @@ export class Damage extends Effect {
     }
 
     protected generateToolTip() {
-        
+
         const damageVal = Number(this.altValue) || this.value
 
         if (this.delay > 0) {
@@ -52,7 +60,7 @@ export class Damage extends Effect {
             this.message = `this.character will take ${damageVal} damage`
         }
     }
-    
+
 }
 
 export class DamageReduction extends Effect {
@@ -75,9 +83,9 @@ export class DamageReduction extends Effect {
         })
     }
 
-    protected generateToolTip() {   
+    protected generateToolTip() {
         const damageVal = Number(this.altValue) || this.value
-        
+
         if (this.delay > 0) {
             this.message = `This character will deal ${damageVal} less damage in ${this.delay} turns`
         } else {
@@ -186,7 +194,7 @@ export class AbsorbDamage extends Effect {
     }
 
     protected generateToolTip() {
-        if(this.value === 100) this.message = `This character takes no damage from ${Types[this.skillType]} skills`
+        if (this.value === 100) this.message = `This character takes no damage from ${Types[this.skillType]} skills`
         else this.message = `This character will be healed by ${Types[this.skillType]} skills`
     }
 }
