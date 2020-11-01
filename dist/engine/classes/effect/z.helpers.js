@@ -9,6 +9,7 @@ exports.isHarmful = function (EffectType) {
         case enums_1.effectType.EnergySteal: return true;
         case enums_1.effectType.EnergyRemoval: return true;
         case enums_1.effectType.HealthDrain: return true;
+        case enums_1.effectType.Stun: return true;
         case enums_1.effectType.IncreaseDamageTaken: return true;
         case enums_1.effectType.CooldownIncreasal: return true;
         case enums_1.effectType.None: return true;
