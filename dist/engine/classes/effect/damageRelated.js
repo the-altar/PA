@@ -44,7 +44,7 @@ class Damage extends base_1.Effect {
             this.message = `this character will take ${damageVal} damage for ${this.duration} turns in ${this.delay} turns`;
         }
         else {
-            this.message = `this.character will take ${damageVal} damage`;
+            this.message = `this character will take ${damageVal} damage`;
         }
     }
 }

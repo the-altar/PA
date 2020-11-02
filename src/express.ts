@@ -31,7 +31,7 @@ export class App {
             .use(bodyparser.urlencoded({ extended: true }))
             .use(express.static('public', { maxAge: "10d" }))
             .use(express.static('public/main', { maxAge: '7d' }))
-            .use('/game', express.static('public/game'/*, { maxAge: '7d' }*/))
+            .use('/game', express.static('public/game', { maxAge: '7d' }))
     }
 
     private routes(): void {

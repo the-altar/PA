@@ -57,7 +57,7 @@ export class Damage extends Effect {
         if (this.delay > 0) {
             this.message = `this character will take ${damageVal} damage for ${this.duration} turns in ${this.delay} turns`
         } else {
-            this.message = `this.character will take ${damageVal} damage`
+            this.message = `this character will take ${damageVal} damage`
         }
     }
 

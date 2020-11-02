@@ -22,14 +22,17 @@ class SkillTargetMod extends base_1.Effect {
                 skill.setTargetMod(this.newTarget);
             }
         }
-        char.addNotification({
+        this.affectedSkillName = s.name;
+        /*char.addNotification({
             msg: generateMessage(this.specificSkillIndex, this.newTarget, s),
             id: origin.getId(),
             skillpic: origin.skillpic,
             skillName: origin.name
-        });
+        })*/
     }
-    generateToolTip() { }
+    generateToolTip() {
+        this.message = generateMessage(this.specificSkillIndex, this.newTarget, this.affectedSkillName);
+    }
 }
 exports.SkillTargetMod = SkillTargetMod;
 function generateMessage(specificIndex, tType, skill) {
@@ -52,6 +55,6 @@ function generateMessage(specificIndex, tType, skill) {
     if (!specificIndex)
         return `This character's skills will now target ${m}'`;
     else
-        return `This character will now target ${m} with ${skill.name}`;
+        return `This character will now target ${m} with ${skill}`;
 }
 //# sourceMappingURL=skillTargetMod.js.map
